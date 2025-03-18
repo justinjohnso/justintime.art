@@ -49,6 +49,8 @@ const config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
+        fadeOut: 'fadeOut 0.5s ease-in-out',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -92,10 +94,17 @@ const config = {
         success: 'hsl(var(--success))',
         error: 'hsl(var(--error))',
         warning: 'hsl(var(--warning))',
+        primary: '#1a202c',
+        secondary: '#2d3748',
+        accent: '#4a5568',
+        background: '#f7fafc',
+        text: '#2d3748',
       },
       fontFamily: {
         mono: ['var(--font-geist-mono)'],
         sans: ['var(--font-geist-sans)'],
+        sans: ['Satoshi', 'sans-serif'],
+        serif: ['Merriweather', 'serif'],
       },
       keyframes: {
         'accordion-down': {
@@ -106,6 +115,33 @@ const config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+        fadeOut: {
+          '0%': { opacity: 1 },
+          '100%': { opacity: 0 },
+        },
+      },
+      spacing: {
+        1: '0.25rem',
+        2: '0.5rem',
+        3: '0.75rem',
+        4: '1rem',
+        5: '1.25rem',
+        6: '1.5rem',
+        8: '2rem',
+        10: '2.5rem',
+        12: '3rem',
+        16: '4rem',
+        20: '5rem',
+        24: '6rem',
+        32: '8rem',
+        40: '10rem',
+        48: '12rem',
+        56: '14rem',
+        64: '16rem',
       },
       typography: () => ({
         DEFAULT: {

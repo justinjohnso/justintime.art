@@ -147,6 +147,7 @@ export interface UserAuthOperations {
 export interface Page {
   id: number;
   title: string;
+  description?: string | null;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     richText?: {
@@ -213,6 +214,7 @@ export interface Page {
 export interface Post {
   id: number;
   title: string;
+  description?: string | null;
   heroImage?: (number | null) | Media;
   content: {
     root: {
@@ -275,6 +277,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -352,6 +355,7 @@ export interface Media {
 export interface Category {
   id: number;
   title: string;
+  description?: string | null;
   slug?: string | null;
   slugLock?: boolean | null;
   parent?: (number | null) | Category;
@@ -373,6 +377,7 @@ export interface Category {
 export interface User {
   id: number;
   name?: string | null;
+  bio?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -985,6 +990,7 @@ export interface PayloadMigration {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   hero?:
     | T
     | {
@@ -1120,6 +1126,7 @@ export interface FormBlockSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   heroImage?: T;
   content?: T;
   relatedPosts?: T;
@@ -1152,6 +1159,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1244,6 +1252,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   slug?: T;
   slugLock?: T;
   parent?: T;
@@ -1264,6 +1273,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  bio?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

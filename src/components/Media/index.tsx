@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-
+import { cn } from '../../utilities/cn' // Import the cn utility
 import type { Props } from './types'
 
 import { ImageMedia } from './ImageMedia'
@@ -19,7 +19,11 @@ export const Media: React.FC<Props> = (props) => {
           }
         : {})}
     >
-      {isVideo ? <VideoMedia {...props} /> : <ImageMedia {...props} />}
+      <div
+        className={cn('transition-transform transform hover:scale-105 focus:scale-105', className)}
+      >
+        {isVideo ? <VideoMedia {...props} /> : <ImageMedia {...props} />}
+      </div>
     </Tag>
   )
 }

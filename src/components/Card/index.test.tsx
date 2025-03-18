@@ -43,9 +43,9 @@ const mockRouter = {
   locale: 'en',
   locales: ['en'],
   defaultLocale: 'en',
-};
+}
 
-useRouter.mockImplementation(() => mockRouter);
+useRouter.mockImplementation(() => mockRouter)
 
 // For better type safety, import types from your payload-types
 import type { Category } from '../../payload-types'
