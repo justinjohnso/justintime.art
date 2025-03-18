@@ -21,6 +21,11 @@ export const Categories: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'description',
+      type: 'textarea',
+      required: false,
+    },
     ...slugField(),
   ],
 }

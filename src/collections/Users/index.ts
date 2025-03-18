@@ -21,6 +21,11 @@ export const Users: CollectionConfig = {
       name: 'name',
       type: 'text',
     },
+    {
+      name: 'bio',
+      type: 'textarea',
+      required: false,
+    },
   ],
   timestamps: true,
 }
