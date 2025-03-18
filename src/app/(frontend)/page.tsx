@@ -8,19 +8,19 @@ const featuredProjects = [
   {
     title: 'The Tempest arcade controller',
     category: 'Fabrication',
-    image: '/tempest-controller.jpg',
+    image: '/image-post1.webp',
     href: '/work/the-tempest-arcade-controller',
   },
   {
     title: 'Look/Listen',
     category: 'Sound Design & Theatre',
-    image: '/look-listen.jpg',
+    image: '/image-post2.webp',
     href: '/work/look-listen',
   },
   {
     title: 'Finding Home',
     category: 'Sound Design & Installation',
-    image: '/finding-home.jpg',
+    image: '/image-post3.webp',
     href: '/work/finding-home',
   },
 ]

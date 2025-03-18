@@ -12,6 +12,9 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+// Remove these client-side imports - they can't be used in a Server Component
+// import { useRouter } from 'next/router';
+// import { useEffect, useState } from 'react';
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -108,3 +111,7 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
 
   return result.docs?.[0] || null
 })
+
+// Remove this entire component - if you need it, create a separate client component file
+// const DynamicPage = () => { ... }
+// export default DynamicPage; <-- This is causing the error
