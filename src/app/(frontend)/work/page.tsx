@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { Project as BaseProject, Category } from '@/payload-types'
+import ClientWrapper from '@/components/ClientWrapper'
 
 // Extend the Project type to include the missing fields
 interface Project extends BaseProject {
@@ -60,6 +61,7 @@ export default async function WorkPage() {
         <h1 className="text-3xl font-bold mb-6">My Work</h1>
         <p className="mb-4">Explore my projects and creative works.</p>
       </MotionWrapper>
+
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4">
           {/* Category filters */}
@@ -78,15 +80,10 @@ export default async function WorkPage() {
             </div>
           </MotionWrapper>
 
-          {/* Projects grid */}
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={container}
-            initial="hidden"
-            animate="show"
-          >
+          {/* Projects grid - use client component wrapper */}
+          <ClientWrapper>
             {projects.map((project, index) => (
-              <motion.div key={project.id || index} variants={item} className="group">
+              <div key={project.id || index} className="group">
                 <Link href={`/work/${project.slug}`} className="block">
                   <div className="overflow-hidden rounded-lg relative aspect-[4/3] mb-4">
                     {/* Safely handle media with type guard */}
@@ -109,9 +106,9 @@ export default async function WorkPage() {
                     <p className="text-sm text-gray-500">{project.metadata.year}</p>
                   )}
                 </Link>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </ClientWrapper>
         </div>
       </div>
     </div>
