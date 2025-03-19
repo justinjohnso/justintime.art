@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-white text-black`}>
+      <body className={`${inter.className} text-black`}>
         <CustomCursor />
         <NavBar />
         <main className="pt-16">{children}</main>

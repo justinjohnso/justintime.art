@@ -18,7 +18,7 @@ interface Project extends Omit<BaseProject, 'body' | 'links' | 'additionalImages
   additionalImages?: {
     image: Media
   }[]
-  links?: string // Rendered as HTML (or plain text)
+  links?: any // Rich text content just like body
 }
 
 export async function generateStaticParams() {
@@ -96,8 +96,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             <div className="project-info-card">
               <h3 className="font-medium text-lg mb-2">Links</h3>
               <div className="text-gray-600">
-                {/* Render links as HTML */}
-                <div dangerouslySetInnerHTML={{ __html: project.links }} />
+                <RichText data={project.links} enableGutter={false} />
               </div>
             </div>
           )}
