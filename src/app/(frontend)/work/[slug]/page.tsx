@@ -56,6 +56,23 @@ export async function generateStaticParams() {
 // Add this helper at the top of your file
 const safeString = (s: string | null | undefined): string => s ?? ''
 
+// Helper: split an array into chunks of the given size.
+const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
+  const chunks: T[][] = []
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize))
+  }
+  return chunks
+}
+
+// Decide the aspect ratio class based on the number of images in the row.
+const getAspectRatioClass = (count: number): string => {
+  if (count === 1) return 'aspect-[16/9]'
+  if (count === 2) return 'aspect-[3/2]'
+  if (count === 3) return 'aspect-square'
+  return 'aspect-square'
+}
+
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const payload = await getPayload({ config: configPromise })
 
@@ -115,6 +132,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
     row3Image = altImages[3] ?? null
     remainingAlt = altImages.slice(4)
   }
+
+  const rows = chunkArray(remainingAlt, 3)
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-16 pt-12">
@@ -224,50 +243,33 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       )}
 
       {/* Render Remaining Alternating Rows */}
-      {remainingAlt.length > 0 &&
-        (() => {
-          const rows = []
-          let remaining = remainingAlt
-          let evenRow = true
-          while (remaining.length > 0) {
-            const count = evenRow ? 3 : 2
-            rows.push(remaining.slice(0, count))
-            remaining = remaining.slice(count)
-            evenRow = !evenRow
-          }
-          return rows.map((row, idx) => (
-            <section key={idx} className="grid gap-0 mb-0">
-              <div
-                className={
-                  'grid gap-0 ' +
-                  (row.length === 1
-                    ? 'grid-cols-1'
-                    : row.length === 2
-                      ? 'grid-cols-2'
-                      : 'grid-cols-3')
-                }
-              >
-                {row.map((img, i) => (
-                  <a
-                    key={i}
-                    href={safeString(img.image.url)}
-                    data-lightbox="gallery"
-                    className="block group p-0 m-0"
-                  >
-                    <div className="relative aspect-square">
-                      <Image
-                        src={safeString(img.image.url)}
-                        alt={safeString(img.image.alt) || `${project.title} image`}
-                        fill
-                        className="object-cover transition-all duration-300 group-hover:opacity-90"
-                      />
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </section>
-          ))
-        })()}
+      {rows.map((row, rowIdx) => {
+        const gridColsClass =
+          row.length === 1 ? 'grid-cols-1' : row.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+        return (
+          <section key={rowIdx} className="grid gap-0 mb-0">
+            <div className={`grid ${gridColsClass} gap-0`}>
+              {row.map((img, colIdx) => (
+                <a
+                  key={colIdx}
+                  href={safeString(img.image.url)}
+                  data-lightbox="gallery"
+                  className="block group p-0 m-0"
+                >
+                  <div className={`relative ${getAspectRatioClass(row.length)}`}>
+                    <Image
+                      src={safeString(img.image.url)}
+                      alt={safeString(img.image.alt) || `${project.title} image`}
+                      fill
+                      className="object-cover transition-all duration-300 group-hover:opacity-90"
+                    />
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      })}
 
       {/* Project Navigation */}
       <ProjectNavigation

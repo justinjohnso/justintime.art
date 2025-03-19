@@ -21,105 +21,74 @@ interface ImageGridProps {
 const ImageGrid: React.FC<ImageGridProps> = ({ images, title }) => {
   if (!images || images.length === 0) return null
 
-  // Destructure first image after ensuring the array is non-empty.
-  const firstImage = images[0]!
-
-  // Single image – full width without any gap.
+  // Single image row: use 16:9 aspect ratio.
   if (images.length === 1) {
     return (
       <div className="animate-fade-in">
-        <div className="relative aspect-[16/10] md:aspect-[16/9]">
+        <div className="relative aspect-[16/9]">
           <Image
-            src={firstImage.image.url}
-            alt={firstImage.image.alt || `${title} image`}
+            src={images[0]!.image.url}
+            alt={images[0]!.image.alt || `${title} image`}
             fill
-            className="object-cover shadow-lg transition-all duration-300"
+            className="object-cover transition-all duration-300"
           />
         </div>
       </div>
     )
   }
 
+  // Two-image row: each image uses a 3:2 aspect ratio.
   if (images.length === 2) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-        <div className="animate-fade-in delay-100">
-          <div className="relative aspect-[3/4] md:aspect-[4/5]">
-            <Image
-              src={images[0]!.image.url}
-              alt={images[0]!.image.alt || `${title} image 1`}
-              fill
-              className="object-cover shadow-lg transition-all duration-300"
-            />
+        {images.map((img, index) => (
+          <div key={index} className="animate-fade-in delay-[100ms]">
+            <div className="relative aspect-[3/2]">
+              <Image
+                src={img.image.url}
+                alt={img.image.alt || `${title} image ${index + 1}`}
+                fill
+                className="object-cover transition-all duration-300"
+              />
+            </div>
           </div>
-        </div>
-        <div className="animate-fade-in delay-200">
-          <div className="relative aspect-[1/1] md:aspect-[4/3]">
-            <Image
-              src={images[1]!.image.url}
-              alt={images[1]!.image.alt || `${title} image 2`}
-              fill
-              className="object-cover shadow-lg transition-all duration-300"
-            />
-          </div>
-        </div>
+        ))}
       </div>
     )
   }
 
-  // Three images – 2+1 layout, no gaps between them.
+  // Three-image row: each image uses a square (1:1) aspect ratio.
   if (images.length === 3) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
-        <div className="md:col-span-8 animate-fade-in delay-100">
-          <div className="relative aspect-[16/9] md:aspect-[16/10]">
-            <Image
-              src={images[0]!.image.url}
-              alt={images[0]!.image.alt || `${title} image 1`}
-              fill
-              className="object-cover shadow-lg transition-all duration-300"
-            />
-          </div>
-        </div>
-        <div className="md:col-span-4 grid grid-cols-1 gap-0">
-          <div className="animate-fade-in delay-200">
-            <div className="relative aspect-[4/3]">
+      <div className="grid grid-cols-3 gap-0">
+        {images.map((img, index) => (
+          <div key={index} className="animate-fade-in delay-[100ms]">
+            <div className="relative aspect-square">
               <Image
-                src={images[1]!.image.url}
-                alt={images[1]!.image.alt || `${title} image 2`}
+                src={img.image.url}
+                alt={img.image.alt || `${title} image ${index + 1}`}
                 fill
-                className="object-cover shadow-lg transition-all duration-300"
+                className="object-cover transition-all duration-300"
               />
             </div>
           </div>
-          <div className="animate-fade-in delay-300">
-            <div className="relative aspect-[1/1]">
-              <Image
-                src={images[2]!.image.url}
-                alt={images[2]!.image.alt || `${title} image 3`}
-                fill
-                className="object-cover shadow-lg transition-all duration-300"
-              />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     )
   }
 
-  // For four or more images – a full collage grid with no gaps.
+  // For four or more images, fall back on a full grid.
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
-      {images.map((item, index) => (
-        <div key={index} className={`animate-fade-in delay-${((index % 5) + 1) * 100} group`}>
+      {images.map((img, index) => (
+        <div key={index} className="animate-fade-in group">
           <div className="relative w-full h-full">
             <Image
-              src={item.image.url}
-              alt={item.image.alt || `${title} image ${index + 1}`}
+              src={img.image.url}
+              alt={img.image.alt || `${title} image ${index + 1}`}
               fill
-              className="object-cover shadow-lg transition-all duration-300 group-hover:opacity-90"
+              className="object-cover transition-all duration-300 group-hover:opacity-90"
             />
-            <div className="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </div>
       ))}
