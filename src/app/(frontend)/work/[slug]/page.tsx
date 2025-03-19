@@ -69,8 +69,8 @@ const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
 const getAspectRatioClass = (count: number): string => {
   if (count === 1) return 'aspect-[16/9]'
   if (count === 2) return 'aspect-[3/2]'
-  if (count === 3) return 'aspect-square'
-  return 'aspect-square'
+  if (count === 3) return 'aspect-[4/3]'
+  return 'aspect-[4/3]'
 }
 
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
@@ -140,26 +140,30 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       {/* HERO SECTION – Text on left, hero image on right */}
       {project.image?.url && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-0 mb-0 items-stretch">
-          {/* Text Column – occupies 1/2 */}
-          <div className="md:col-span-1 relative flex flex-col justify-center mt-6 mr-6 mb-6 ml-0">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
-              {project.title}
-            </h1>
-            {(project.description || project.links) && (
-              <div className="payload-richtext m-0 p-0">
-                {project.description && (
-                  <p className="mb-0 text-base text-gray-600">{project.description}</p>
-                )}
-                {project.links && <RichText data={project.links} enableGutter={false} />}
-              </div>
-            )}
-            <div className="mt-2 flex space-x-4">
-              {project.year && (
-                <span className="text-sm uppercase tracking-wider">Year: {project.year}</span>
+          {/* Updated Hero Text Container */}
+          <div className="md:col-span-1 relative flex flex-col mt-6 mr-6 mb-6 ml-0">
+            {/* Flex container for the main text to be vertically centered */}
+            <div className="flex-1 flex flex-col justify-center">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
+                {project.title}
+              </h1>
+              {(project.description || project.links) && (
+                <div className="payload-richtext m-0 p-0">
+                  {project.description && (
+                    <p className="mb-0 text-base text-gray-600">{project.description}</p>
+                  )}
+                  {project.links && <RichText data={project.links} enableGutter={false} />}
+                </div>
               )}
+              <div className="mt-2 flex space-x-4">
+                {project.year && (
+                  <span className="text-sm uppercase tracking-wider">Year: {project.year}</span>
+                )}
+              </div>
             </div>
+            {/* The category tag remains at the bottom */}
             {project.category && typeof project.category !== 'number' && (
-              <div className="mt-auto text-xs uppercase tracking-wider text-gray-600">
+              <div className="text-xs uppercase tracking-wider text-gray-600">
                 {project.category.title}
               </div>
             )}
@@ -205,10 +209,10 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                 data-lightbox="gallery"
                 className="block group p-0 m-0"
               >
-                <div className="relative aspect-square">
+                <div className={`relative ${getAspectRatioClass(row2Images.length)}`}>
                   <Image
                     src={safeString(img.image.url)}
-                    alt={safeString(img.image.alt) || `${project.title} image ${index + 1}`}
+                    alt={safeString(img.image.alt) || `${project.title} image`}
                     fill
                     className="object-cover transition-all duration-300 group-hover:opacity-90"
                   />
@@ -234,10 +238,8 @@ export default async function ProjectPage({ params }: { params: { slug: string }
               className="object-cover transition-all duration-300 group-hover:opacity-90"
             />
           </a>
-          <div className="order-2">
-            <div className="prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 mr-0">
-              <RichText data={project.body} />
-            </div>
+          <div className="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
+            <RichText data={project.body} />
           </div>
         </section>
       )}

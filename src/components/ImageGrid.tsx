@@ -63,7 +63,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, title }) => {
       <div className="grid grid-cols-3 gap-0">
         {images.map((img, index) => (
           <div key={index} className="animate-fade-in delay-[100ms]">
-            <div className="relative aspect-square">
+            <div className="relative aspect-[4/3]">
               <Image
                 src={img.image.url}
                 alt={img.image.alt || `${title} image ${index + 1}`}

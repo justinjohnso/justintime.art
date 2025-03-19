@@ -1,7 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { NavBar } from '@/components/NavBar'
-import { CustomCursor } from '@/components/CustomCursor'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} text-black`}>
-        <CustomCursor />
         <NavBar />
         <main className="pt-16">{children}</main>
         <footer className="py-16 border-t mt-16">
