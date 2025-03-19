@@ -144,9 +144,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .project-info-card {
   background-color: #fff;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .prose {
@@ -275,4 +281,75 @@ h1, h2, h3, h4, h5, h6 {
 
 .gap-10 {
   gap: 2.5rem;
+}
+
+/* Collage layout image transitions */
+.project-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.project-image img {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.project-image:hover img {
+  transform: scale(1.04);
+}
+
+/* Staggered animation for image gallery */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.7s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* Back button with improved hover state */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  transition: gap 0.3s ease;
+  padding: 0.5rem 0;
+}
+
+.back-link:hover {
+  gap: 0.75rem;
+}
+
+.back-link svg {
+  transition: transform 0.3s ease;
+}
+
+.back-link:hover svg {
+  transform: translateX(-4px);
+}
+
+/* Support for mobile layouts */
+@media (max-width: 768px) {
+  .project-info-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .project-image {
+    margin-bottom: 1rem;
+  }
 }
