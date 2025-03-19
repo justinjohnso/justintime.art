@@ -183,7 +183,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             </a>
           )}
           <div className="order-2">
-            <div className="prose prose-base max-w-none text-gray-700">
+            <div className="prose prose-base max-w-none text-gray-700 mt-6 mb-6 ml-6 mr-0">
               <RichText data={project.body} />
             </div>
           </div>
