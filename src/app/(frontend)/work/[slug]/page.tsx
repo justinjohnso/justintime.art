@@ -53,6 +53,9 @@ export async function generateStaticParams() {
   }))
 }
 
+// Add this helper at the top of your file
+const safeString = (s: string | null | undefined): string => s ?? ''
+
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const payload = await getPayload({ config: configPromise })
 
@@ -92,6 +95,27 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   const thirdRowImage = validImages.length > 3 ? validImages[3] : null
   const remainingImages = validImages.slice(4)
 
+  // Partition alternate images, ensuring that if an image is missing we assign null (not undefined)
+  const altImages = validImages
+  const n = altImages.length
+  let row2Images: typeof altImages = []
+  let row3Image: (typeof altImages)[0] | null = null
+  let remainingAlt: typeof altImages = []
+
+  if (n === 1) {
+    row3Image = altImages[0] ?? null
+  } else if (n === 2) {
+    row3Image = altImages[0] ?? null
+    remainingAlt = altImages.slice(1)
+  } else if (n === 3) {
+    row2Images = altImages.slice(0, 2)
+    row3Image = altImages[2] ?? null
+  } else if (n >= 4) {
+    row2Images = altImages.slice(0, 3)
+    row3Image = altImages[3] ?? null
+    remainingAlt = altImages.slice(4)
+  }
+
   return (
     <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-16 pt-12">
       {/* HERO SECTION – Text on left, hero image on right */}
@@ -121,16 +145,16 @@ export default async function ProjectPage({ params }: { params: { slug: string }
               </div>
             )}
           </div>
-          {/* Hero Image Column – occupies 1/2 */}
+          {/* Hero Image Column – updated alt using nullish coalescing */}
           <a
-            href={project.image.url}
+            href={safeString(project.image?.url)}
             data-lightbox="gallery"
             className="md:col-span-1 block group p-0 m-0"
           >
             <div className="relative min-h-[350px] h-full">
               <Image
-                src={project.image.url}
-                alt={project.image.alt || project.title || ''}
+                src={safeString(project.image?.url)}
+                alt={safeString(project.image?.alt) || safeString(project.title)}
                 fill
                 priority
                 className="object-cover h-full transition-all duration-300"
@@ -142,68 +166,108 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         </section>
       )}
 
-      {/* SECOND ROW – Three additional images side-by-side with no gaps; slightly shorter vertical height */}
-      {threeImages.length === 3 && (
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-0 mb-0 items-stretch">
-          {threeImages.map((img, index) => (
-            <a
-              key={index}
-              href={img.image.url || '#'}
-              data-lightbox="gallery"
-              className="block group p-0 m-0"
-            >
-              <div className="relative min-h-[350px] h-full">
-                <Image
-                  src={img.image.url || ''}
-                  alt={img.image.alt || `${project.title} image ${index + 1}`}
-                  fill
-                  className="object-cover h-full transition-all duration-300 group-hover:opacity-90"
-                />
-              </div>
-            </a>
-          ))}
+      {/* Render Row 2 if defined */}
+      {row2Images.length > 0 && (
+        <section className="grid gap-0 mb-0">
+          <div
+            className={
+              'grid gap-0 ' +
+              (row2Images.length === 1
+                ? 'grid-cols-1'
+                : row2Images.length === 2
+                  ? 'grid-cols-2'
+                  : 'grid-cols-3')
+            }
+          >
+            {row2Images.map((img, index) => (
+              <a
+                key={index}
+                href={safeString(img.image.url)}
+                data-lightbox="gallery"
+                className="block group p-0 m-0"
+              >
+                <div className="relative aspect-square">
+                  <Image
+                    src={safeString(img.image.url)}
+                    alt={safeString(img.image.alt) || `${project.title} image ${index + 1}`}
+                    fill
+                    className="object-cover transition-all duration-300 group-hover:opacity-90"
+                  />
+                </div>
+              </a>
+            ))}
+          </div>
         </section>
       )}
 
-      {/* THIRD ROW – Image on left, text (body) on right */}
-      {project.body && (
+      {/* Render Row 3: Single alternate image with body text */}
+      {project.body && row3Image && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch mb-0">
-          {thirdRowImage && (
-            <a
-              href={thirdRowImage.image.url || '#'}
-              data-lightbox="gallery"
-              className="order-1 block group p-0 m-0 relative h-full min-h-[350px]"
-            >
-              <Image
-                src={thirdRowImage.image.url || ''}
-                alt={thirdRowImage.image.alt || `${project.title} secondary image`}
-                fill
-                className="object-cover transition-all duration-300 group-hover:opacity-90"
-              />
-            </a>
-          )}
+          <a
+            href={safeString(row3Image.image.url)}
+            data-lightbox="gallery"
+            className="block group p-0 m-0 relative h-full min-h-[350px]"
+          >
+            <Image
+              src={safeString(row3Image.image.url)}
+              alt={safeString(row3Image.image.alt) || `${project.title} secondary image`}
+              fill
+              className="object-cover transition-all duration-300 group-hover:opacity-90"
+            />
+          </a>
           <div className="order-2">
-            <div className="prose prose-base max-w-none text-gray-700 mt-6 mb-6 ml-6 mr-0">
+            <div className="prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 mr-0">
               <RichText data={project.body} />
             </div>
           </div>
         </section>
       )}
 
-      {/* FOURTH ROW – Collage grid of any remaining additional images */}
-      {remainingImages.length > 0 && (
-        <section className="mb-0">
-          <ImageGrid
-            images={remainingImages.map((img) => ({
-              image: {
-                url: img.image.url || '',
-                alt: img.image.alt || '',
-              },
-            }))}
-            title={project.title}
-          />
-        </section>
-      )}
+      {/* Render Remaining Alternating Rows */}
+      {remainingAlt.length > 0 &&
+        (() => {
+          const rows = []
+          let remaining = remainingAlt
+          let evenRow = true
+          while (remaining.length > 0) {
+            const count = evenRow ? 3 : 2
+            rows.push(remaining.slice(0, count))
+            remaining = remaining.slice(count)
+            evenRow = !evenRow
+          }
+          return rows.map((row, idx) => (
+            <section key={idx} className="grid gap-0 mb-0">
+              <div
+                className={
+                  'grid gap-0 ' +
+                  (row.length === 1
+                    ? 'grid-cols-1'
+                    : row.length === 2
+                      ? 'grid-cols-2'
+                      : 'grid-cols-3')
+                }
+              >
+                {row.map((img, i) => (
+                  <a
+                    key={i}
+                    href={safeString(img.image.url)}
+                    data-lightbox="gallery"
+                    className="block group p-0 m-0"
+                  >
+                    <div className="relative aspect-square">
+                      <Image
+                        src={safeString(img.image.url)}
+                        alt={safeString(img.image.alt) || `${project.title} image`}
+                        fill
+                        className="object-cover transition-all duration-300 group-hover:opacity-90"
+                      />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))
+        })()}
 
       {/* Project Navigation */}
       <ProjectNavigation
