@@ -36,6 +36,40 @@ export const Projects: CollectionConfig = {
       relationTo: 'categories',
       hasMany: false,
     },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Featured',
+    },
+    {
+      name: 'links',
+      type: 'richText',
+      label: 'Links',
+    },
+    {
+      name: 'yearCompleted',
+      type: 'number',
+      label: 'Year Completed',
+      min: 1900,
+      max: 2100,
+    },
+    {
+      name: 'body',
+      type: 'richText',
+      label: 'Body',
+    },
+    {
+      name: 'additionalImages',
+      type: 'array',
+      label: 'Additional Images',
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+        },
+      ],
+    },
     ...slugField(),
   ],
 }
