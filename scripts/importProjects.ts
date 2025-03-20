@@ -1,6 +1,6 @@
 /**
- * This is an example of a standalone script that loads in the Payload config
- * and uses the Payload Local API to query the database.
+ * This script imports projects from the formatted JSON file, ensuring media is
+ * properly referenced and categories are set correctly.
  */
 
 import 'dotenv/config'
@@ -48,33 +48,75 @@ async function getCategoryMapping(payload: any): Promise<Record<string, string>>
   return mapping
 }
 
+// Build a mapping of filename to media ID
+async function getMediaMapping(payload: any): Promise<Record<string, number>> {
+  const mediaResponse = await payload.find({
+    collection: 'media',
+    limit: 1000, // Make sure we get all media
+  })
+
+  const mapping: Record<string, number> = {}
+  mediaResponse.docs.forEach((media: any) => {
+    // Extract filename from the original media filename
+    const filename = media.filename?.split('.')[0] || ''
+    if (filename) {
+      mapping[filename] = media.id
+    }
+  })
+
+  return mapping
+}
+
 async function run() {
   try {
     const payload = await getPayload({ config })
 
-    // Build category mapping from the seeded categories.
+    // Build category mapping from the seeded categories
     const categoryMapping = await getCategoryMapping(payload)
     console.log('Category Mapping:', categoryMapping)
 
+    // Build media mapping
+    const mediaMapping = await getMediaMapping(payload)
+    console.log('Found', Object.keys(mediaMapping).length, 'media items')
+
     const seedProjects = async () => {
       for (const project of projects) {
+        console.log('Processing project:', project.title, 'with category:', project.category)
+
+        // Skip image references that don't exist
+        let imageId = null
+        if (project.image && project.image.url) {
+          const filenameWithoutExt = project.image.url.split('/').pop()?.split('.')[0]
+          imageId = mediaMapping[filenameWithoutExt || ''] || null
+
+          if (!imageId) {
+            console.log(`Warning: Could not find media with filename ${filenameWithoutExt}`)
+          }
+        }
+
+        // Process additional images
+        const processedAdditionalImages = []
+        if (project.additionalImages && project.additionalImages.length > 0) {
+          for (const img of project.additionalImages) {
+            if (img.url) {
+              const filenameWithoutExt = img.url.split('/').pop()?.split('.')[0]
+              const additionalImageId = mediaMapping[filenameWithoutExt || ''] || null
+
+              if (additionalImageId) {
+                processedAdditionalImages.push({
+                  image: additionalImageId,
+                })
+              }
+            }
+          }
+        }
+
+        // First create the project without a category or with minimal data
         const mappedProject = {
           title: project.title,
-          slug: project.slug,
           description: project.description,
-          image: project.image
-            ? ({
-                ...project.image,
-                id: 0,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              } as Media)
-            : null,
-          // Use the correct property "categories" as declared in the collection config.
-          categories:
-            project.category && categoryMapping[project.category]
-              ? [Number(categoryMapping[project.category])]
-              : undefined,
+          // Only set the image if we have a valid ID
+          image: imageId,
           featured: (project as any).featured ?? false,
           links: transformLinks({
             root: {
@@ -97,25 +139,39 @@ async function run() {
           }),
           yearCompleted: (project as any).yearCompleted ?? project.metadata?.year,
           body: (project as any).body ?? project.content,
-          additionalImages: project.additionalImages
-            ? project.additionalImages.map((img: any) => ({
-                image: {
-                  ...img,
-                  id: 0,
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                } as Media,
-              }))
-            : [],
-          video: project.video,
+          // Only include additional images that exist
+          additionalImages: processedAdditionalImages,
         }
 
         try {
-          await payload.create({
+          // Create the project
+          const createdProject = await payload.create({
             collection: 'projects',
             data: mappedProject,
           })
-          console.log(`Imported project: ${project.title}`)
+
+          console.log(`Created project: ${project.title} with ID: ${createdProject.id}`)
+
+          // Now establish the relationship to category if it exists
+          if (project.category && categoryMapping[project.category]) {
+            const categoryId = categoryMapping[project.category]
+            console.log(
+              `Adding category relationship: Project ID ${createdProject.id} to Category ID ${categoryId}`,
+            )
+
+            // Update the project to add the category relationship
+            await payload.update({
+              collection: 'projects',
+              id: createdProject.id,
+              data: {
+                categories: [categoryId], // This will handle the relationship through the `projects_rels` table
+              },
+            })
+
+            console.log(`Category relationship established for project: ${project.title}`)
+          }
+
+          console.log(`Successfully imported project: ${project.title}`)
         } catch (error) {
           console.error(`Error importing project ${project.title}:`, error)
         }
