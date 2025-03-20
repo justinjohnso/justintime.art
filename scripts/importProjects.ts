@@ -1,6 +1,6 @@
 /**
- * This script imports projects from the formatted JSON file, ensuring media is
- * properly referenced and categories are set correctly.
+ * This script imports projects and their associated media in a single process
+ * to ensure proper relationships between projects and their images.
  */
 
 import 'dotenv/config'
@@ -8,180 +8,154 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { projects } from '../../webflow/Projects_PayloadCMS_Formatted.json'
 
-// Define Media type for image objects
-interface Media {
+interface MediaData {
   url: string
   alt: string
-  id: number
-  createdAt: string
-  updatedAt: string
+  fileName: string
 }
 
-// Allowed union type for links.root.format
-type AllowedFormat = '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify'
+// Track imported media to avoid duplicates
+const importedMedia = new Map<string, number>()
 
-const transformLinks = (links: any): any => {
-  if (!links || !links.root) return links
-
-  // Check if the incoming format is one of the allowed values;
-  // if not, default to an empty string.
-  const allowedValues: AllowedFormat[] = ['', 'left', 'start', 'center', 'right', 'end', 'justify']
+// Transform a string into a rich text format
+const transformToRichText = (text: string) => {
+  // Explicitly type the format to match the expected union type
+  const format: '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' = ''
 
   return {
-    ...links,
     root: {
-      ...links.root,
-      format: allowedValues.includes(links.root.format) ? links.root.format : '',
+      type: 'root',
+      children: [
+        {
+          type: 'paragraph',
+          children: [{ text: text || '' }],
+          direction: null,
+          format,
+          indent: 0,
+          version: 1,
+        },
+      ],
+      direction: null,
+      format,
+      indent: 0,
+      version: 1,
     },
   }
 }
 
-// Build a mapping between category slug (or title) and Payload document id
-async function getCategoryMapping(payload: any): Promise<Record<string, string>> {
-  const categoriesResponse = await payload.find({ collection: 'categories' })
-  const mapping: Record<string, string> = {}
-  // Assuming categories are seeded with a slug, and you want to match on that.
-  categoriesResponse.docs.forEach((cat: any) => {
-    // Use cat.slug or cat.title as the key, depending on what your projects dataset uses.
-    mapping[cat.slug] = cat.id
-  })
-  return mapping
-}
+async function importMediaFromURL(payload: any, mediaData: MediaData): Promise<number | null> {
+  if (!mediaData || !mediaData.url) return null
 
-// Build a mapping of filename to media ID
-async function getMediaMapping(payload: any): Promise<Record<string, number>> {
-  const mediaResponse = await payload.find({
-    collection: 'media',
-    limit: 1000, // Make sure we get all media
-  })
+  if (importedMedia.has(mediaData.fileName)) {
+    return importedMedia.get(mediaData.fileName) as number
+  }
 
-  const mapping: Record<string, number> = {}
-  mediaResponse.docs.forEach((media: any) => {
-    // Extract filename from the original media filename
-    const filename = media.filename?.split('.')[0] || ''
-    if (filename) {
-      mapping[filename] = media.id
+  try {
+    console.log(`Fetching image from ${mediaData.url}`)
+    const response = await fetch(mediaData.url)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`)
     }
-  })
 
-  return mapping
+    const arrayBuffer = await response.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const contentType = response.headers.get('content-type') || 'image/jpeg'
+
+    const createdMedia = await payload.create({
+      collection: 'media',
+      data: {
+        alt: mediaData.alt || mediaData.fileName || 'Image',
+      },
+      file: {
+        data: buffer,
+        size: buffer.length,
+        mimetype: contentType,
+        name: mediaData.fileName || `image-${Date.now()}`,
+      },
+    })
+
+    importedMedia.set(mediaData.fileName, createdMedia.id)
+    return createdMedia.id
+  } catch (error) {
+    console.error(`Error importing media ${mediaData.fileName}:`, error)
+    return null
+  }
 }
 
 async function run() {
   try {
     const payload = await getPayload({ config })
+    console.log('Payload initialized')
 
-    // Build category mapping from the seeded categories
-    const categoryMapping = await getCategoryMapping(payload)
-    console.log('Category Mapping:', categoryMapping)
+    const categoriesResponse = await payload.find({ collection: 'categories' })
+    const categoryMapping: Record<string, number> = {}
+    categoriesResponse.docs.forEach((cat: any) => {
+      categoryMapping[cat.slug] = cat.id
+    })
 
-    // Build media mapping
-    const mediaMapping = await getMediaMapping(payload)
-    console.log('Found', Object.keys(mediaMapping).length, 'media items')
-
-    const seedProjects = async () => {
-      for (const project of projects) {
-        console.log('Processing project:', project.title, 'with category:', project.category)
-
-        // Skip image references that don't exist
-        let imageId = null
+    for (const project of projects) {
+      try {
+        // Import main image
+        let mainImageId = null
         if (project.image && project.image.url) {
-          const filenameWithoutExt = project.image.url.split('/').pop()?.split('.')[0]
-          imageId = mediaMapping[filenameWithoutExt || ''] || null
-
-          if (!imageId) {
-            console.log(`Warning: Could not find media with filename ${filenameWithoutExt}`)
-          }
+          mainImageId = await importMediaFromURL(payload, project.image)
         }
 
-        // Process additional images
-        const processedAdditionalImages = []
+        // Import additional images
+        const additionalImagesIds = []
         if (project.additionalImages && project.additionalImages.length > 0) {
-          for (const img of project.additionalImages) {
-            if (img.url) {
-              const filenameWithoutExt = img.url.split('/').pop()?.split('.')[0]
-              const additionalImageId = mediaMapping[filenameWithoutExt || ''] || null
-
-              if (additionalImageId) {
-                processedAdditionalImages.push({
-                  image: additionalImageId,
-                })
-              }
+          for (const additionalImage of project.additionalImages) {
+            const additionalImageId = await importMediaFromURL(payload, additionalImage)
+            if (additionalImageId) {
+              additionalImagesIds.push({ image: additionalImageId })
             }
           }
         }
 
-        // First create the project without a category or with minimal data
+        // Create project
         const mappedProject = {
           title: project.title,
           description: project.description,
-          // Only set the image if we have a valid ID
-          image: imageId,
-          featured: (project as any).featured ?? false,
-          links: transformLinks({
-            root: {
-              type: 'doc',
-              children: [
-                {
-                  type: 'paragraph',
-                  children: [{ text: project.links }],
-                  direction: null,
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                },
-              ],
-              direction: null,
-              format: '',
-              indent: 0,
-              version: 1,
-            },
-          }),
-          yearCompleted: (project as any).yearCompleted ?? project.metadata?.year,
-          body: (project as any).body ?? project.content,
-          // Only include additional images that exist
-          additionalImages: processedAdditionalImages,
+          image: mainImageId,
+          // Default to false if featured is undefined
+          featured: false,
+          // Transform links string to rich text format
+          links: transformToRichText(project.links || ''),
+          // Use metadata.year as yearCompleted if present
+          yearCompleted: project.metadata?.year,
+          // Use content as body
+          body: transformToRichText(project.content || ''),
+          additionalImages: additionalImagesIds,
         }
 
-        try {
-          // Create the project
-          const createdProject = await payload.create({
+        const createdProject = await payload.create({
+          collection: 'projects',
+          data: mappedProject,
+        })
+
+        // Update categories relationship
+        if (project.category && categoryMapping[project.category]) {
+          const categoryId = categoryMapping[project.category]
+          await payload.update({
             collection: 'projects',
-            data: mappedProject,
+            id: createdProject.id,
+            data: {
+              categories: [categoryId],
+            },
           })
-
-          console.log(`Created project: ${project.title} with ID: ${createdProject.id}`)
-
-          // Now establish the relationship to category if it exists
-          if (project.category && categoryMapping[project.category]) {
-            const categoryId = categoryMapping[project.category]
-            console.log(
-              `Adding category relationship: Project ID ${createdProject.id} to Category ID ${categoryId}`,
-            )
-
-            // Update the project to add the category relationship
-            await payload.update({
-              collection: 'projects',
-              id: createdProject.id,
-              data: {
-                categories: [categoryId], // This will handle the relationship through the `projects_rels` table
-              },
-            })
-
-            console.log(`Category relationship established for project: ${project.title}`)
-          }
-
-          console.log(`Successfully imported project: ${project.title}`)
-        } catch (error) {
-          console.error(`Error importing project ${project.title}:`, error)
         }
+
+        console.log(`Successfully imported project: ${project.title}`)
+      } catch (error) {
+        console.error(`Error importing project ${project.title}:`, error)
       }
     }
 
-    await seedProjects()
+    console.log('Import process completed successfully')
     process.exit(0)
   } catch (error) {
-    console.error('Seed error:', JSON.stringify(error, null, 2))
+    console.error('Import error:', JSON.stringify(error, null, 2))
     process.exit(1)
   }
 }
