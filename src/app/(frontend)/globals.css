@@ -148,12 +148,6 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 56.25%; /* 16:9 aspect ratio */
 }
 
-.aspect-[4/3] {
-  position: relative;
-  width: 100%;
-  padding-bottom: 75%; /* 4:3 aspect ratio */
-}
-
 .relative {
   position: relative;
 }

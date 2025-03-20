@@ -27,7 +27,7 @@ const ProjectNavigation: React.FC<ProjectNavigationProps> = ({ prevProject, next
         {/* Previous Project */}
         {prevProject && (
           <Link
-            href={`/work/${prevProject.slug}`}
+            href={`/projects/${prevProject.slug}`}
             className="group relative overflow-hidden bg-gray-50 rounded-lg transition-all duration-500 hover:shadow-xl"
           >
             <div className="aspect-[16/9] relative overflow-hidden">
@@ -72,7 +72,7 @@ const ProjectNavigation: React.FC<ProjectNavigationProps> = ({ prevProject, next
         {/* Next Project */}
         {nextProject && (
           <Link
-            href={`/work/${nextProject.slug}`}
+            href={`/projects/${nextProject.slug}`}
             className="group relative overflow-hidden bg-gray-50 rounded-lg transition-all duration-500 hover:shadow-xl"
           >
             <div className="aspect-[16/9] relative overflow-hidden">

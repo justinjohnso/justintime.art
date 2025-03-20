@@ -14,7 +14,7 @@ export function NavBar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   const navItems = [
-    { name: 'Work', href: '/work' },
+    { name: 'Projects', href: '/projects' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]

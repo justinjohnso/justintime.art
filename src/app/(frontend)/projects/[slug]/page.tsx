@@ -282,7 +282,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
       {/* Back to projects link */}
       <div className="border-t border-gray-200 pt-8 mt-8">
         <Link
-          href="/work"
+          href={`/projects/${project.slug}`}
           className="flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors p-0 m-0"
         >
           <svg

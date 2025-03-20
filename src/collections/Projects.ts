@@ -31,10 +31,10 @@ export const Projects: CollectionConfig = {
       relationTo: 'media',
     },
     {
-      name: 'category',
+      name: 'categories',
       type: 'relationship',
       relationTo: 'categories',
-      hasMany: false,
+      hasMany: true,
     },
     {
       name: 'featured',

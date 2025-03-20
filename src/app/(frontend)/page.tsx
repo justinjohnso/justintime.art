@@ -9,19 +9,19 @@ const featuredProjects = [
     title: 'The Tempest arcade controller',
     category: 'Fabrication',
     image: '/image-post1.webp',
-    href: '/work/the-tempest-arcade-controller',
+    href: '/projects/the-tempest-arcade-controller',
   },
   {
     title: 'Look/Listen',
     category: 'Sound Design & Theatre',
     image: '/image-post2.webp',
-    href: '/work/look-listen',
+    href: '/projects/look-listen',
   },
   {
     title: 'Finding Home',
     category: 'Sound Design & Installation',
     image: '/image-post3.webp',
-    href: '/work/finding-home',
+    href: '/projects/finding-home',
   },
 ]
 const staggerContainer = {
@@ -72,7 +72,7 @@ export default function Home() {
 
           <MotionWrapper delay={0.4}>
             <Link
-              href="/work"
+              href="/projects"
               className="inline-block mt-8 px-8 py-3 border border-black hover:bg-black hover:text-white transition-colors"
             >
               View Projects
@@ -95,7 +95,7 @@ export default function Home() {
           transition={{ duration: 1, delay: 1 }}
         />
       </section>
-      {/* Featured work grid */}
+      {/* Featured projects grid */}
       <section className="max-w-7xl mx-auto px-4 py-24">
         <motion.div
           variants={staggerContainer}
@@ -107,7 +107,7 @@ export default function Home() {
             className="text-3xl font-light mb-16 relative inline-block"
             variants={staggerItem}
           >
-            Featured Work
+            Featured Projects
             <span className="absolute -bottom-2 left-0 w-full h-px bg-black/30"></span>
           </motion.h2>
 
@@ -141,8 +141,8 @@ export default function Home() {
           </div>
 
           <motion.div className="mt-16 text-center" variants={staggerItem}>
-            <Link href="/work" className="interactive-link inline-block px-8 py-3 text-lg">
-              View All Work
+            <Link href="/projects" className="interactive-link inline-block px-8 py-3 text-lg">
+              View All Projects
             </Link>
           </motion.div>
         </motion.div>

@@ -1,74 +1,37 @@
-import fs from 'fs'
-import path from 'path'
-import csv from 'csv-parser'
-import payload from 'payload'
-import dotenv from 'dotenv'
+/**
+ * This is an example of a standalone script that loads in the Payload config
+ * and uses the Payload Local API to query the database.
+ */
 
-// Load environment variables
-dotenv.config()
+import 'dotenv/config'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { categories } from '../../webflow/My Portfolio - Categories_Formatted.json'
 
-const importCategories = async () => {
+async function run() {
   try {
-    // Use a type assertion to bypass TypeScript's property checking
-    await (payload.init as any)({
-      secret: process.env.PAYLOAD_SECRET || '',
-      local: true, // Run in local mode
-    })
+    const payload = await getPayload({ config })
 
-    const categoriesFilePath = path.resolve(__dirname, '../webflow/My Portfolio - Categories.csv')
+    for (const category of categories) {
+      // Map the "name" field to "title" (since the JSON doesn't include a "title" property)
+      const mappedCategory = {
+        title: category.name,
+        description: category.description || '',
+        // If a slug is provided in the JSON, include it; otherwise, Payload can auto-generate one.
+        slug: category.slug || undefined,
+      }
 
-    return new Promise<void>((resolve, reject) => {
-      const categories: any[] = []
-
-      fs.createReadStream(categoriesFilePath)
-        .pipe(csv())
-        .on('data', (row) => {
-          categories.push(row)
-        })
-        .on('end', async () => {
-          console.log('CSV file successfully processed')
-
-          for (const category of categories) {
-            const { Name, Slug, Description, Color } = category
-
-            try {
-              // Use type assertion to bypass type checking
-              await payload.create({
-                collection: 'categories' as any,
-                data: {
-                  title: Name,
-                  slug: Slug,
-                  description: Description,
-                  color: Color,
-                } as any,
-              })
-
-              console.log(`Category ${Name} imported successfully`)
-            } catch (error) {
-              console.error(`Error importing category ${Name}:`, error)
-            }
-          }
-
-          console.log('All categories imported!')
-          resolve()
-        })
-        .on('error', (error) => {
-          console.error('Error processing CSV:', error)
-          reject(error)
-        })
-    })
+      await payload.create({
+        collection: 'categories',
+        data: mappedCategory,
+      })
+    }
   } catch (error) {
-    console.error('Error initializing Payload:', error)
+    console.error(JSON.stringify(error))
+    process.exit(1)
   }
+
+  process.exit(0)
 }
 
-// Execute the function
-importCategories()
-  .then(() => {
-    console.log('Import completed successfully')
-    process.exit(0)
-  })
-  .catch((error) => {
-    console.error('Import failed:', error)
-    process.exit(1)
-  })
+await run()

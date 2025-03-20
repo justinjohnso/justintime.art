@@ -7,13 +7,14 @@ import configPromise from '@payload-config'
 import { Project as BaseProject, Category } from '@/payload-types'
 import ClientWrapper from '@/components/ClientWrapper'
 
-// Extend the Project type to include the missing fields
+// Extend the Project type to include the missing fields and fix category type to be an array.
 interface Project extends BaseProject {
   media?: {
     url: string
     alt?: string
   }
-  category: number | (Category & { title: string })
+  // Updated category type to an array
+  category: (number | (Category & { title: string }))[]
   metadata?: {
     year?: string
     description?: string
@@ -45,7 +46,7 @@ const item = {
   },
 }
 
-export default async function WorkPage() {
+export default async function ProjectPage() {
   // Fetch projects
   const payload = await getPayload({ config: configPromise })
   const projectsResponse = await payload.find({
@@ -58,7 +59,7 @@ export default async function WorkPage() {
   return (
     <div className="container mx-auto p-4">
       <MotionWrapper>
-        <h1 className="text-3xl font-bold mb-6">My Work</h1>
+        <h1 className="text-3xl font-bold mb-6">My Projects</h1>
         <p className="mb-4">Explore my projects and creative works.</p>
       </MotionWrapper>
 
@@ -84,21 +85,29 @@ export default async function WorkPage() {
           <ClientWrapper>
             {projects.map((project, index) => (
               <div key={project.id || index} className="group">
-                <Link href={`/work/${project.slug}`} className="block">
+                <Link href={`/projects/${project.slug}`} className="block">
                   <div className="overflow-hidden rounded-lg relative aspect-[4/3] mb-4">
-                    {/* Safely handle media with type guard */}
                     <Image
-                      src={project.media?.url || '/placeholder.jpg'}
-                      alt={project.title || 'Project'}
+                      src={
+                        typeof project.image !== 'number' && project.image?.url
+                          ? project.image.url
+                          : '/placeholder.jpg'
+                      }
+                      alt={
+                        typeof project.image !== 'number' && project.image?.alt
+                          ? project.image.alt
+                          : project.title
+                      }
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                   </div>
                   <h3 className="text-xl font-semibold mb-1">{project.title}</h3>
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {/* Type guard for category */}
-                    {project.category && typeof project.category !== 'number' && (
-                      <span className="text-xs text-gray-600">{project.category.title}</span>
+                    {project.category?.[0] && typeof project.category[0] !== 'number' && (
+                      <span className="text-xs text-gray-600">
+                        {(project.category[0] as Category & { title: string }).title}
+                      </span>
                     )}
                   </div>
                   {/* Type guard for metadata */}

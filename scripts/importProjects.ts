@@ -1,100 +1,133 @@
-import { parse, CsvError } from 'csv-parse'
-import fs from 'fs'
-import path from 'path'
-import payload from 'payload'
-import dotenv from 'dotenv'
-import { fileURLToPath } from 'url'
-import payloadConfig from '../src/payload.config'
+/**
+ * This is an example of a standalone script that loads in the Payload config
+ * and uses the Payload Local API to query the database.
+ */
 
-// Load environment variables
-dotenv.config()
+import 'dotenv/config'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { projects } from '../../webflow/Projects_PayloadCMS_Formatted.json'
 
-// Define types for CSV records
-interface ProjectRecord {
-  Name: string
-  Slug: string
-  Description: string
-  Image: string
-  Category: string
-  [key: string]: string // Allow other fields
+// Define Media type for image objects
+interface Media {
+  url: string
+  alt: string
+  id: number
+  createdAt: string
+  updatedAt: string
 }
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+// Allowed union type for links.root.format
+type AllowedFormat = '' | 'left' | 'start' | 'center' | 'right' | 'end' | 'justify'
 
-const importProjects = async () => {
-  try {
-    // Fix Error 1: Type assertion for payload.init
-    await (payload.init as any)({
-      secret: process.env.PAYLOAD_SECRET || '',
-      local: true,
-      config: payloadConfig,
-    })
+const transformLinks = (links: any): any => {
+  if (!links || !links.root) return links
 
-    const filePath = path.resolve(__dirname, '../../webflow/My Portfolio - Projects.csv')
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
+  // Check if the incoming format is one of the allowed values;
+  // if not, default to an empty string.
+  const allowedValues: AllowedFormat[] = ['', 'left', 'start', 'center', 'right', 'end', 'justify']
 
-    // Wrap in Promise to properly handle the async callback
-    return new Promise<void>((resolve, reject) => {
-      parse(
-        fileContent,
-        {
-          columns: true,
-          skip_empty_lines: true,
-        },
-        async (err: CsvError | undefined, records: ProjectRecord[]) => {
-          if (err) {
-            console.error('Error parsing CSV:', err)
-            reject(err)
-            return
-          }
-
-          try {
-            for (const record of records) {
-              const { Name, Slug, Description, Image, Category } = record
-
-              try {
-                // Fix Errors 2 & 3: Type assertions for collection and data
-                await payload.create({
-                  // Fix Error 2: Type assertion for collection slug
-                  collection: 'projects' as any,
-                  // Fix Error 3: Type assertion for data object
-                  data: {
-                    title: Name,
-                    slug: Slug,
-                    description: Description,
-                    image: Image,
-                    category: Category,
-                  } as any,
-                })
-                console.log(`Imported project: ${Name}`)
-              } catch (error) {
-                console.error(`Error importing project ${Name}:`, error)
-              }
-            }
-
-            console.log('All projects imported!')
-            resolve()
-          } catch (error) {
-            console.error('Error processing records:', error)
-            reject(error)
-          }
-        },
-      )
-    })
-  } catch (error) {
-    console.error('Error initializing Payload:', error)
-    throw error
+  return {
+    ...links,
+    root: {
+      ...links.root,
+      format: allowedValues.includes(links.root.format) ? links.root.format : '',
+    },
   }
 }
 
-// Execute the function
-importProjects()
-  .then(() => {
-    console.log('Import completed successfully')
+// Build a mapping between category slug (or title) and Payload document id
+async function getCategoryMapping(payload: any): Promise<Record<string, string>> {
+  const categoriesResponse = await payload.find({ collection: 'categories' })
+  const mapping: Record<string, string> = {}
+  // Assuming categories are seeded with a slug, and you want to match on that.
+  categoriesResponse.docs.forEach((cat: any) => {
+    // Use cat.slug or cat.title as the key, depending on what your projects dataset uses.
+    mapping[cat.slug] = cat.id
+  })
+  return mapping
+}
+
+async function run() {
+  try {
+    const payload = await getPayload({ config })
+
+    // Build category mapping from the seeded categories.
+    const categoryMapping = await getCategoryMapping(payload)
+    console.log('Category Mapping:', categoryMapping)
+
+    const seedProjects = async () => {
+      for (const project of projects) {
+        const mappedProject = {
+          title: project.title,
+          slug: project.slug,
+          description: project.description,
+          image: project.image
+            ? ({
+                ...project.image,
+                id: 0,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              } as Media)
+            : null,
+          // Use the correct property "categories" as declared in the collection config.
+          categories:
+            project.category && categoryMapping[project.category]
+              ? [Number(categoryMapping[project.category])]
+              : undefined,
+          featured: (project as any).featured ?? false,
+          links: transformLinks({
+            root: {
+              type: 'doc',
+              children: [
+                {
+                  type: 'paragraph',
+                  children: [{ text: project.links }],
+                  direction: null,
+                  format: '',
+                  indent: 0,
+                  version: 1,
+                },
+              ],
+              direction: null,
+              format: '',
+              indent: 0,
+              version: 1,
+            },
+          }),
+          yearCompleted: (project as any).yearCompleted ?? project.metadata?.year,
+          body: (project as any).body ?? project.content,
+          additionalImages: project.additionalImages
+            ? project.additionalImages.map((img: any) => ({
+                image: {
+                  ...img,
+                  id: 0,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                } as Media,
+              }))
+            : [],
+          video: project.video,
+        }
+
+        try {
+          await payload.create({
+            collection: 'projects',
+            data: mappedProject,
+          })
+          console.log(`Imported project: ${project.title}`)
+        } catch (error) {
+          console.error(`Error importing project ${project.title}:`, error)
+        }
+      }
+    }
+
+    await seedProjects()
     process.exit(0)
-  })
-  .catch((error) => {
-    console.error('Import failed:', error)
+  } catch (error) {
+    console.error('Seed error:', JSON.stringify(error, null, 2))
     process.exit(1)
-  })
+  }
+}
+
+await run()

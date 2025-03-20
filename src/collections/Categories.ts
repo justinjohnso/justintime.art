@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
@@ -27,5 +27,11 @@ export const Categories: CollectionConfig = {
       required: false,
     },
     ...slugField(),
+    {
+      name: 'projects',
+      type: 'join',
+      collection: 'projects',
+      on: 'categories',
+    },
   ],
 }
