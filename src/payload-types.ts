@@ -408,7 +408,7 @@ export interface Project {
     [k: string]: unknown;
   } | null;
   yearCompleted?: number | null;
-  body?: {
+  body: {
     root: {
       type: string;
       children: {
@@ -422,7 +422,7 @@ export interface Project {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
   additionalImages?:
     | {
         image?: (number | null) | Media;

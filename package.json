@@ -20,9 +20,8 @@
     "test": "jest",
     "clean": "rm -rf .next node_modules/.cache",
     "seed:categories": "tsx scripts/importCategories.ts",
-    "seed:media": "tsx scripts/importMedia.ts",
     "seed:projects": "tsx scripts/importProjects.ts",
-    "seed": "pnpm seed:categories && pnpm seed:media && pnpm seed:projects"
+    "seed": "pnpm seed:categories && pnpm seed:projects"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "latest",
@@ -51,6 +50,7 @@
     "lucide-react": "^0.378.0",
     "next": "15.2.2",
     "next-sitemap": "^4.2.3",
+    "node-html-parser": "^7.0.1",
     "payload": "latest",
     "prism-react-renderer": "^2.3.1",
     "react": "19.0.0",
