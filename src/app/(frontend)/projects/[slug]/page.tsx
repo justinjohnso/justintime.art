@@ -84,10 +84,20 @@ const sanitizeRichText = (content: any) => {
   const processNodes = (nodes: any[]) => {
     if (!Array.isArray(nodes)) return
 
-    for (const node of nodes) {
-      if (node.type === 'link' && node.newTab === undefined) {
-        // Set default value for newTab
-        node.newTab = true
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
+      if (!node) continue
+
+      // Handle link nodes - ensure they have a newTab property
+      if (node.type === 'link') {
+        // Set default value for newTab if it doesn't exist
+        node.newTab = node.newTab ?? true
+
+        // Ensure fields expected by the link renderer are present
+        node.fields = node.fields || {}
+        node.fields.newTab = node.fields.newTab ?? node.newTab
+        node.fields.url = node.fields?.url || node.url || '#'
+        node.url = node.url || node.fields?.url || '#'
       }
 
       // Process children recursively
@@ -98,7 +108,7 @@ const sanitizeRichText = (content: any) => {
   }
 
   // Process the root children
-  if (sanitized.root && sanitized.root.children) {
+  if (sanitized && sanitized.root && Array.isArray(sanitized.root.children)) {
     processNodes(sanitized.root.children)
   }
 
