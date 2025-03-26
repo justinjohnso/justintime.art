@@ -73,6 +73,38 @@ const getAspectRatioClass = (count: number): string => {
   return 'aspect-[4/3]'
 }
 
+// Add this helper function at the top with your other helper functions
+const sanitizeRichText = (content: any) => {
+  if (!content) return content
+
+  // Create a deep copy of the content
+  const sanitized = JSON.parse(JSON.stringify(content))
+
+  // Helper to recursively process nodes
+  const processNodes = (nodes: any[]) => {
+    if (!Array.isArray(nodes)) return
+
+    for (const node of nodes) {
+      if (node.type === 'link' && node.newTab === undefined) {
+        // Set default value for newTab
+        node.newTab = true
+      }
+
+      // Process children recursively
+      if (node.children) {
+        processNodes(node.children)
+      }
+    }
+  }
+
+  // Process the root children
+  if (sanitized.root && sanitized.root.children) {
+    processNodes(sanitized.root.children)
+  }
+
+  return sanitized
+}
+
 export default async function ProjectPage({ params }: { params: { slug: string } }) {
   const payload = await getPayload({ config: configPromise })
 
@@ -152,7 +184,9 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   {project.description && (
                     <p className="mb-0 text-base text-gray-600">{project.description}</p>
                   )}
-                  {project.links && <RichText data={project.links} enableGutter={false} />}
+                  {project.links && (
+                    <RichText data={sanitizeRichText(project.links)} enableGutter={false} />
+                  )}
                 </div>
               )}
               <div className="mt-2 flex space-x-4">
@@ -239,7 +273,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
             />
           </a>
           <div className="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
-            <RichText data={project.body} />
+            <RichText data={sanitizeRichText(project.body)} />
           </div>
         </section>
       )}

@@ -51,6 +51,7 @@ interface LexicalLinkNode extends LexicalNode {
   url: string
   rel: string[]
   target: string
+  newTab: boolean
   children: LexicalTextNode[]
 }
 
@@ -137,6 +138,7 @@ const htmlToLexical = (html: string | undefined): { root: LexicalRootNode } => {
                 url: url.toString(),
                 rel: ['noopener', 'noreferrer'],
                 target: '_blank',
+                newTab: true, // Add this property to fix the error
                 children: [],
               }
 
@@ -161,6 +163,7 @@ const htmlToLexical = (html: string | undefined): { root: LexicalRootNode } => {
                   url: urlWithProtocol.toString(),
                   rel: ['noopener', 'noreferrer'],
                   target: '_blank',
+                  newTab: true, // Add this property to fix the error
                   children: [],
                 }
 
@@ -383,6 +386,7 @@ const htmlToLinks = (html: string | undefined): { root: LexicalRootNode } => {
               url: href.trim(),
               rel: ['noopener', 'noreferrer'],
               target: '_blank',
+              newTab: true, // Add this property to fix the error
               children: [
                 {
                   type: 'text',
