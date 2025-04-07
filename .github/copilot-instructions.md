@@ -1,154 +1,145 @@
 # GitHub Copilot Instructions
 
-These are detailed coding guidelines and usage conventions for GitHub Copilot. This file exists to guide Copilot in producing correct, maintainable, and idiomatic code across my personal and collaborative projects.
+This document provides guidance for GitHub Copilot to generate code and terminal commands that align with this project's standards. These instructions help ensure consistency, readability, security, and maintainability across all contributions.
 
 ---
 
 ## 🧠 General Philosophy
 
-- Favor **readable and maintainable code** over clever or abstract solutions.
-- When an error or bug is likely, **assume it's worth investigating**, not working around.
-- **Do not overcomplicate fixes** — if the correct solution is simple and direct, use it.
-- Use the project’s **existing patterns and architecture** as a base unless explicitly told otherwise.
+- Favor **clarity and maintainability** over clever or abstract solutions.
+- **Don’t guess** — when Copilot is unsure, it should reference `/explain`, `/terminal`, or `/problems` for clues before continuing.
+- Keep logic aligned with the **existing structure and idioms** of the codebase.
+- Avoid “magic” or unexplained solutions; strive for transparency in logic.
 
 ---
 
-## 🛠️ Use of Copilot Chat Commands
+## 🧰 Use Copilot Chat Commands Actively
 
-Copilot Chat should actively use its built-in functionality to stay accurate and useful. You are encouraged to:
+Copilot should use its tools to write better code. Commands that must be used regularly:
 
-- Use `/explain` to summarize what unfamiliar or complex code is doing before editing.
-- Use `/fix` to attempt repairs **only after understanding the context** and consulting logs or problems.
-- Use `/tests` to generate relevant test cases for new or modified logic.
-- Use `/terminal` to check recent terminal output or errors related to the changes being made.
-- Use `/problems` to inspect current issues in the Problems tab before proposing new code.
-- Use `/code` or `/edit` to modify specific blocks **only after context-aware evaluation**.
-
-> When debugging or troubleshooting, **always cross-reference the output from `/terminal` and `/problems`** — do not assume silence equals success.
+- **/explain** — Before modifying complex or unfamiliar code, explain it.
+- **/fix** — Apply only after investigating root cause via terminal and/or Problems tab.
+- **/tests** — Generate or update tests when adding/modifying core functionality.
+- **/problems** — Review issues in the Problems panel before making assumptions.
+- **/terminal** — Check recent output for errors, crashes, or log messages before proposing fixes.
+- **/optimize** — Only after baseline functionality is confirmed and tested.
 
 ---
 
-## 🧱 Project Structure & Layout
+## 📁 Project Structure & Layout
 
-Organize and maintain a clean folder structure based on project type:
+Follow consistent structure across projects (backend, frontend, full-stack):
 
-### Python / Flask / Backend
+### Backend (Python / Node.js)
 
-- Common folders: `routes/`, `controllers/`, `models/`, `services/`, `utils/`, `tests/`
-- Use `__init__.py` files to manage modules.
-- Entry points should be minimal — keep logic out of `main.py` or `app.py`.
-- Separate config logic from application logic.
-- Load environment variables from `.env` using `dotenv`.
+- Structure code into `routes/`, `controllers/`, `models/`, `services/`, `utils/`
+- Keep `app.py`, `main.py`, or `index.js` minimal — delegate to modules
+- Use environment variables (via `dotenv`) — no hardcoded secrets
+- Use dependency pinning (`requirements.txt` or `package-lock.json`)
 
-### Node.js / JavaScript / Express
+### Frontend (React / JS / TS)
 
-- Organize into: `routes/`, `controllers/`, `middleware/`, `models/`, `services/`, `utils/`
-- Use ES6 modules or CommonJS consistently (do not mix).
-- Keep startup logic clean and separate from app logic (`server.js` or `index.js`).
-
-### Frontend Projects
-
-- Organize components in `components/`, global state in `store/`, styles in `styles/`
-- Use functional React components and hooks
-- Prefer `Tailwind` or modular CSS for styling when present
-- Keep logic and markup co-located only when it improves readability
+- Use `components/`, `hooks/`, `store/`, `styles/`, `pages/`, `lib/` folders
+- Favor functional components and hooks over class components
+- Keep logic, UI, and styles cleanly separated
 
 ---
 
-## ✍️ Code Style & Patterns
+## ✨ Code Style & Practices
 
 ### Python
 
-- Follow PEP 8
-- Use `black` for formatting
-- Use type hints where useful
-- Follow `snake_case` for functions/variables, `PascalCase` for classes
+- Follow **PEP 8**
+- Use `black` for formatting and `flake8` or `pylint` for linting
+- Include type hints where useful
+- Use docstrings on public classes and functions
 
 ### JavaScript / TypeScript
 
-- Use camelCase for variables/functions, PascalCase for components/classes
-- Use `async/await` with `try/catch`, avoid callback hell
-- Format with Prettier, lint with ESLint
-
-### HTML / Templates
-
-- Use semantic HTML5
-- Use Jinja2, Mustache, or JSX templating syntax as appropriate
-- Ensure views/components are modular and reusable
+- Use camelCase for vars/functions, PascalCase for components
+- Use Prettier and ESLint (Airbnb or Standard config)
+- Prefer async/await over callbacks or chained `.then()`
+- Use `const` and `let` appropriately (avoid `var`)
 
 ---
 
-## 🔐 Security & Reliability
+## 🧪 Testing
 
-- Never hardcode secrets, tokens, or passwords
-- Validate and sanitize all external input
-- Escape user-provided content before rendering it
-- Use HTTPS and secure headers when applicable
-- Handle errors explicitly and provide informative messages/logs
-
----
-
-## ⚙️ Tooling and Environment
-
-- Use `.env` files for environment variables
-- Use `dotenv` in Python or `dotenv/config` in Node
-- Ensure compatibility across platforms (macOS, Linux, Windows)
-- Always provide setup instructions for new dependencies
-
----
-
-## 🧪 Testing and Debugging
-
-- Use `/tests` to generate unit tests with clear structure
-- Python: use `pytest` or `unittest`, colocated in a `tests/` directory
-- JS: use `jest` or `vitest`, tests should mirror the source file layout
-- Include tests for:
-  - Normal usage
+- Testing is **not optional** — new logic must include or extend tests
+- JS: use `jest` or `vitest` with `.test.js` or `__tests__/`
+- Python: use `pytest` with `tests/` folder
+- Include:
+  - Expected inputs and outputs
   - Edge cases
-  - Error handling paths
-
-### Troubleshooting Checklist
-
-When things go wrong, Copilot should:
-
-- Check `/terminal` for crash logs, stack traces, and runtime errors
-- Use `/problems` to view current linting and type errors
-- Run `/explain` on suspicious or confusing blocks
-- Run `/fix` only after reviewing logs and understanding the issue
-- Suggest logging or error outputs to help isolate bugs
+  - Error handling
 
 ---
 
-## ⚡ Performance and Optimization
+## ⚙️ Environment & Deployment
 
-- Optimize **after** a working baseline is established
-- Prefer clean, performant data structures and native methods
-- For expensive operations:
-  - Use memoization, caching, or pagination
-- For async code, always handle both success and failure paths
-
----
-
-## 🧹 Clean Code Practices
-
-- Delete commented-out or unused code
-- Avoid one-letter variable names (except `i`, `j` in loops)
-- Document complex logic but keep comments minimal
-- Ensure consistency in spacing, naming, and ordering
-- Refactor when similar patterns repeat more than twice
+- Use `.env` files + `dotenv` for all sensitive config
+- Never commit `.env` files or secrets
+- Code should work in both local dev and cloud environments (e.g., Vercel, Netlify, Azure)
+- Avoid platform-specific logic unless absolutely necessary
 
 ---
 
-## ✅ Final Expectations
+## 🔐 Security
 
-Copilot should:
-
-- Use `/explain`, `/problems`, `/terminal`, and `/tests` to improve quality
-- Write code that runs **cleanly without issues** in Problems tab or terminal
-- Follow the **existing architecture and idioms** of the repo
-- Write comments only when the logic isn’t self-evident
-- Strive for correctness and developer clarity first, performance second
+- Always sanitize and validate user input
+- Never expose API keys, secrets, or credentials
+- Escape output in templates (JSX, Jinja, etc.)
+- Avoid `eval`, `exec`, or any dynamic code execution
+- Keep dependencies updated to avoid vulnerabilities
 
 ---
 
-> This file provides structure and expectations for GitHub Copilot. It should be located in `.github/copilot-instructions.md` to guide consistent, accurate, and readable code generation across all projects.
+## ⚡ Performance & Efficiency
+
+- Don’t optimize prematurely — prefer clarity first
+- Use efficient data structures, and avoid redundant computation
+- For async operations, always handle errors with try/catch or `.catch()`
+- Use pagination or lazy loading for large data sets
+
+---
+
+## 🧹 Clean Code Rules
+
+- Remove unused variables, imports, and commented-out code
+- Use descriptive variable and function names
+- Group related logic together in modules
+- Use comments sparingly — only to explain non-obvious decisions
+
+---
+
+## 🖥️ Terminal Command Guidelines
+
+To ensure consistency and efficiency in terminal operations, GitHub Copilot should adhere to the following guidelines when generating or suggesting terminal commands:
+
+- **Package Management**: Prefer `pnpm` over `npm` for package management tasks due to its speed and disk space efficiency. For example, use `pnpm install` instead of `npm install`.
+
+- **Path Specifications**: Use absolute paths when specifying file or directory locations to avoid ambiguity and ensure commands function correctly regardless of the current working directory.
+
+- **Command Verification**: Before executing suggested commands, especially those that modify or delete data, verify their accuracy and impact to prevent unintended consequences.
+
+- **Alias Usage**: Utilize shell aliases to streamline frequent commands and reduce the potential for errors. For example, create an alias for common directory navigation: `alias proj='cd /absolute/path/to/project'`.
+
+- **Environment Consistency**: Ensure that the terminal environment is consistent across development setups by using tools like `.env` files to manage environment variables securely.
+
+- **Documentation and Comments**: When writing shell scripts or complex command sequences, include comments to explain the purpose and functionality of each part, enhancing maintainability and collaboration.
+
+---
+
+## ✅ Final Copilot Behavior Expectations
+
+Before submitting generated code, Copilot should:
+
+- Use `/problems` to confirm there are no warnings or errors
+- Use `/terminal` to check logs or output from prior runs
+- Use `/tests` to write or update test coverage
+- Use `/explain` when the code being edited isn't clear
+- Write idiomatic, clean, and consistent code based on project norms
+
+---
+
+> Place this file in `.github/copilot-instructions.md` to guide GitHub Copilot's behavior across all repositories.
