@@ -34,16 +34,10 @@ const Header: React.FC = () => {
               >
                 <div className="text-size-regular">Home</div>
               </Link>
-              <Link
-                href="/#personal-projects"
-                className="navigation-link w-inline-block"
-              >
+              <Link href="/#personal-projects" className="navigation-link w-inline-block">
                 <div className="text-size-regular">Personal Projects</div>
               </Link>
-              <Link
-                href="/#client-work"
-                className="navigation-link w-inline-block"
-              >
+              <Link href="/#client-work" className="navigation-link w-inline-block">
                 <div className="text-size-regular">Client Work</div>
               </Link>
               <a href="#contact" className="navigation-link w-inline-block">
