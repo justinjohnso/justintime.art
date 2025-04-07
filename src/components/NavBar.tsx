@@ -14,7 +14,6 @@ export function NavBar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   const navItems = [
-    { name: 'Projects', href: '/projects' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ]
@@ -34,7 +33,7 @@ export function NavBar() {
           />
         </Link>
         <nav>
-          <ul className="flex space-x-8">
+          <ul className="flex space-x-6">
             {navItems.map((item) => (
               <li key={item.name}>
                 <Link

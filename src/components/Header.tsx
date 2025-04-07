@@ -35,16 +35,16 @@ const Header: React.FC = () => {
                 <div className="text-size-regular">Home</div>
               </Link>
               <Link
-                href="/projects?categories=Sound+Design"
+                href="/#personal-projects"
                 className="navigation-link w-inline-block"
               >
-                <div className="text-size-regular">Sound Design</div>
+                <div className="text-size-regular">Personal Projects</div>
               </Link>
               <Link
-                href="/projects?categories=Web+Development"
+                href="/#client-work"
                 className="navigation-link w-inline-block"
               >
-                <div className="text-size-regular">Web Development</div>
+                <div className="text-size-regular">Client Work</div>
               </Link>
               <a href="#contact" className="navigation-link w-inline-block">
                 <div className="text-size-regular">Contact</div>
