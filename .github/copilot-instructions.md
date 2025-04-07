@@ -128,6 +128,18 @@ To ensure consistency and efficiency in terminal operations, GitHub Copilot shou
 
 - **Documentation and Comments**: When writing shell scripts or complex command sequences, include comments to explain the purpose and functionality of each part, enhancing maintainability and collaboration.
 
+## 📎 Use of Example Code and Repositories
+
+When GitHub Copilot is provided with links to example code (e.g., GitHub repositories, gists, or code snippets from documentation or blog posts), it must:
+
+- **Analyze patterns** and structure from the referenced example before generating new code.
+- **Replicate idioms, architecture, and naming conventions** seen in the example when extending or building similar logic.
+- **Respect file and folder layouts**, and create new code in harmony with the example's organization.
+- Use examples as **primary references** for unfamiliar domains or frameworks.
+- Avoid diverging from example patterns unless there's a clear and justifiable improvement.
+
+> 🔗 When given links to `github.com/justinjohnso`, `justinjohnso-itp`, `justinjohnso-tinker`, `justinjohnso-learn`, or `justinjohnso-archive`, assume the examples within them represent trusted, canonical standards unless otherwise specified.
+
 ---
 
 ## ✅ Final Copilot Behavior Expectations
