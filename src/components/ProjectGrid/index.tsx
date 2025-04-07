@@ -62,7 +62,7 @@ const getSizeClasses = (size: ItemSize): { width: string; height: string } => {
 
 /**
  * ProjectGrid component with responsive, gap-free grid layout
- * that detects and fills empty spaces with placeholder content
+ * that adjusts the final row if not fully occupied
  */
 const ProjectGrid = ({ projects }: ProjectGridProps) => {
   const [gridItems, setGridItems] = useState<GridItem[]>([])
@@ -70,49 +70,47 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
   const [rows, setRows] = useState(0)
   const gridRef = useRef<HTMLDivElement>(null)
 
-  // Detect empty grid cells and fill them with placeholders
-  const detectEmptySpaces = (
-    items: GridItem[],
-    cols: number,
-    estimatedRows: number,
-  ): GridItem[] => {
-    // Create a grid map to track occupied cells
-    const gridMap: boolean[][] = Array(estimatedRows)
-      .fill(false)
-      .map(() => Array(cols).fill(false))
-
-    // Mark occupied cells based on item positions and sizes
-    items.forEach((item) => {
-      if (!item.position) return
-
-      const { row, col, rowSpan, colSpan } = item.position
-      for (let r = row; r < row + rowSpan; r++) {
-        // Ensure gridMap[r] is initialized
-        gridMap[r] = gridMap[r] ?? Array(cols).fill(false)
-        for (let c = col; c < col + colSpan; c++) {
-          if (c < cols) {
-            gridMap[r]![c] = true
+  // New helper: adjustLastRow
+  const adjustLastRow = (items: GridItem[], cols: number): GridItem[] => {
+    let adjusted = [...items]
+    while (true) {
+      const maxRow = Math.max(
+        ...adjusted.map((item) => (item.position ? item.position.row + item.position.rowSpan : 0)),
+      )
+      // Build occupancy for last row (index maxRow - 1)
+      const occupancy = Array(cols).fill(false)
+      adjusted.forEach((item) => {
+        if (item.position) {
+          const startRow = item.position.row
+          const endRow = item.position.row + item.position.rowSpan
+          // If the item occupies the last row
+          if (startRow <= maxRow - 1 && endRow > maxRow - 1) {
+            for (let c = item.position.col; c < item.position.col + item.position.colSpan; c++) {
+              if (c < cols) occupancy[c] = true
+            }
           }
         }
-      }
-    })
-
-    // Find empty cells and create placeholder items for them
-    const placeholders: GridItem[] = []
-    gridMap.forEach((rowCells, r) => {
-      rowCells.forEach((isOccupied, c) => {
-        if (!isOccupied) {
-          placeholders.push({
-            project: null,
-            size: 'small',
-            isPlaceholder: true,
-            position: { row: r, col: c, rowSpan: 1, colSpan: 1 },
-          })
-        }
       })
-    })
-
-    return [...items, ...placeholders]
+      // If last row is completely filled, break.
+      if (occupancy.filter(Boolean).length === cols) break
+      // Otherwise, shrink items that exactly reach the bottom
+      let shrunk = false
+      adjusted = adjusted.map((item) => {
+        if (item.position) {
+          const bottom = item.position.row + item.position.rowSpan
+          if (bottom === maxRow && item.position.rowSpan > 1) {
+            shrunk = true
+            return {
+              ...item,
+              position: { ...item.position, rowSpan: item.position.rowSpan - 1 },
+            }
+          }
+        }
+        return item
+      })
+      if (!shrunk) break
+    }
+    return adjusted
   }
 
   // Detect screen width and set column count
@@ -140,7 +138,7 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
       const rowSpan = item.size === 'tall' || item.size === 'large' ? 2 : 1
       totalCells += colSpan * rowSpan
     })
-    return Math.ceil(totalCells / cols) + 2
+    return Math.ceil(totalCells / cols)
   }
 
   // Assign positions to grid items
@@ -206,9 +204,14 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
 
       const allItems = [...featuredProjects, ...regularItems]
       const itemsWithPositions = assignGridPositions(allItems, columns)
-      const estimatedRows = calculateEstimatedRows(itemsWithPositions, columns)
-      setRows(estimatedRows)
-      return detectEmptySpaces(itemsWithPositions, columns, estimatedRows)
+      const adjustedItems = adjustLastRow(itemsWithPositions, columns)
+      const actualRows = Math.max(
+        ...adjustedItems.map((item) =>
+          item.position ? item.position.row + item.position.rowSpan : 0,
+        ),
+      )
+      setRows(actualRows)
+      return adjustedItems
     }
     setGridItems(createGridItems())
   }, [projects, columns])
