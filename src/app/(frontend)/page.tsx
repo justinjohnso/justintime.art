@@ -5,8 +5,11 @@ import configPromise from '@payload-config'
 import { Project as PayloadProject } from '@/payload-types'
 import ProjectGrid from '@/components/ProjectGrid'
 
-interface Project extends PayloadProject {
-  // Additional fields if needed
+// Make a compatible type that works with both the component and payload types
+// PayloadProject has id as number, but our component expects string
+type ProjectWithId = Omit<PayloadProject, 'id' | 'slug'> & {
+  id: string
+  slug: string
 }
 
 // Helper function to safely get string values
@@ -22,14 +25,24 @@ export default async function Home() {
     sort: '-yearCompleted', // Sort by year completed with newest first
   })
 
-  const allProjects = projectsResponse.docs as Project[]
+  // Convert PayloadProject to ProjectWithId (ensuring id and slug are strings)
+  const allProjects = projectsResponse.docs.map((project) => {
+    const { yearCompleted, ...rest } = project
+    return {
+      ...rest,
+      id: String(project.id), // Convert id to string to match component
+      yearCompleted: yearCompleted === null ? undefined : yearCompleted, // Replace null with undefined
+      slug: safeString(project.slug),
+    }
+  }) as ProjectWithId[]
+
   console.log(`Found ${allProjects.length} projects`)
 
   // Sort projects with featured first, then by year
   const orderedProjects = [...allProjects].sort((a, b) => {
     // Featured projects always come first
-    if (a.featured === true && b.featured !== true) return -1
-    if (a.featured !== true && b.featured === true) return 1
+    if (a.featured && !b.featured) return -1
+    if (!a.featured && b.featured) return 1
 
     // Then sort by year completed (desc)
     const yearA = a.yearCompleted || 0
@@ -38,7 +51,7 @@ export default async function Home() {
   })
 
   // Count featured projects for logging
-  const featuredCount = orderedProjects.filter((p) => p.featured === true).length
+  const featuredCount = orderedProjects.filter((p) => p.featured).length
   console.log(`Featured: ${featuredCount}, Regular: ${orderedProjects.length - featuredCount}`)
 
   return (
@@ -53,13 +66,12 @@ export default async function Home() {
                 Creative Technologist & Sound Designer
               </span>
             </h1>
-
             <p className="text-lg max-w-2xl">
               Exploring the intersection of technology, sound, and interactive experiences.
             </p>
           </div>
 
-          {/* Use the new client-side ProjectGrid component for gap-free layout */}
+          {/* Use the client-side ProjectGrid component for gap-free layout */}
           <div className="mb-16">
             <ProjectGrid projects={orderedProjects} />
           </div>

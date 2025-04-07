@@ -86,12 +86,12 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
       if (!item.position) return
 
       const { row, col, rowSpan, colSpan } = item.position
-
-      // Mark all cells covered by this item as occupied
       for (let r = row; r < row + rowSpan; r++) {
+        // Ensure gridMap[r] is initialized
+        gridMap[r] = gridMap[r] ?? Array(cols).fill(false)
         for (let c = col; c < col + colSpan; c++) {
-          if (r < gridMap.length && c < cols) {
-            gridMap[r][c] = true
+          if (c < cols) {
+            gridMap[r]![c] = true
           }
         }
       }
@@ -99,21 +99,14 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
 
     // Find empty cells and create placeholder items for them
     const placeholders: GridItem[] = []
-
     gridMap.forEach((rowCells, r) => {
       rowCells.forEach((isOccupied, c) => {
         if (!isOccupied) {
-          // Create a placeholder for this empty cell
           placeholders.push({
             project: null,
-            size: 'small', // Placeholders are always small (1x1)
+            size: 'small',
             isPlaceholder: true,
-            position: {
-              row: r,
-              col: c,
-              rowSpan: 1,
-              colSpan: 1,
-            },
+            position: { row: r, col: c, rowSpan: 1, colSpan: 1 },
           })
         }
       })
@@ -134,159 +127,109 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
       }
     }
 
-    // Initial call and add listener
     handleResize()
     window.addEventListener('resize', handleResize)
-
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   // Calculate estimated number of rows based on item sizes and column count
   const calculateEstimatedRows = (items: GridItem[], cols: number): number => {
     let totalCells = 0
-
     items.forEach((item) => {
       const colSpan = item.size === 'wide' || item.size === 'large' ? 2 : 1
       const rowSpan = item.size === 'tall' || item.size === 'large' ? 2 : 1
       totalCells += colSpan * rowSpan
     })
-
-    // Add some buffer rows to ensure we have enough space
     return Math.ceil(totalCells / cols) + 2
   }
 
   // Assign positions to grid items
   const assignGridPositions = (items: GridItem[], cols: number): GridItem[] => {
-    // Create a grid map to track occupied cells
     const estimatedRows = calculateEstimatedRows(items, cols)
     const gridMap: boolean[][] = Array(estimatedRows)
       .fill(false)
       .map(() => Array(cols).fill(false))
 
     return items.map((item) => {
-      // Determine spans based on item size
       const colSpan = item.size === 'wide' || item.size === 'large' ? 2 : 1
       const rowSpan = item.size === 'tall' || item.size === 'large' ? 2 : 1
 
-      // Find next available position
       for (let r = 0; r < gridMap.length; r++) {
         for (let c = 0; c <= cols - colSpan; c++) {
-          // Check if this position can fit the item
           let canFit = true
-
           for (let rOffset = 0; rOffset < rowSpan; rOffset++) {
+            // Initialize the row if undefined
+            gridMap[r + rOffset] = gridMap[r + rOffset] ?? Array(cols).fill(false)
             for (let cOffset = 0; cOffset < colSpan; cOffset++) {
-              if (r + rOffset >= gridMap.length) {
-                // Extend grid map if needed
-                gridMap.push(Array(cols).fill(false))
-              }
-
-              if (gridMap[r + rOffset][c + cOffset]) {
+              if (gridMap[r + rOffset]![c + cOffset]) {
                 canFit = false
                 break
               }
             }
-
             if (!canFit) break
           }
-
           if (canFit) {
-            // Mark cells as occupied
             for (let rOffset = 0; rOffset < rowSpan; rOffset++) {
+              gridMap[r + rOffset] = gridMap[r + rOffset] ?? Array(cols).fill(false)
               for (let cOffset = 0; cOffset < colSpan; cOffset++) {
-                gridMap[r + rOffset][c + cOffset] = true
+                gridMap[r + rOffset]![c + cOffset] = true
               }
             }
-
-            // Return item with position
             return {
               ...item,
-              position: {
-                row: r,
-                col: c,
-                rowSpan,
-                colSpan,
-              },
+              position: { row: r, col: c, rowSpan, colSpan },
             }
           }
         }
       }
-
-      // Shouldn't reach here if grid is properly sized
       return item
     })
   }
 
-  // Create grid items with sizes whenever columns change
   useEffect(() => {
     if (!projects.length) return
 
-    // Assign sizes based on feature status and pattern
     const createGridItems = (): GridItem[] => {
-      // Copy projects to avoid mutating the original
       const projectsCopy = [...projects]
       const items: GridItem[] = []
 
-      // Process featured projects first (they get 'large' size)
       const featuredProjects = projectsCopy
         .filter((project) => project.featured)
         .map((project) => ({ project, size: 'large' as ItemSize }))
 
-      // Remove featured projects from the copy
       const regularProjects = projectsCopy.filter((project) => !project.featured)
-
-      // Create a pattern that fits perfectly in the grid based on column count
       const pattern: ItemSize[] = generateOptimalPattern(columns)
-
-      // Assign sizes to regular projects based on the pattern
       const regularItems = regularProjects.map((project, idx) => ({
         project,
         size: pattern[idx % pattern.length] as ItemSize,
       }))
 
-      // Combine featured and regular projects
       const allItems = [...featuredProjects, ...regularItems]
-
-      // Assign positions to all items
       const itemsWithPositions = assignGridPositions(allItems, columns)
-
-      // Estimate the number of rows needed
       const estimatedRows = calculateEstimatedRows(itemsWithPositions, columns)
       setRows(estimatedRows)
-
-      // Detect and fill empty spaces with placeholders
       return detectEmptySpaces(itemsWithPositions, columns, estimatedRows)
     }
-
-    // Generate the grid items
     setGridItems(createGridItems())
   }, [projects, columns])
 
-  /**
-   * Generate an optimal pattern that guarantees no gaps based on column count
-   */
   const generateOptimalPattern = (cols: number): ItemSize[] => {
     switch (cols) {
       case 1:
-        // For single column, all items are the full width
         return ['small', 'tall']
       case 2:
-        // For two columns, perfect pattern:
         return ['large', 'small', 'small', 'tall', 'wide']
       case 3:
       default:
-        // For three columns, perfect pattern:
         return ['large', 'small', 'tall', 'small', 'wide', 'small']
     }
   }
 
-  // Calculate the span classes based on size and column count
   const getSpanClasses = (size: ItemSize): string => {
     switch (columns) {
       case 1:
-        return 'col-span-1' // All items span the full width in 1-column mode
+        return 'col-span-1'
       case 2:
-        // 2-column grid spans
         switch (size) {
           case 'small':
             return 'col-span-1'
@@ -301,7 +244,6 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
         }
       case 3:
       default:
-        // 3-column grid spans
         switch (size) {
           case 'small':
             return 'col-span-1'
@@ -327,22 +269,20 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
       }}
     >
       {gridItems.map((item, index) => {
-        const { width, height } = getSizeClasses(item.size)
         const spanClass = getSpanClasses(item.size)
         const rowSpanClass =
           item.size === 'tall' || item.size === 'large' ? 'row-span-2' : 'row-span-1'
 
-        // Render placeholder for empty spaces
         if (item.isPlaceholder) {
           return (
             <div
               key={`placeholder-${index}`}
-              className={`col-span-1 row-span-1 border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center p-4`}
+              className="col-span-1 row-span-1 border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center p-4"
               style={{
-                gridRow: item.position?.row
+                gridRow: item.position
                   ? `${item.position.row + 1} / span ${item.position.rowSpan}`
                   : undefined,
-                gridColumn: item.position?.col
+                gridColumn: item.position
                   ? `${item.position.col + 1} / span ${item.position.colSpan}`
                   : undefined,
               }}
@@ -355,16 +295,15 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
           )
         }
 
-        // Regular project item
         return (
           <div
             key={`project-${item.project?.id || index}-${index}`}
             className={`${spanClass} ${rowSpanClass} relative overflow-hidden`}
             style={{
-              gridRow: item.position?.row
+              gridRow: item.position
                 ? `${item.position.row + 1} / span ${item.position.rowSpan}`
                 : undefined,
-              gridColumn: item.position?.col
+              gridColumn: item.position
                 ? `${item.position.col + 1} / span ${item.position.colSpan}`
                 : undefined,
             }}
@@ -385,11 +324,7 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-
-                {/* White overlay on hover */}
                 <div className="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                {/* Project details - only visible on hover */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-black/60 p-3 max-w-[80%] text-center">
                     <h3 className="text-white text-base sm:text-lg font-normal">
