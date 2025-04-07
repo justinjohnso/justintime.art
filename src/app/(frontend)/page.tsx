@@ -1,19 +1,25 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { Project as PayloadProject } from '@/payload-types'
 import ProjectGrid from '@/components/ProjectGrid'
 
-// Make a compatible type that works with both the component and payload types
-// PayloadProject has id as number, but our component expects string
-type ProjectWithId = Omit<PayloadProject, 'id' | 'slug'> & {
-  id: string
-  slug: string
+// Add the safeString utility function
+export function safeString(input: any): string {
+  return input ? String(input) : ''
 }
 
-// Helper function to safely get string values
-const safeString = (s: string | null | undefined): string => s ?? ''
+// Ensure the ProjectWithId type is defined correctly
+type ProjectWithId = Omit<
+  PayloadProject,
+  'id' | 'slug' | 'yearCompleted' | 'featured' | 'image'
+> & {
+  id: string
+  slug: string
+  yearCompleted?: number
+  featured?: boolean
+  image?: number | { url?: string; alt?: string }
+}
 
 export default async function Home() {
   // Fetch all projects from Payload CMS
@@ -25,14 +31,14 @@ export default async function Home() {
     sort: '-yearCompleted', // Sort by year completed with newest first
   })
 
-  // Convert PayloadProject to ProjectWithId (ensuring id and slug are strings)
+  // Update the yearCompleted property to strictly match number | undefined
   const allProjects = projectsResponse.docs.map((project) => {
     const { yearCompleted, ...rest } = project
     return {
       ...rest,
-      id: String(project.id), // Convert id to string to match component
-      yearCompleted: yearCompleted === null ? undefined : yearCompleted, // Replace null with undefined
-      slug: safeString(project.slug),
+      id: String(project.id),
+      yearCompleted:
+        yearCompleted === null || yearCompleted === undefined ? undefined : Number(yearCompleted), // Explicitly handle null and ensure number type
     }
   }) as ProjectWithId[]
 
