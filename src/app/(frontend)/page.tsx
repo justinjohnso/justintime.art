@@ -46,29 +46,23 @@ export default async function Home() {
 
   console.log(`Found ${allProjects.length} projects`)
 
-  // Sort projects with featured first, then by date/year
+  // Sort projects with featured first, then by date completed
   const orderedProjects = [...allProjects].sort((a, b) => {
     // Featured projects always come first
     if (a.featured && !b.featured) return -1
     if (!a.featured && b.featured) return 1
 
-    // Then sort by date completed (desc) if available
+    // Then sort by dateCompleted (desc) if available
     if (a.dateCompleted && b.dateCompleted) {
       return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime()
     }
 
-    // Fall back to date vs year comparison
-    if (a.dateCompleted && !b.dateCompleted) {
-      return -1 // Date completed takes precedence over just year
-    }
-    if (!a.dateCompleted && b.dateCompleted) {
-      return 1
-    }
+    // Projects with dateCompleted take precedence over those without
+    if (a.dateCompleted && !b.dateCompleted) return -1
+    if (!a.dateCompleted && b.dateCompleted) return 1
 
-    // Finally fall back to year completed
-    const yearA = a.yearCompleted || 0
-    const yearB = b.yearCompleted || 0
-    return yearB - yearA
+    // If neither have dateCompleted, maintain the current order
+    return 0
   })
 
   // Count featured projects for logging
