@@ -334,11 +334,9 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
                     <h3 className="text-white text-base sm:text-lg font-normal">
                       {item.project?.title}
                     </h3>
-                    {(item.project?.dateCompleted || item.project?.yearCompleted) && (
+                    {item.project?.dateCompleted && (
                       <span className="text-white text-sm">
-                        {item.project?.dateCompleted
-                          ? new Date(item.project.dateCompleted).getFullYear()
-                          : item.project?.yearCompleted}
+                        {new Date(item.project.dateCompleted).getFullYear()}
                       </span>
                     )}
                   </div>

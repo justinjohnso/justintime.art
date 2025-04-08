@@ -12,7 +12,9 @@ import ImageGrid from '@/components/ImageGrid'
 // Here we use the Media type for image so that createdAt/updatedAt are present.
 interface Project extends Omit<BaseProject, 'body' | 'links' | 'additionalImages' | 'image'> {
   image?: Media // Uses Media type (with id, url, alt, createdAt, updatedAt, etc.)
-  category: number | (Category & { title: string })
+  // Note: The Projects collection defines this field as "categories" with hasMany:true
+  categories: (Category & { title: string })[] // now an array of categories
+  dateCompleted?: string // <-- New field for project completion date
   year?: string
   featured?: boolean
   description?: string
@@ -184,7 +186,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
         <section className="grid grid-cols-1 md:grid-cols-2 gap-0 mb-0 items-stretch">
           {/* Updated Hero Text Container */}
           <div className="md:col-span-1 relative flex flex-col mt-6 mr-6 mb-6 ml-0">
-            {/* Flex container for the main text to be vertically centered */}
+            {/* Main text content */}
             <div className="flex-1 flex flex-col justify-center">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
                 {project.title}
@@ -199,18 +201,26 @@ export default async function ProjectPage({ params }: { params: { slug: string }
                   )}
                 </div>
               )}
-              <div className="mt-2 flex space-x-4">
-                {project.year && (
-                  <span className="text-sm uppercase tracking-wider">Year: {project.year}</span>
+            </div>
+            {/* Absolutely positioned container for categories and year */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between items-end">
+              <div className="text-sm uppercase tracking-wider text-gray-600">
+                {Array.isArray(project.categories) && project.categories.length > 0 ? (
+                  project.categories.map((cat) => (
+                    <span key={cat.title} className="mr-2">
+                      {cat.title}
+                    </span>
+                  ))
+                ) : (
+                  <span>No Categories</span>
                 )}
               </div>
+              {project.dateCompleted && (
+                <div className="text-sm uppercase tracking-wider text-gray-600">
+                  {new Date(project.dateCompleted).getFullYear()}
+                </div>
+              )}
             </div>
-            {/* The category tag remains at the bottom */}
-            {project.category && typeof project.category !== 'number' && (
-              <div className="text-xs uppercase tracking-wider text-gray-600">
-                {project.category.title}
-              </div>
-            )}
           </div>
           {/* Hero Image Column – updated alt using nullish coalescing */}
           <a

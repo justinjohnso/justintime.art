@@ -9,65 +9,51 @@ export function safeString(input: any): string {
   return input ? String(input) : ''
 }
 
-// Ensure the ProjectWithId type is defined correctly
+// Define the ProjectWithId type using only dateCompleted for dates
 type ProjectWithId = Omit<
   PayloadProject,
   'id' | 'slug' | 'yearCompleted' | 'dateCompleted' | 'featured' | 'image'
 > & {
   id: string
   slug: string
-  yearCompleted?: number
   dateCompleted?: string
   featured?: boolean
   image?: number | { url?: string; alt?: string }
 }
 
 export default async function Home() {
-  // Fetch all projects from Payload CMS
+  // Query all projects sorted by dateCompleted (descending)
   const payload = await getPayload({ config: configPromise })
   const projectsResponse = await payload.find({
     collection: 'projects',
     depth: 2, // Ensure we get the full category objects
     limit: 1000, // High limit to get all projects
-    sort: '-dateCompleted,-yearCompleted', // Sort by date completed first, then fall back to year completed
+    sort: '-dateCompleted', // Sort by dateCompleted only
   })
 
-  // Process both dateCompleted and yearCompleted properties
+  // Map projects, keeping only the dateCompleted property
   const allProjects = projectsResponse.docs.map((project) => {
-    const { yearCompleted, dateCompleted, ...rest } = project
+    const { dateCompleted, ...rest } = project
     return {
       ...rest,
       id: String(project.id),
       dateCompleted: dateCompleted || undefined, // Handle null/undefined case
-      yearCompleted:
-        yearCompleted === null || yearCompleted === undefined ? undefined : Number(yearCompleted), // Explicitly handle null and ensure number type
     }
   }) as ProjectWithId[]
 
   console.log(`Found ${allProjects.length} projects`)
 
-  // Sort projects with featured first, then by date completed
+  // Sort projects with featured first, then by dateCompleted (newest first)
   const orderedProjects = [...allProjects].sort((a, b) => {
     // Featured projects always come first
     if (a.featured && !b.featured) return -1
     if (!a.featured && b.featured) return 1
 
-    // Then sort by dateCompleted (desc) if available
-    if (a.dateCompleted && b.dateCompleted) {
-      return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime()
-    }
-
-    // Projects with dateCompleted take precedence over those without
-    if (a.dateCompleted && !b.dateCompleted) return -1
-    if (!a.dateCompleted && b.dateCompleted) return 1
-
-    // If neither have dateCompleted, maintain the current order
-    return 0
+    // Compare using only dateCompleted (if available)
+    const dateA = a.dateCompleted ? new Date(a.dateCompleted).getTime() : 0
+    const dateB = b.dateCompleted ? new Date(b.dateCompleted).getTime() : 0
+    return dateB - dateA
   })
-
-  // Count featured projects for logging
-  const featuredCount = orderedProjects.filter((p) => p.featured).length
-  console.log(`Featured: ${featuredCount}, Regular: ${orderedProjects.length - featuredCount}`)
 
   return (
     <div className="min-h-screen">
