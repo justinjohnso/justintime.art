@@ -93,6 +93,18 @@ export const Projects: CollectionConfig = {
       max: 2100,
     },
     {
+      name: 'dateCompleted',
+      type: 'date',
+      label: 'Date Completed',
+      admin: {
+        description: 'For more granular project sorting (only the year will be displayed)',
+        date: {
+          pickerAppearance: 'dayAndTime',
+          displayFormat: 'yyyy-MM-dd',
+        },
+      },
+    },
+    {
       name: 'body',
       type: 'richText',
       label: 'Body',

@@ -12,11 +12,12 @@ export function safeString(input: any): string {
 // Ensure the ProjectWithId type is defined correctly
 type ProjectWithId = Omit<
   PayloadProject,
-  'id' | 'slug' | 'yearCompleted' | 'featured' | 'image'
+  'id' | 'slug' | 'yearCompleted' | 'dateCompleted' | 'featured' | 'image'
 > & {
   id: string
   slug: string
   yearCompleted?: number
+  dateCompleted?: string
   featured?: boolean
   image?: number | { url?: string; alt?: string }
 }
@@ -28,15 +29,16 @@ export default async function Home() {
     collection: 'projects',
     depth: 2, // Ensure we get the full category objects
     limit: 1000, // High limit to get all projects
-    sort: '-yearCompleted', // Sort by year completed with newest first
+    sort: '-dateCompleted,-yearCompleted', // Sort by date completed first, then fall back to year completed
   })
 
-  // Update the yearCompleted property to strictly match number | undefined
+  // Process both dateCompleted and yearCompleted properties
   const allProjects = projectsResponse.docs.map((project) => {
-    const { yearCompleted, ...rest } = project
+    const { yearCompleted, dateCompleted, ...rest } = project
     return {
       ...rest,
       id: String(project.id),
+      dateCompleted: dateCompleted || undefined, // Handle null/undefined case
       yearCompleted:
         yearCompleted === null || yearCompleted === undefined ? undefined : Number(yearCompleted), // Explicitly handle null and ensure number type
     }
@@ -44,13 +46,26 @@ export default async function Home() {
 
   console.log(`Found ${allProjects.length} projects`)
 
-  // Sort projects with featured first, then by year
+  // Sort projects with featured first, then by date/year
   const orderedProjects = [...allProjects].sort((a, b) => {
     // Featured projects always come first
     if (a.featured && !b.featured) return -1
     if (!a.featured && b.featured) return 1
 
-    // Then sort by year completed (desc)
+    // Then sort by date completed (desc) if available
+    if (a.dateCompleted && b.dateCompleted) {
+      return new Date(b.dateCompleted).getTime() - new Date(a.dateCompleted).getTime()
+    }
+
+    // Fall back to date vs year comparison
+    if (a.dateCompleted && !b.dateCompleted) {
+      return -1 // Date completed takes precedence over just year
+    }
+    if (!a.dateCompleted && b.dateCompleted) {
+      return 1
+    }
+
+    // Finally fall back to year completed
     const yearA = a.yearCompleted || 0
     const yearB = b.yearCompleted || 0
     return yearB - yearA

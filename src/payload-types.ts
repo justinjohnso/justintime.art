@@ -408,6 +408,10 @@ export interface Project {
     [k: string]: unknown;
   } | null;
   yearCompleted?: number | null;
+  /**
+   * For more granular project sorting (only the year will be displayed)
+   */
+  dateCompleted?: string | null;
   body: {
     root: {
       type: string;
@@ -1365,6 +1369,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   featured?: T;
   links?: T;
   yearCompleted?: T;
+  dateCompleted?: T;
   body?: T;
   additionalImages?:
     | T

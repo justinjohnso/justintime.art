@@ -9,6 +9,7 @@ interface Project {
   title: string
   slug: string
   yearCompleted?: number
+  dateCompleted?: string // Add the new dateCompleted field
   featured?: boolean
   image?:
     | {
@@ -333,8 +334,12 @@ const ProjectGrid = ({ projects }: ProjectGridProps) => {
                     <h3 className="text-white text-base sm:text-lg font-normal">
                       {item.project?.title}
                     </h3>
-                    {item.project?.yearCompleted && (
-                      <span className="text-white text-sm">{item.project.yearCompleted}</span>
+                    {(item.project?.dateCompleted || item.project?.yearCompleted) && (
+                      <span className="text-white text-sm">
+                        {item.project?.dateCompleted
+                          ? new Date(item.project.dateCompleted).getFullYear()
+                          : item.project?.yearCompleted}
+                      </span>
                     )}
                   </div>
                 </div>
