@@ -180,7 +180,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
   const rows = chunkArray(remainingAlt, 3)
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-16 pt-12">
+    <div className="max-w-[1200px] mx-auto px-4 pb-16 pt-12">
       {/* HERO SECTION – Text on left, hero image on right */}
       {project.image?.url && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-0 mb-0 items-stretch">
