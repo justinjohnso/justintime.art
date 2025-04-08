@@ -63,7 +63,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen">
       <section className="py-12 md:py-16 lg:py-20 px-4">
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           {/* Intro text */}
           <div className="mb-16 md:mb-24">
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-light leading-tight mb-8">
