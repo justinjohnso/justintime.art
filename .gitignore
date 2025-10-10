@@ -65,14 +65,13 @@ pids
 *.db
 *.db-*
 
-# Media files - keep these in git but exclude from tracking changes
-# Remove the line below if you want to track media files
+# Public folder - media and generated files
+# Track static assets (favicons, etc.) but not media library or generated files
 public/media/
-
-# Generated files
 public/robots.txt
 public/sitemap*.xml
-migration-backup/
+public/admin/
+public/.DS_Store
 
-# Public folder - generated during build
-public/
+# Migration backup
+migration-backup/
