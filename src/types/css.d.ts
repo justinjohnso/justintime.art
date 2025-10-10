@@ -4,7 +4,7 @@ declare module '*.css' {
   export default content;
 }
 
-// Allow Tailwind CSS at-rules
+// Suppress CSS at-rule warnings for Tailwind CSS
 declare module 'csstype' {
   interface Properties {
     '--tw-bg-opacity'?: string;
@@ -17,7 +17,7 @@ declare module 'csstype' {
   }
 }
 
-// Global CSS at-rules
+// Global CSS at-rules - suppress TypeScript warnings
 declare global {
   namespace CSS {
     interface AtRules {
@@ -27,8 +27,16 @@ declare global {
       variants: any;
       responsive: any;
       screen: any;
+      media: any;
+      supports: any;
     }
   }
+}
+
+// CSS module declarations
+declare module '*.module.css' {
+  const classes: { [key: string]: string };
+  export default classes;
 }
 
 export {};

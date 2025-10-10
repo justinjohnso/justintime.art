@@ -6,9 +6,16 @@ export interface Project {
     title: string;
     description?: string;
     image?: string;
+    categories?: string[];
     featured?: boolean;
     dateCompleted?: Date;
     yearCompleted?: number;
+    links?: Array<{
+      title?: string;
+      url?: string;
+      type?: string;
+    }>;
+    additionalImages?: string[];
   };
 }
 

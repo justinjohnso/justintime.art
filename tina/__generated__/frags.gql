@@ -1,0 +1,42 @@
+fragment ProjectsParts on Projects {
+  __typename
+  title
+  description
+  image
+  categories
+  featured
+  dateCompleted
+  yearCompleted
+  links {
+    __typename
+    title
+    url
+    type
+  }
+  additionalImages
+  body
+}
+
+fragment PostsParts on Posts {
+  __typename
+  title
+  description
+  heroImage
+  publishedAt
+  categories
+  relatedPosts
+  body
+}
+
+fragment CategoriesParts on Categories {
+  __typename
+  title
+  description
+}
+
+fragment PagesParts on Pages {
+  __typename
+  title
+  description
+  body
+}

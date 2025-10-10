@@ -279,7 +279,7 @@ const rows = chunkArray(remainingAlt, 3);
   // Simple lightbox implementation
   document.addEventListener('DOMContentLoaded', () => {
     const galleryLinks = document.querySelectorAll('a[data-lightbox="gallery"]');
-    
+
     if (galleryLinks.length === 0) return;
 
     // Create lightbox elements
@@ -350,7 +350,7 @@ const rows = chunkArray(remainingAlt, 3);
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!lightbox.classList.contains('active')) return;
-      
+
       if (e.key === 'Escape') hideImage();
       if (e.key === 'ArrowRight') showNext();
       if (e.key === 'ArrowLeft') showPrev();

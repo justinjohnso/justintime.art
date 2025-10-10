@@ -47,10 +47,9 @@ var config_default = defineConfig({
             label: "Featured Image"
           },
           {
-            type: "reference",
+            type: "string",
             name: "categories",
             label: "Categories",
-            collections: ["categories"],
             list: true
           },
           {
@@ -197,17 +196,15 @@ var config_default = defineConfig({
             }
           },
           {
-            type: "reference",
+            type: "string",
             name: "categories",
             label: "Categories",
-            collections: ["categories"],
             list: true
           },
           {
-            type: "reference",
+            type: "string",
             name: "relatedPosts",
             label: "Related Posts",
-            collections: ["posts"],
             list: true
           },
           {
