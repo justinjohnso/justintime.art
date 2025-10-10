@@ -11,6 +11,12 @@ const sortedProjects = [...allProjects].sort((a, b) => {
   return yearB - yearA;
 });
 
+// Get all category metadata
+const allCategories = await getCollection('categories');
+const categoryMetadata = new Map(
+  allCategories.map(cat => [cat.data.categorySlug, cat.data])
+);
+
 // Get unique categories and organize projects by first category
 const categoryMap = new Map<string, typeof sortedProjects>();
 const projectCategoryMap = new Map<string, string>(); // track which category each project belongs to
@@ -18,7 +24,7 @@ const projectCategoryMap = new Map<string, string>(); // track which category ea
 sortedProjects.forEach((project) => {
   if (project.data.categories && project.data.categories.length > 0) {
     const firstCategory = project.data.categories[0];
-    
+
     // Only add project if it hasn't been added yet (first category only)
     if (!projectCategoryMap.has(project.slug)) {
       if (!categoryMap.has(firstCategory)) {
@@ -31,7 +37,7 @@ sortedProjects.forEach((project) => {
 });
 
 // Convert to array and sort categories alphabetically
-const categories = Array.from(categoryMap.entries()).sort((a, b) => 
+const categories = Array.from(categoryMap.entries()).sort((a, b) =>
   a[0].localeCompare(b[0])
 );
 
@@ -54,77 +60,8 @@ const { currentProjectSlug } = Astro.props;
       </a>
     </div>
 
-    <!-- All Projects (Default View) -->
+    <!-- Info Links -->
     <div class="mb-8">
-      <button
-        class="category-toggle w-full text-left font-medium text-base mb-3 hover:text-gray-600 transition-colors flex items-center justify-between"
-        data-category="all"
-      >
-        <span>All Projects</span>
-        <span class="text-gray-400 text-sm">{sortedProjects.length}</span>
-      </button>
-      <ul class="project-list space-y-2 mb-6" data-category="all">
-        {sortedProjects.map((project) => (
-          <li>
-            <a
-              href={`/projects/${project.slug}`}
-              class={`project-link block text-sm py-1 hover:text-black transition-colors ${
-                currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
-              }`}
-              data-slug={project.slug}
-              data-year={project.data.yearCompleted}
-            >
-              {project.data.title}
-              {project.data.yearCompleted && (
-                <span class="text-xs text-gray-400 ml-2">
-                  ({project.data.yearCompleted})
-                </span>
-              )}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-
-    <!-- Categories -->
-    <div class="categories-container">
-      {categories.map(([category, projects]) => (
-        <div class="category-section mb-6">
-          <button
-            class="category-toggle w-full text-left font-medium text-base mb-3 hover:text-gray-600 transition-colors flex items-center justify-between"
-            data-category={category}
-          >
-            <span>{category}</span>
-            <span class="text-gray-400 text-sm">{projects.length}</span>
-          </button>
-          <ul class="project-list hidden space-y-2" data-category={category}>
-            {projects.map((project) => (
-              <li>
-                <a
-                  href={`/projects/${project.slug}`}
-                  class={`project-link block text-sm py-1 hover:text-black transition-colors ${
-                    currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
-                  }`}
-                  data-slug={project.slug}
-                  data-year={project.data.yearCompleted}
-                  data-category={category}
-                >
-                  {project.data.title}
-                  {project.data.yearCompleted && (
-                    <span class="text-xs text-gray-400 ml-2">
-                      ({project.data.yearCompleted})
-                    </span>
-                  )}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-
-    <!-- Footer Links -->
-    <div class="mt-12 pt-6 border-t border-gray-200">
       <nav class="space-y-2">
         <a href="/about" class="block text-sm text-gray-600 hover:text-black transition-colors">
           About
@@ -134,80 +71,70 @@ const { currentProjectSlug } = Astro.props;
         </a>
       </nav>
     </div>
+
+    <!-- Categories (always expanded) -->
+    <div class="categories-container">
+      {categories.map(([categorySlug, projects]) => {
+        const categoryData = categoryMetadata.get(categorySlug);
+        const displayName = categoryData?.title || categorySlug;
+        
+        return (
+          <div class="category-section mb-8">
+            <h2 class="font-medium text-base mb-3 text-black">
+              {displayName}
+            </h2>
+            {categoryData?.description && (
+              <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                {categoryData.description}
+              </p>
+            )}
+            <ul class="project-list space-y-2">
+              {projects.map((project) => (
+                <li>
+                  <a
+                    href={`/projects/${project.slug}`}
+                    class={`project-link block text-sm py-1 hover:text-black transition-colors ${
+                      currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
+                    }`}
+                    data-slug={project.slug}
+                    data-year={project.data.yearCompleted}
+                    data-category={categorySlug}
+                  >
+                    {project.data.title}
+                    {project.data.yearCompleted && (
+                      <span class="text-xs text-gray-400 ml-2">
+                        ({project.data.yearCompleted})
+                      </span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
   </div>
 </aside>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const categoryToggles = document.querySelectorAll('.category-toggle');
-    const projectLists = document.querySelectorAll('.project-list');
-    
-    // Get current category from URL hash or default to 'all'
-    const currentCategory = window.location.hash.replace('#', '') || 'all';
-    
-    // Function to show a specific category
-    const showCategory = (categoryName: string) => {
-      // Hide all project lists
-      projectLists.forEach(list => {
-        if (list instanceof HTMLElement) {
-          list.classList.add('hidden');
-        }
-      });
-      
-      // Show the selected category
-      const targetList = document.querySelector(`.project-list[data-category="${categoryName}"]`);
-      if (targetList instanceof HTMLElement) {
-        targetList.classList.remove('hidden');
-      }
-      
-      // Update URL hash
-      if (categoryName !== 'all') {
-        window.history.pushState(null, '', `#${categoryName}`);
-      } else {
-        window.history.pushState(null, '', window.location.pathname);
-      }
-      
-      // Dispatch custom event for content area to listen to
-      window.dispatchEvent(new CustomEvent('categoryChange', { 
-        detail: { category: categoryName } 
-      }));
-    };
-    
-    // Initialize with current category
-    showCategory(currentCategory);
-    
-    // Add click handlers to category toggles
-    categoryToggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        const category = toggle.getAttribute('data-category');
-        if (category) {
-          showCategory(category);
-        }
-      });
-    });
-    
-    // Handle browser back/forward
-    window.addEventListener('hashchange', () => {
-      const newCategory = window.location.hash.replace('#', '') || 'all';
-      showCategory(newCategory);
-    });
-  });
+  // No toggle logic needed - all categories are always expanded
 </script>
 
 <style>
   .sidebar::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   .sidebar::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .sidebar::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 3px;
   }
-  
+
   .sidebar::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
   }

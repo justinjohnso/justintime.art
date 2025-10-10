@@ -48,47 +48,6 @@ const orderedProjects = [...allProjects].sort((a, b) => {
       </div>
     </main>
 
-    <script>
-      // Listen for category changes from sidebar
-      window.addEventListener('categoryChange', ((e: CustomEvent) => {
-        const { category } = e.detail;
-        const projectsSection = document.getElementById('projects-section');
-        const welcomeSection = document.getElementById('welcome-section');
-        
-        if (!projectsSection) return;
-        
-        // Get all projects
-        const allProjectLinks = document.querySelectorAll('.project-link');
-        const allProjectSlugs = Array.from(allProjectLinks)
-          .filter(link => {
-            const linkCategory = link.getAttribute('data-category');
-            return category === 'all' || linkCategory === category;
-          })
-          .map(link => link.getAttribute('data-slug'));
-        
-        // Filter grid items
-        const gridItems = document.querySelectorAll('.project-item');
-        gridItems.forEach(item => {
-          const href = item.getAttribute('href');
-          if (href) {
-            const slug = href.replace('/projects/', '');
-            if (category === 'all' || allProjectSlugs.includes(slug)) {
-              (item as HTMLElement).style.display = '';
-            } else {
-              (item as HTMLElement).style.display = 'none';
-            }
-          }
-        });
-        
-        // Show/hide welcome section
-        if (welcomeSection) {
-          if (category === 'all') {
-            welcomeSection.style.display = 'block';
-          } else {
-            welcomeSection.style.display = 'none';
-          }
-        }
-      }) as EventListener);
-    </script>
+
   </body>
 </html>

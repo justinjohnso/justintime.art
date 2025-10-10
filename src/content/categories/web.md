@@ -1,6 +1,5 @@
 ---
-title: "Web Development"
-description: "Projects focused on web technologies and interactive experiences"
+title: "Web"
+categorySlug: "web-development"
+description: "Web applications, interactive websites, and digital experiences"
 ---
-
-Projects in this category focus on web development, including frontend applications, interactive websites, and web-based creative projects.

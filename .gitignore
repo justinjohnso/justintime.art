@@ -73,3 +73,6 @@ public/media/
 public/robots.txt
 public/sitemap*.xml
 migration-backup/
+
+# Public folder - generated during build
+public/

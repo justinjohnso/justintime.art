@@ -1,4 +1,5 @@
 ---
 title: "Theater"
-description: "Technology integration in theatrical productions, including sound design, interactive staging, and immersive performance experiences."
+categorySlug: "sound-design"
+description: "Sound design and technology integration for theatrical productions"
 ---
