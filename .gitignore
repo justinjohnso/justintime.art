@@ -72,3 +72,4 @@ public/media/
 # Generated files
 public/robots.txt
 public/sitemap*.xml
+migration-backup/
