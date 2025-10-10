@@ -50,6 +50,17 @@ const { currentProjectSlug } = Astro.props;
 
 <aside class="sidebar fixed left-0 top-0 bottom-0 w-full md:w-[28%] lg:w-[24%] md:min-w-[22.8125rem] bg-white border-r border-gray-200 overflow-y-auto z-30" id="sidebar-nav">
   <div class="p-6 md:p-8">
+    <!-- Hamburger Menu Button (Mobile Only) -->
+    <button 
+      id="mobile-menu-toggle" 
+      class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white border border-gray-200 rounded"
+      aria-label="Toggle navigation menu"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
     <!-- Header -->
     <div class="mb-8 pb-6 border-b border-gray-200">
       <a href="/" class="block group">
@@ -60,32 +71,38 @@ const { currentProjectSlug } = Astro.props;
       </a>
     </div>
 
-    <!-- Info Links -->
+    <!-- About Link -->
     <div class="mb-8">
-      <nav class="space-y-2">
-        <a href="/about" class="block text-base text-gray-600 hover:text-black transition-colors">
-          About
-        </a>
-      </nav>
+      <a href="/about" class="block font-medium text-lg text-black hover:text-gray-600 transition-colors">
+        About
+      </a>
     </div>
 
-    <!-- Categories (always expanded) -->
+    <!-- Categories (accordion) -->
     <div class="categories-container">
       {categories.map(([categorySlug, projects]) => {
         const categoryData = categoryMetadata.get(categorySlug);
         const displayName = categoryData?.title || categorySlug;
 
         return (
-          <div class="category-section mb-8">
-            <a href={`/?category=${categorySlug}`} class="block font-medium text-lg mb-3 text-black hover:text-gray-600 transition-colors">
-              {displayName}
-            </a>
-            {categoryData?.description && (
-              <p class="text-sm text-gray-500 mb-3 leading-relaxed">
-                {categoryData.description}
-              </p>
-            )}
-            <ul class="project-list space-y-2">
+          <div class="category-section mb-6">
+            <button 
+              class="category-toggle w-full flex items-center justify-between font-medium text-lg text-black hover:text-gray-600 transition-colors mb-3"
+              data-category={categorySlug}
+              aria-expanded="false"
+            >
+              <span>{displayName}</span>
+              <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div class="category-content hidden">
+              {categoryData?.description && (
+                <p class="text-sm text-gray-500 mb-3 leading-relaxed">
+                  {categoryData.description}
+                </p>
+              )}
+              <ul class="project-list space-y-2">
               {projects.map((project) => (
                 <li>
                   <a
@@ -101,7 +118,8 @@ const { currentProjectSlug } = Astro.props;
                   </a>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </div>
           </div>
         );
       })}
@@ -150,6 +168,53 @@ const { currentProjectSlug } = Astro.props;
         link.addEventListener('click', saveScrollPosition);
       });
     }
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    if (mobileMenuToggle && sidebar) {
+      mobileMenuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('sidebar-open');
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!sidebar.contains(e.target as Node) && !mobileMenuToggle.contains(e.target as Node)) {
+          sidebar.classList.remove('sidebar-open');
+        }
+      });
+    }
+
+    // Accordion functionality
+    const categoryToggles = document.querySelectorAll('.category-toggle');
+    categoryToggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const content = toggle.nextElementSibling as HTMLElement;
+        const icon = toggle.querySelector('svg');
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+        // Close all other categories
+        categoryToggles.forEach(otherToggle => {
+          if (otherToggle !== toggle) {
+            const otherContent = otherToggle.nextElementSibling as HTMLElement;
+            const otherIcon = otherToggle.querySelector('svg');
+            otherToggle.setAttribute('aria-expanded', 'false');
+            otherContent?.classList.add('hidden');
+            otherIcon?.classList.remove('rotate-180');
+          }
+        });
+
+        // Toggle current category
+        if (isExpanded) {
+          toggle.setAttribute('aria-expanded', 'false');
+          content?.classList.add('hidden');
+          icon?.classList.remove('rotate-180');
+        } else {
+          toggle.setAttribute('aria-expanded', 'true');
+          content?.classList.remove('hidden');
+          icon?.classList.add('rotate-180');
+        }
+      });
+    });
   });
 </script>
 
@@ -159,6 +224,18 @@ const { currentProjectSlug } = Astro.props;
     direction: rtl;
     overflow-y: auto;
     scrollbar-gutter: stable;
+    transition: transform 0.3s ease;
+  }
+
+  /* Mobile menu hidden by default */
+  @media (max-width: 767px) {
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar.sidebar-open {
+      transform: translateX(0);
+    }
   }
 
   .sidebar > div {
