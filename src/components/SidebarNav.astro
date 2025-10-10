@@ -144,7 +144,7 @@ const { currentProjectSlug } = Astro.props;
 
       // Save before navigation
       window.addEventListener('beforeunload', saveScrollPosition);
-      
+
       // Save on link clicks
       sidebar.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', saveScrollPosition);
