@@ -78,7 +78,7 @@ const rows = chunkArray(remainingAlt, 3);
       <article class="p-6 md:p-8 lg:p-12 pb-16">
     <!-- HERO SECTION – Text on left, hero image on right -->
     {project.data.image && (
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-0 items-start">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-0 mb-0 items-start">
         <!-- Hero Text Container -->
         <div class="md:col-span-1 relative flex flex-col min-h-[350px]">
           <!-- Main text content -->
@@ -150,8 +150,8 @@ const rows = chunkArray(remainingAlt, 3);
 
     <!-- Render Row 2 if defined (first 2-3 additional images) -->
     {row2Images.length > 0 && (
-      <section class="grid gap-2 mb-0">
-        <div class={`grid gap-2 ${
+      <section class="grid gap-0 mb-0">
+        <div class={`grid gap-0 ${
           row2Images.length === 1 ? 'grid-cols-1' :
           row2Images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
         }`}>
@@ -176,7 +176,7 @@ const rows = chunkArray(remainingAlt, 3);
 
     <!-- Render Row 3: Single alternate image with body text -->
     {row3Image && (
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch mb-0">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-0 items-stretch mb-0">
         <a
           href={row3Image}
           data-lightbox="gallery"
@@ -200,8 +200,8 @@ const rows = chunkArray(remainingAlt, 3);
         row.length === 1 ? 'grid-cols-1' :
         row.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
       return (
-        <section class="grid gap-2 mb-0">
-          <div class={`grid ${gridColsClass} gap-2`}>
+        <section class="grid gap-0 mb-0">
+          <div class={`grid ${gridColsClass} gap-0`}>
             {row.map((image, colIdx) => (
               <a
                 href={image}

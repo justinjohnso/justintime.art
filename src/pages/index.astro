@@ -4,7 +4,7 @@ import ProjectGrid from '../components/ProjectGrid.astro';
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
 
-// Get all projects and sort them by yearCompleted
+// Get all projects
 const allProjects = await getCollection('projects');
 
 // Get category filter from URL
@@ -18,7 +18,16 @@ if (categoryFilter) {
   );
 }
 
+// Sort with featured projects first, then by year
 const orderedProjects = [...filteredProjects].sort((a, b) => {
+  // Featured projects come first
+  const aFeatured = a.data.featured || false;
+  const bFeatured = b.data.featured || false;
+  
+  if (aFeatured && !bFeatured) return -1;
+  if (!aFeatured && bFeatured) return 1;
+  
+  // Within same featured status, sort by year (newest first)
   const yearA = a.data.yearCompleted || 0;
   const yearB = b.data.yearCompleted || 0;
   return yearB - yearA;
@@ -83,6 +92,27 @@ const categoryData = categoryFilter
       </div>
     </main>
 
-
+    <!-- Client-side filtering script -->
+    <script define:vars={{ allProjectsData: allProjects.map(p => ({ slug: p.slug, categories: p.data.categories || [], featured: p.data.featured || false, yearCompleted: p.data.yearCompleted || 0 })) }}>
+      document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryFilter = urlParams.get('category');
+        
+        if (categoryFilter) {
+          // Filter project cards by category
+          const projectItems = document.querySelectorAll('.project-item');
+          projectItems.forEach(item => {
+            const projectSlug = item.getAttribute('href')?.split('/').pop();
+            const project = allProjectsData.find(p => p.slug === projectSlug);
+            
+            if (project && project.categories.includes(categoryFilter)) {
+              item.style.display = '';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>
