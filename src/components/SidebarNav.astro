@@ -1,0 +1,214 @@
+---
+import { getCollection } from 'astro:content';
+
+// Get all projects
+const allProjects = await getCollection('projects');
+
+// Sort projects by yearCompleted (newest first)
+const sortedProjects = [...allProjects].sort((a, b) => {
+  const yearA = a.data.yearCompleted || 0;
+  const yearB = b.data.yearCompleted || 0;
+  return yearB - yearA;
+});
+
+// Get unique categories and organize projects by first category
+const categoryMap = new Map<string, typeof sortedProjects>();
+const projectCategoryMap = new Map<string, string>(); // track which category each project belongs to
+
+sortedProjects.forEach((project) => {
+  if (project.data.categories && project.data.categories.length > 0) {
+    const firstCategory = project.data.categories[0];
+    
+    // Only add project if it hasn't been added yet (first category only)
+    if (!projectCategoryMap.has(project.slug)) {
+      if (!categoryMap.has(firstCategory)) {
+        categoryMap.set(firstCategory, []);
+      }
+      categoryMap.get(firstCategory)?.push(project);
+      projectCategoryMap.set(project.slug, firstCategory);
+    }
+  }
+});
+
+// Convert to array and sort categories alphabetically
+const categories = Array.from(categoryMap.entries()).sort((a, b) => 
+  a[0].localeCompare(b[0])
+);
+
+export interface Props {
+  currentProjectSlug?: string;
+}
+
+const { currentProjectSlug } = Astro.props;
+---
+
+<aside class="sidebar fixed left-0 top-0 bottom-0 w-full md:w-[35%] lg:w-[30%] bg-white border-r border-gray-200 overflow-y-auto z-30">
+  <div class="p-6 md:p-8">
+    <!-- Header -->
+    <div class="mb-8 pb-6 border-b border-gray-200">
+      <a href="/" class="block group">
+        <h1 class="text-2xl md:text-3xl font-light mb-2 group-hover:text-gray-600 transition-colors">
+          Justin Johnson
+        </h1>
+        <p class="text-sm text-gray-500">Creative Technologist</p>
+      </a>
+    </div>
+
+    <!-- All Projects (Default View) -->
+    <div class="mb-8">
+      <button
+        class="category-toggle w-full text-left font-medium text-base mb-3 hover:text-gray-600 transition-colors flex items-center justify-between"
+        data-category="all"
+      >
+        <span>All Projects</span>
+        <span class="text-gray-400 text-sm">{sortedProjects.length}</span>
+      </button>
+      <ul class="project-list space-y-2 mb-6" data-category="all">
+        {sortedProjects.map((project) => (
+          <li>
+            <a
+              href={`/projects/${project.slug}`}
+              class={`project-link block text-sm py-1 hover:text-black transition-colors ${
+                currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
+              }`}
+              data-slug={project.slug}
+              data-year={project.data.yearCompleted}
+            >
+              {project.data.title}
+              {project.data.yearCompleted && (
+                <span class="text-xs text-gray-400 ml-2">
+                  ({project.data.yearCompleted})
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Categories -->
+    <div class="categories-container">
+      {categories.map(([category, projects]) => (
+        <div class="category-section mb-6">
+          <button
+            class="category-toggle w-full text-left font-medium text-base mb-3 hover:text-gray-600 transition-colors flex items-center justify-between"
+            data-category={category}
+          >
+            <span>{category}</span>
+            <span class="text-gray-400 text-sm">{projects.length}</span>
+          </button>
+          <ul class="project-list hidden space-y-2" data-category={category}>
+            {projects.map((project) => (
+              <li>
+                <a
+                  href={`/projects/${project.slug}`}
+                  class={`project-link block text-sm py-1 hover:text-black transition-colors ${
+                    currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
+                  }`}
+                  data-slug={project.slug}
+                  data-year={project.data.yearCompleted}
+                  data-category={category}
+                >
+                  {project.data.title}
+                  {project.data.yearCompleted && (
+                    <span class="text-xs text-gray-400 ml-2">
+                      ({project.data.yearCompleted})
+                    </span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- Footer Links -->
+    <div class="mt-12 pt-6 border-t border-gray-200">
+      <nav class="space-y-2">
+        <a href="/about" class="block text-sm text-gray-600 hover:text-black transition-colors">
+          About
+        </a>
+        <a href="/contact" class="block text-sm text-gray-600 hover:text-black transition-colors">
+          Contact
+        </a>
+      </nav>
+    </div>
+  </div>
+</aside>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const categoryToggles = document.querySelectorAll('.category-toggle');
+    const projectLists = document.querySelectorAll('.project-list');
+    
+    // Get current category from URL hash or default to 'all'
+    const currentCategory = window.location.hash.replace('#', '') || 'all';
+    
+    // Function to show a specific category
+    const showCategory = (categoryName: string) => {
+      // Hide all project lists
+      projectLists.forEach(list => {
+        if (list instanceof HTMLElement) {
+          list.classList.add('hidden');
+        }
+      });
+      
+      // Show the selected category
+      const targetList = document.querySelector(`.project-list[data-category="${categoryName}"]`);
+      if (targetList instanceof HTMLElement) {
+        targetList.classList.remove('hidden');
+      }
+      
+      // Update URL hash
+      if (categoryName !== 'all') {
+        window.history.pushState(null, '', `#${categoryName}`);
+      } else {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+      
+      // Dispatch custom event for content area to listen to
+      window.dispatchEvent(new CustomEvent('categoryChange', { 
+        detail: { category: categoryName } 
+      }));
+    };
+    
+    // Initialize with current category
+    showCategory(currentCategory);
+    
+    // Add click handlers to category toggles
+    categoryToggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const category = toggle.getAttribute('data-category');
+        if (category) {
+          showCategory(category);
+        }
+      });
+    });
+    
+    // Handle browser back/forward
+    window.addEventListener('hashchange', () => {
+      const newCategory = window.location.hash.replace('#', '') || 'all';
+      showCategory(newCategory);
+    });
+  });
+</script>
+
+<style>
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+</style>

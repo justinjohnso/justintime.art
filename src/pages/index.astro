@@ -1,64 +1,94 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import SidebarNav from '../components/SidebarNav.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
 import { getCollection } from 'astro:content';
+import '../styles/global.css';
 
-// Get all projects and sort them
+// Get all projects and sort them by yearCompleted
 const allProjects = await getCollection('projects');
 
-// Sort projects with featured first, then by dateCompleted (newest first)
 const orderedProjects = [...allProjects].sort((a, b) => {
-  // Featured projects always come first
-  if (a.data.featured && !b.data.featured) return -1;
-  if (!a.data.featured && b.data.featured) return 1;
-
-  // Compare using dateCompleted (if available)
-  const dateA = a.data.dateCompleted ? a.data.dateCompleted.getTime() : 0;
-  const dateB = b.data.dateCompleted ? b.data.dateCompleted.getTime() : 0;
-  return dateB - dateA;
+  const yearA = a.data.yearCompleted || 0;
+  const yearB = b.data.yearCompleted || 0;
+  return yearB - yearA;
 });
 ---
 
-<Layout title="Justin Johnson - Creative Technologist">
-  <div class="min-h-screen">
-    <section class="py-12 md:py-16 lg:py-20 px-4">
-      <div class="max-w-[1200px] mx-auto px-4">
-        <!-- Intro text -->
-        <div class="mb-16 md:mb-24">
-          <h1 class="text-3xl md:text-5xl lg:text-6xl font-light leading-tight mb-8">
-            Justin Johnson <br />
-            <span class="text-xl md:text-2xl lg:text-3xl text-gray-500 mt-4 block">
-              Creative Technologist & Sound Designer
-            </span>
-          </h1>
-          <p class="text-lg max-w-2xl">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Portfolio of Justin Johnson - Creative Technologist, Sound Designer, and Web Developer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Justin Johnson - Creative Technologist</title>
+  </head>
+  <body class="text-black overflow-x-hidden">
+    <!-- Sidebar Navigation -->
+    <SidebarNav />
+
+    <!-- Main Content Area -->
+    <main class="ml-0 md:ml-[35%] lg:ml-[30%] min-h-screen">
+      <div class="p-6 md:p-8 lg:p-12">
+        <!-- Welcome Section (shown by default) -->
+        <section id="welcome-section" class="mb-12">
+          <h2 class="text-3xl md:text-4xl font-light mb-6">
+            Creative Technologist & Sound Designer
+          </h2>
+          <p class="text-lg text-gray-600 max-w-2xl mb-8">
             Exploring the intersection of technology, sound, and interactive experiences.
+            Select a project from the sidebar to view details, or browse by category.
           </p>
-        </div>
+        </section>
 
         <!-- Project Grid -->
-        <div class="mb-16">
+        <section id="projects-section">
           <ProjectGrid projects={orderedProjects} />
-        </div>
-
-        <!-- About brief section -->
-        <div class="pt-8 pb-16 border-t border-gray-200" id="contact">
-          <div class="max-w-2xl">
-            <h2 class="text-xl md:text-2xl mb-6 pb-2 border-b border-gray-200">About</h2>
-            <p class="text-lg mb-8">
-              I'm a multidisciplinary artist and creative technologist with a focus on interactive
-              experiences, sound design, and digital fabrication. My work explores the
-              relationships between technology, sound, and human interaction.
-            </p>
-            <a
-              href="/about"
-              class="text-lg border-b border-black pb-1 hover:border-gray-400 transition-colors"
-            >
-              Read More
-            </a>
-          </div>
-        </div>
+        </section>
       </div>
-    </section>
-  </div>
-</Layout>
+    </main>
+
+    <script>
+      // Listen for category changes from sidebar
+      window.addEventListener('categoryChange', ((e: CustomEvent) => {
+        const { category } = e.detail;
+        const projectsSection = document.getElementById('projects-section');
+        const welcomeSection = document.getElementById('welcome-section');
+        
+        if (!projectsSection) return;
+        
+        // Get all projects
+        const allProjectLinks = document.querySelectorAll('.project-link');
+        const allProjectSlugs = Array.from(allProjectLinks)
+          .filter(link => {
+            const linkCategory = link.getAttribute('data-category');
+            return category === 'all' || linkCategory === category;
+          })
+          .map(link => link.getAttribute('data-slug'));
+        
+        // Filter grid items
+        const gridItems = document.querySelectorAll('.project-item');
+        gridItems.forEach(item => {
+          const href = item.getAttribute('href');
+          if (href) {
+            const slug = href.replace('/projects/', '');
+            if (category === 'all' || allProjectSlugs.includes(slug)) {
+              (item as HTMLElement).style.display = '';
+            } else {
+              (item as HTMLElement).style.display = 'none';
+            }
+          }
+        });
+        
+        // Show/hide welcome section
+        if (welcomeSection) {
+          if (category === 'all') {
+            welcomeSection.style.display = 'block';
+          } else {
+            welcomeSection.style.display = 'none';
+          }
+        }
+      }) as EventListener);
+    </script>
+  </body>
+</html>
