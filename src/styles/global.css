@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Ensure alignment with header and footer */
+header,
+footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}

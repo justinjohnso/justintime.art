@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About - Justin Johnson" description="Learn more about Justin Johnson, creative technologist and sound designer">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl md:text-6xl font-light mb-8">About</h1>
+
+    <div class="prose prose-lg max-w-none">
+      <p class="text-xl text-gray-600 mb-8">
+        I'm a multidisciplinary artist and creative technologist with a focus on interactive
+        experiences, sound design, and digital fabrication.
+      </p>
+
+      <h2>Background</h2>
+      <p>
+        My work explores the relationships between technology, sound, and human interaction.
+        With a background spanning web development, electronic music production, and physical
+        computing, I create projects that bridge the digital and physical worlds.
+      </p>
+
+      <h2>Skills & Expertise</h2>
+      <ul>
+        <li>Creative Technology & Interactive Design</li>
+        <li>Sound Design & Electronic Music Production</li>
+        <li>Web Development (JavaScript, TypeScript, React, Astro)</li>
+        <li>Physical Computing (Arduino, Raspberry Pi)</li>
+        <li>Digital Fabrication (3D Printing, Laser Cutting)</li>
+        <li>Creative Coding (p5.js, Processing, Max/MSP)</li>
+      </ul>
+
+      <h2>Education</h2>
+      <p>
+        Graduate studies in Interactive Media and Technology, with continued learning
+        through hands-on projects and collaboration with other artists and technologists.
+      </p>
+
+      <h2>Philosophy</h2>
+      <p>
+        I believe in the power of technology to enhance human creativity and connection.
+        My work often explores themes of play, experimentation, and the unexpected
+        beauty that emerges when people interact with responsive systems.
+      </p>
+    </div>
+
+    <div class="mt-16 pt-8 border-t border-gray-200">
+      <h2 class="text-2xl font-light mb-6">Get in Touch</h2>
+      <p class="text-lg mb-4">
+        Interested in collaborating or learning more about my work?
+      </p>
+      <a
+        href="mailto:hello@jjohnson.art"
+        class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 hover:border-black transition-colors"
+      >
+        Send me an email
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .prose {
+    color: #374151;
+    line-height: 1.7;
+  }
+
+  .prose h2 {
+    color: #111827;
+    font-weight: 400;
+    font-size: 1.875rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose p {
+    margin-bottom: 1.5rem;
+  }
+
+  .prose ul {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+</style>

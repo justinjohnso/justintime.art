@@ -1,0 +1,171 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+type Props = {
+  project: CollectionEntry<'projects'>;
+};
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+---
+
+<Layout title={`${project.data.title} - Justin Johnson`} description={project.data.description}>
+  <article class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Project Header -->
+    <header class="mb-12">
+      <h1 class="text-4xl md:text-6xl font-light mb-6">{project.data.title}</h1>
+
+      {project.data.description && (
+        <p class="text-xl text-gray-600 mb-8 max-w-3xl">{project.data.description}</p>
+      )}
+
+      <!-- Project Meta -->
+      <div class="flex flex-wrap gap-6 text-sm text-gray-500 mb-8">
+        {project.data.dateCompleted && (
+          <span>Completed: {project.data.dateCompleted.getFullYear()}</span>
+        )}
+
+        {project.data.categories && project.data.categories.length > 0 && (
+          <div class="flex gap-2">
+            {project.data.categories.map((category) => (
+              <span class="bg-gray-100 px-2 py-1 rounded text-xs">{category}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- Project Links -->
+      {project.data.links && project.data.links.length > 0 && (
+        <div class="flex flex-wrap gap-4 mb-8">
+          {project.data.links.map((link) => (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:border-black transition-colors"
+            >
+              {link.title}
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <!-- Featured Image -->
+      {project.data.image && (
+        <div class="mb-12">
+          <img
+            src={project.data.image}
+            alt={project.data.title}
+            class="w-full h-auto rounded-lg shadow-lg"
+          />
+        </div>
+      )}
+    </header>
+
+    <!-- Project Content -->
+    <div class="prose prose-lg max-w-none">
+      <Content />
+    </div>
+
+    <!-- Additional Images -->
+    {project.data.additionalImages && project.data.additionalImages.length > 0 && (
+      <div class="mt-16">
+        <h2 class="text-2xl font-light mb-8">Additional Images</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {project.data.additionalImages.map((image, index) => (
+            <img
+              src={image}
+              alt={`${project.data.title} - Image ${index + 1}`}
+              class="w-full h-auto rounded-lg shadow-lg"
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Navigation -->
+    <div class="mt-16 pt-8 border-t border-gray-200">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-black transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m6-7l-7 7 7 7"></path>
+        </svg>
+        Back to Projects
+      </a>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  /* Custom prose styles for project content */
+  .prose {
+    color: #374151;
+    line-height: 1.7;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    color: #111827;
+    font-weight: 400;
+  }
+
+  .prose h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.875rem;
+  }
+
+  .prose h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  .prose p {
+    margin-bottom: 1.5rem;
+  }
+
+  .prose img {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin: 2rem 0;
+  }
+
+  .prose pre {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .prose code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .prose pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+</style>

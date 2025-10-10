@@ -1,0 +1,146 @@
+---
+export interface Project {
+  id: string;
+  slug: string;
+  data: {
+    title: string;
+    description?: string;
+    image?: string;
+    featured?: boolean;
+    dateCompleted?: Date;
+    yearCompleted?: number;
+  };
+}
+
+export interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+
+<div class="project-grid" id="project-grid">
+  {projects.map((project) => (
+    <a href={`/projects/${project.slug}`} class="project-item group relative overflow-hidden">
+      <div class="project-image-container h-full">
+        <img
+          src={project.data.image || '/placeholder.jpg'}
+          alt={project.data.title}
+          class="project-image object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+        />
+        <div class="project-overlay absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="project-content absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div class="bg-black/60 p-3 max-w-[80%] text-center">
+            <h3 class="text-white text-base sm:text-lg font-normal">
+              {project.data.title}
+            </h3>
+            {project.data.dateCompleted && (
+              <span class="text-white text-sm">
+                {project.data.dateCompleted.getFullYear()}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </a>
+  ))}
+</div>
+
+<script>
+  // Client-side grid layout logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('project-grid');
+    const items = Array.from(document.querySelectorAll('.project-item')) as HTMLElement[];
+
+    if (!grid || !items.length) return;
+
+    let columns = 3;
+
+    const detectColumns = () => {
+      if (window.innerWidth < 640) {
+        columns = 1;
+      } else if (window.innerWidth < 768) {
+        columns = 2;
+      } else {
+        columns = 3;
+      }
+    };
+
+    const generatePattern = (cols: number): Array<'small' | 'wide' | 'tall' | 'large'> => {
+      switch (cols) {
+        case 1:
+          return ['small', 'tall'];
+        case 2:
+          return ['large', 'small', 'small', 'tall', 'wide'];
+        case 3:
+        default:
+          return ['large', 'small', 'tall', 'small', 'wide', 'small'];
+      }
+    };
+
+    const layoutGrid = () => {
+      detectColumns();
+      const pattern = generatePattern(columns);
+
+      // Apply grid styles
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+      grid.style.gridAutoRows = '350px';
+      grid.style.gap = '0.5rem';
+
+      items.forEach((item, index) => {
+        const size = pattern[index % pattern.length];
+
+        // Apply size classes
+        item.style.gridColumnEnd = size === 'wide' || size === 'large' ? 'span 2' : 'span 1';
+        item.style.gridRowEnd = size === 'tall' || size === 'large' ? 'span 2' : 'span 1';
+
+        // Single column adjustments
+        if (columns === 1) {
+          item.style.gridColumnEnd = 'span 1';
+          item.style.gridRowEnd = size === 'tall' ? 'span 2' : 'span 1';
+        }
+      });
+    };
+
+    layoutGrid();
+    window.addEventListener('resize', layoutGrid);
+  });
+</script>
+
+<style>
+  .project-grid {
+    display: grid;
+    gap: 0.5rem;
+    grid-auto-flow: dense;
+  }
+
+  .project-item {
+    display: block;
+    height: 100%;
+  }
+
+  .project-image-container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    .project-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 769px) {
+    .project-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

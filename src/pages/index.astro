@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProjectGrid from '../components/ProjectGrid.astro';
+import { getCollection } from 'astro:content';
+
+// Get all projects and sort them
+const allProjects = await getCollection('projects');
+
+// Sort projects with featured first, then by dateCompleted (newest first)
+const orderedProjects = [...allProjects].sort((a, b) => {
+  // Featured projects always come first
+  if (a.data.featured && !b.data.featured) return -1;
+  if (!a.data.featured && b.data.featured) return 1;
+
+  // Compare using dateCompleted (if available)
+  const dateA = a.data.dateCompleted ? a.data.dateCompleted.getTime() : 0;
+  const dateB = b.data.dateCompleted ? b.data.dateCompleted.getTime() : 0;
+  return dateB - dateA;
+});
+---
+
+<Layout title="Justin Johnson - Creative Technologist">
+  <div class="min-h-screen">
+    <section class="py-12 md:py-16 lg:py-20 px-4">
+      <div class="max-w-[1200px] mx-auto px-4">
+        <!-- Intro text -->
+        <div class="mb-16 md:mb-24">
+          <h1 class="text-3xl md:text-5xl lg:text-6xl font-light leading-tight mb-8">
+            Justin Johnson <br />
+            <span class="text-xl md:text-2xl lg:text-3xl text-gray-500 mt-4 block">
+              Creative Technologist & Sound Designer
+            </span>
+          </h1>
+          <p class="text-lg max-w-2xl">
+            Exploring the intersection of technology, sound, and interactive experiences.
+          </p>
+        </div>
+
+        <!-- Project Grid -->
+        <div class="mb-16">
+          <ProjectGrid projects={orderedProjects} />
+        </div>
+
+        <!-- About brief section -->
+        <div class="pt-8 pb-16 border-t border-gray-200" id="contact">
+          <div class="max-w-2xl">
+            <h2 class="text-xl md:text-2xl mb-6 pb-2 border-b border-gray-200">About</h2>
+            <p class="text-lg mb-8">
+              I'm a multidisciplinary artist and creative technologist with a focus on interactive
+              experiences, sound design, and digital fabrication. My work explores the
+              relationships between technology, sound, and human interaction.
+            </p>
+            <a
+              href="/about"
+              class="text-lg border-b border-black pb-1 hover:border-gray-400 transition-colors"
+            >
+              Read More
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
