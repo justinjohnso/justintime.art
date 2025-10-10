@@ -81,12 +81,12 @@ const rows = chunkArray(remainingAlt, 3);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{project.data.title} - Justin Johnson</title>
   </head>
-  <body class="text-black overflow-x-hidden">
+  <body class="text-black overflow-x-hidden bg-white">
     <!-- Sidebar Navigation -->
     <SidebarNav currentProjectSlug={project.slug} />
 
     <!-- Main Content Area -->
-    <main class="ml-0 md:ml-[28%] lg:ml-[24%] min-h-screen bg-white">
+    <main class="ml-0 md:ml-[28%] lg:ml-[24%] min-h-screen">
       <article class="p-6 md:p-8 lg:p-12 pb-16">
     <!-- HERO SECTION – Text on left, hero image on right -->
     {project.data.image && (
