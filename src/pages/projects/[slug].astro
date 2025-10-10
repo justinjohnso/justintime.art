@@ -19,18 +19,6 @@ type Props = {
 const { project } = Astro.props;
 const { Content } = await project.render();
 
-// Get all projects for related projects section
-const allProjects = await getCollection('projects');
-
-// Find related projects (same category, excluding current project)
-const relatedProjects = allProjects
-  .filter((p) => {
-    if (p.slug === project.slug) return false;
-    if (!project.data.categories || !p.data.categories) return false;
-    return project.data.categories.some((cat) => p.data.categories?.includes(cat));
-  })
-  .slice(0, 3);
-
 // Helper: split an array into chunks of the given size
 const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
   const chunks: T[][] = [];
@@ -233,37 +221,6 @@ const rows = chunkArray(remainingAlt, 3);
         </section>
       );
     })}
-
-    <!-- Related Projects Section -->
-    {relatedProjects.length > 0 && (
-      <section class="border-t border-gray-200 pt-12 mt-12">
-        <h2 class="text-2xl font-light mb-8">Related Projects</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {relatedProjects.map((related) => (
-            <a
-              href={`/projects/${related.slug}`}
-              class="group block overflow-hidden"
-            >
-              {related.data.image && (
-                <div class="relative aspect-[4/3] overflow-hidden mb-4">
-                  <img
-                    src={related.data.image}
-                    alt={related.data.title}
-                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-              )}
-              <h3 class="text-lg font-medium mb-2 group-hover:text-blue-600 transition-colors">
-                {related.data.title}
-              </h3>
-              {related.data.description && (
-                <p class="text-sm text-gray-600 line-clamp-2">{related.data.description}</p>
-              )}
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
 
     <!-- Back to projects link -->
     <div class="border-t border-gray-200 pt-8 mt-8">

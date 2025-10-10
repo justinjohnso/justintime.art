@@ -63,10 +63,10 @@ const { currentProjectSlug } = Astro.props;
     <!-- Info Links -->
     <div class="mb-8">
       <nav class="space-y-2">
-        <a href="/about" class="block text-sm text-gray-600 hover:text-black transition-colors">
+        <a href="/about" class="block text-base text-gray-600 hover:text-black transition-colors">
           About
         </a>
-        <a href="/contact" class="block text-sm text-gray-600 hover:text-black transition-colors">
+        <a href="/contact" class="block text-base text-gray-600 hover:text-black transition-colors">
           Contact
         </a>
       </nav>
@@ -80,11 +80,11 @@ const { currentProjectSlug } = Astro.props;
         
         return (
           <div class="category-section mb-8">
-            <h2 class="font-medium text-base mb-3 text-black">
+            <h2 class="font-medium text-lg mb-3 text-black">
               {displayName}
             </h2>
             {categoryData?.description && (
-              <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+              <p class="text-sm text-gray-500 mb-3 leading-relaxed">
                 {categoryData.description}
               </p>
             )}
@@ -93,7 +93,7 @@ const { currentProjectSlug } = Astro.props;
                 <li>
                   <a
                     href={`/projects/${project.slug}`}
-                    class={`project-link block text-sm py-1 hover:text-black transition-colors ${
+                    class={`project-link block text-base py-1 hover:text-black transition-colors ${
                       currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
                     }`}
                     data-slug={project.slug}
@@ -102,7 +102,7 @@ const { currentProjectSlug } = Astro.props;
                   >
                     {project.data.title}
                     {project.data.yearCompleted && (
-                      <span class="text-xs text-gray-400 ml-2">
+                      <span class="text-sm text-gray-400 ml-2">
                         ({project.data.yearCompleted})
                       </span>
                     )}
@@ -121,9 +121,47 @@ const { currentProjectSlug } = Astro.props;
   // No toggle logic needed - all categories are always expanded
 </script>
 
+<script>
+  // Preserve scroll position when navigating
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      // Restore scroll position
+      const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
+      if (savedPosition) {
+        sidebar.scrollTop = parseInt(savedPosition, 10);
+      }
+
+      // Save scroll position before navigation
+      const saveScrollPosition = () => {
+        sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
+      };
+
+      // Save on scroll
+      sidebar.addEventListener('scroll', saveScrollPosition);
+
+      // Save before page unload
+      window.addEventListener('beforeunload', saveScrollPosition);
+    }
+  });
+</script>
+
 <style>
+  .sidebar {
+    /* Position scrollbar on the left */
+    direction: rtl;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .sidebar > div {
+    /* Reset text direction inside */
+    direction: ltr;
+  }
+
+  /* Show scrollbar only on hover or when scrolling */
   .sidebar::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
 
   .sidebar::-webkit-scrollbar-track {
@@ -131,11 +169,26 @@ const { currentProjectSlug } = Astro.props;
   }
 
   .sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+
+  .sidebar:hover::-webkit-scrollbar-thumb {
     background: #d1d5db;
-    border-radius: 3px;
   }
 
   .sidebar::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
+  }
+
+  /* Firefox scrollbar styling */
+  .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .sidebar:hover {
+    scrollbar-color: #d1d5db transparent;
   }
 </style>
