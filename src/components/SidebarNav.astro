@@ -51,8 +51,8 @@ const { currentProjectSlug } = Astro.props;
 <aside class="sidebar fixed left-0 top-0 bottom-0 w-full md:w-[28%] lg:w-[24%] md:min-w-[22.8125rem] bg-white border-r border-gray-200 overflow-y-auto z-30" id="sidebar-nav">
   <div class="p-6 md:p-8">
     <!-- Hamburger Menu Button (Mobile Only) -->
-    <button 
-      id="mobile-menu-toggle" 
+    <button
+      id="mobile-menu-toggle"
       class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white border border-gray-200 rounded"
       aria-label="Toggle navigation menu"
     >
@@ -85,18 +85,22 @@ const { currentProjectSlug } = Astro.props;
         const displayName = categoryData?.title || categorySlug;
 
         return (
-          <div class="category-section mb-6">
-            <button 
-              class="category-toggle w-full flex items-center justify-between font-medium text-lg text-black hover:text-gray-600 transition-colors mb-3"
+          <div class="category-section mb-8">
+            <!-- Desktop: simple link, Mobile: accordion button -->
+            <a href={`/?category=${categorySlug}`} class="category-header hidden md:block font-medium text-lg mb-3 text-black hover:text-gray-600 transition-colors">
+              {displayName}
+            </a>
+            <button
+              class="category-toggle md:hidden w-full flex items-center justify-between font-medium text-lg text-black hover:text-gray-600 transition-colors mb-3"
               data-category={categorySlug}
               aria-expanded="false"
             >
               <span>{displayName}</span>
-              <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="chevron w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            <div class="category-content hidden">
+            <div class="category-content md:block">
               {categoryData?.description && (
                 <p class="text-sm text-gray-500 mb-3 leading-relaxed">
                   {categoryData.description}
@@ -126,10 +130,6 @@ const { currentProjectSlug } = Astro.props;
     </div>
   </div>
 </aside>
-
-<script>
-  // No toggle logic needed - all categories are always expanded
-</script>
 
 <script is:inline>
   // Restore scroll position immediately to prevent jump
@@ -184,37 +184,55 @@ const { currentProjectSlug } = Astro.props;
       });
     }
 
-    // Accordion functionality
+    // Accordion functionality (mobile only)
     const categoryToggles = document.querySelectorAll('.category-toggle');
-    categoryToggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        const content = toggle.nextElementSibling as HTMLElement;
-        const icon = toggle.querySelector('svg');
-        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-
-        // Close all other categories
-        categoryToggles.forEach(otherToggle => {
-          if (otherToggle !== toggle) {
-            const otherContent = otherToggle.nextElementSibling as HTMLElement;
-            const otherIcon = otherToggle.querySelector('svg');
-            otherToggle.setAttribute('aria-expanded', 'false');
-            otherContent?.classList.add('hidden');
-            otherIcon?.classList.remove('rotate-180');
-          }
-        });
-
-        // Toggle current category
-        if (isExpanded) {
-          toggle.setAttribute('aria-expanded', 'false');
-          content?.classList.add('hidden');
-          icon?.classList.remove('rotate-180');
-        } else {
+    
+    // Only enable accordion on mobile
+    const handleAccordion = () => {
+      if (window.innerWidth >= 768) {
+        // Desktop: ensure all categories are visible
+        categoryToggles.forEach(toggle => {
+          const content = toggle.nextElementSibling as HTMLElement;
           toggle.setAttribute('aria-expanded', 'true');
           content?.classList.remove('hidden');
-          icon?.classList.add('rotate-180');
-        }
+        });
+        return;
+      }
+
+      // Mobile: accordion behavior
+      categoryToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const content = toggle.nextElementSibling as HTMLElement;
+          const icon = toggle.querySelector('.chevron');
+          const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+          // Close all other categories
+          categoryToggles.forEach(otherToggle => {
+            if (otherToggle !== toggle) {
+              const otherContent = otherToggle.nextElementSibling as HTMLElement;
+              const otherIcon = otherToggle.querySelector('.chevron');
+              otherToggle.setAttribute('aria-expanded', 'false');
+              otherContent?.classList.add('hidden');
+              otherIcon?.classList.remove('rotate-180');
+            }
+          });
+
+          // Toggle current category
+          if (isExpanded) {
+            toggle.setAttribute('aria-expanded', 'false');
+            content?.classList.add('hidden');
+            icon?.classList.remove('rotate-180');
+          } else {
+            toggle.setAttribute('aria-expanded', 'true');
+            content?.classList.remove('hidden');
+            icon?.classList.add('rotate-180');
+          }
+        });
       });
-    });
+    };
+
+    handleAccordion();
+    window.addEventListener('resize', handleAccordion);
   });
 </script>
 
