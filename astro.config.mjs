@@ -1,7 +1,8 @@
-import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
-import react from '@astrojs/react';
-import mdx from '@astrojs/mdx';
+import { defineConfig } from 'astro/config'
+import tailwind from '@astrojs/tailwind'
+import react from '@astrojs/react'
+import mdx from '@astrojs/mdx'
+import tinaDirective from './astro-tina-directive/register.js'
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,15 +12,16 @@ export default defineConfig({
     }),
     react(), // For interactive components
     mdx(), // For MDX content support
+    tinaDirective(), // TinaCMS visual editor directive
   ],
   output: 'static',
   site: 'https://jjohnson.art', // Update with your actual domain
   build: {
-    assets: 'assets'
+    assets: 'assets',
   },
   vite: {
     define: {
       __DATE__: `'${new Date().toISOString()}'`,
     },
   },
-});
+})

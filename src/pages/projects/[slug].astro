@@ -3,21 +3,31 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import SidebarNav from '../../components/SidebarNav.astro';
 import { getEmbedInfo } from '../../utils/embedUtils';
 import '../../styles/global.css';
+import client from '../../../tina/__generated__/client';
+import ProjectPage from '../../../tina/pages/ProjectPage';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
 
   return projects.map((project) => ({
-    params: { slug: project.slug },
-    props: { project },
+    params: { slug: project.id },
+    props: {
+      project,
+      getTinaProps: async () =>
+        client.queries.projects({
+          relativePath: project.data.tinaInfo.relativePath,
+        }),
+    },
   }));
 }
 
 type Props = {
   project: CollectionEntry<'projects'>;
+  getTinaProps: () => Promise<any>;
 };
 
-const { project } = Astro.props;
+const { project, getTinaProps } = Astro.props;
+const tinaProps = await getTinaProps();
 const { Content } = await project.render();
 
 // Get category metadata for display names
@@ -91,6 +101,10 @@ const rows = chunkArray(remainingAlt, 3);
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
+      <!-- TinaCMS Visual Editor Component (only hydrates in TinaCMS iframe) -->
+      <ProjectPage {...tinaProps} client:tina />
+
+      <!-- Static content for production -->
       <article class="p-4 md:p-6 lg:p-8 pb-12">
     <!-- HERO SECTION – Text on left, hero image on right -->
     {project.data.image && (

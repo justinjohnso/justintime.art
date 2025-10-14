@@ -48,11 +48,22 @@ Content is managed through TinaCMS and stored as Markdown/MDX files in the `src/
 
 Access the CMS at `/admin` when running in development mode. TinaCMS provides a visual editor for all content types.
 
+### Visual Editing
+
+This portfolio supports TinaCMS's **Visual Editor** for contextual editing:
+
+- **Side-by-side Editing**: Edit content while seeing changes in real-time
+- **Click-to-Edit**: Click directly on content to edit it
+- **Live Preview**: Changes appear instantly as you type
+- **Component-level Editing**: Edit specific fields without navigating away
+
+The visual editor only loads when you're editing in TinaCMS (inside the iframe). On your production site, only the static content is served for optimal performance.
+
 ## 🚦 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (recommended) or npm
 
 ### Installation
