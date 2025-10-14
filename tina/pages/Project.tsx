@@ -2,6 +2,7 @@ import React from 'react'
 import { tinaField, useTina } from 'tinacms/dist/react'
 import type { ProjectsQuery, ProjectsQueryVariables } from '../__generated__/types'
 import { TinaMarkdown } from 'tinacms/dist/rich-text'
+import { tinaMarkdownComponents } from '../components/TinaMarkdownComponents'
 
 type Props = {
   variables: ProjectsQueryVariables
@@ -9,7 +10,7 @@ type Props = {
   query: string
 }
 
-export default function ProjectPage(props: Props) {
+export default function Project(props: Props) {
   const { data } = useTina({
     query: props.query,
     variables: props.variables,
@@ -114,7 +115,7 @@ export default function ProjectPage(props: Props) {
           data-tina-field={tinaField(project, 'body')}
           className="prose prose-base max-w-none text-gray-700 mt-4"
         >
-          <TinaMarkdown content={project.body} />
+          <TinaMarkdown content={project.body} components={tinaMarkdownComponents} />
         </div>
       )}
 

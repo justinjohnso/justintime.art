@@ -4,7 +4,7 @@ import SidebarNav from '../../components/SidebarNav.astro';
 import { getEmbedInfo } from '../../utils/embedUtils';
 import '../../styles/global.css';
 import client from '../../../tina/__generated__/client';
-import ProjectPage from '../../../tina/pages/ProjectPage';
+import Project from '../../../tina/pages/Project';
 import { ViewTransitions } from 'astro:transitions';
 
 export async function getStaticPaths() {
@@ -109,7 +109,7 @@ const rows = chunkArray(remainingAlt, 3);
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
       <!-- TinaCMS Visual Editor Component (only renders in TinaCMS iframe) -->
       <div id="tina-wrapper" style="display: none;">
-        <ProjectPage {...tinaProps} client:tina />
+        <Project {...tinaProps} client:tina />
       </div>
 
       <!-- Static content (hidden when in TinaCMS iframe) -->
