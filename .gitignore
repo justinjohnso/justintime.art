@@ -54,8 +54,8 @@ pids
 # Yarn Integrity file
 .yarn-integrity
 
-# TinaCMS
-.tina/__generated__/
+# TinaCMS generated files (regenerated on build)
+tina/__generated__/
 
 # Legacy Next.js (from migration)
 .next/

@@ -49,9 +49,9 @@
   transform: scale(1.05);
 }
 
-.transition-transform {
+/* .transition-transform {
   transition: transform 0.3s ease-in-out;
-}
+} */
 
 .text-blue-600 {
   color: #2563eb;
