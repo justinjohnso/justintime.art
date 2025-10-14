@@ -424,14 +424,24 @@ export type Pages = Node & Document & {
   __typename?: 'Pages';
   title: Scalars['String']['output'];
   description: Scalars['String']['output'];
+  featuredProjects?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  body?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
 };
 
+export type RichTextFilter = {
+  startsWith?: InputMaybe<Scalars['String']['input']>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  exists?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type PagesFilter = {
   title?: InputMaybe<StringFilter>;
   description?: InputMaybe<StringFilter>;
+  featuredProjects?: InputMaybe<StringFilter>;
+  body?: InputMaybe<RichTextFilter>;
 };
 
 export type PagesConnectionEdges = {
@@ -598,6 +608,8 @@ export type CategoriesMutation = {
 export type PagesMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  featuredProjects?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type ProjectsPartsFragment = { __typename: 'Projects', title: string, description?: string | null, image?: string | null, mediaEmbed?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null };
@@ -606,7 +618,7 @@ export type PostsPartsFragment = { __typename: 'Posts', title: string, descripti
 
 export type CategoriesPartsFragment = { __typename: 'Categories', title: string, description?: string | null };
 
-export type PagesPartsFragment = { __typename: 'Pages', title: string, description: string };
+export type PagesPartsFragment = { __typename: 'Pages', title: string, description: string, featuredProjects?: Array<string | null> | null, body?: any | null };
 
 export type ProjectsQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -670,7 +682,7 @@ export type PagesQueryVariables = Exact<{
 }>;
 
 
-export type PagesQuery = { __typename?: 'Query', pages: { __typename: 'Pages', id: string, title: string, description: string, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PagesQuery = { __typename?: 'Query', pages: { __typename: 'Pages', id: string, title: string, description: string, featuredProjects?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type PagesConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -682,7 +694,7 @@ export type PagesConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PagesConnectionQuery = { __typename?: 'Query', pagesConnection: { __typename?: 'PagesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PagesConnectionEdges', cursor: string, node?: { __typename: 'Pages', id: string, title: string, description: string, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PagesConnectionQuery = { __typename?: 'Query', pagesConnection: { __typename?: 'PagesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PagesConnectionEdges', cursor: string, node?: { __typename: 'Pages', id: string, title: string, description: string, featuredProjects?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export const ProjectsPartsFragmentDoc = gql`
     fragment ProjectsParts on Projects {
@@ -729,6 +741,8 @@ export const PagesPartsFragmentDoc = gql`
   __typename
   title
   description
+  featuredProjects
+  body
 }
     `;
 export const ProjectsDocument = gql`
@@ -1033,7 +1047,7 @@ export const ExperimentalGetTinaClient = () =>
   getSdk(
     generateRequester(
       createClient({
-        url: "http://localhost:4001/graphql",
+        url: "https://content.tinajs.io/1.6/content/d1366156-b374-4af6-a618-c60bcfa839db/github/main",
         queries,
       })
     )

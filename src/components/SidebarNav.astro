@@ -134,71 +134,32 @@ const { currentProjectSlug } = Astro.props;
   </div>
 </aside>
 
-<script is:inline>
-  // Restore scroll position immediately to prevent jump
-  function restoreSidebarScroll() {
-    const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
-    if (savedPosition) {
-      requestAnimationFrame(() => {
-        const sidebar = document.getElementById('sidebar-nav');
-        if (sidebar) {
-          sidebar.scrollTop = parseInt(savedPosition, 10);
-        }
-      });
-    }
-  }
-
-  // Run on initial page load
-  restoreSidebarScroll();
-
-  // Run after view transitions complete
-  document.addEventListener('astro:page-load', restoreSidebarScroll);
-</script>
-
 <script>
-  function setupSidebar() {
+  function initSidebar() {
     const sidebar = document.getElementById('sidebar-nav');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
     if (!sidebar) return;
 
-    // Save scroll position before navigation
+    // Restore scroll position
+    const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
+    if (savedPosition) {
+      sidebar.scrollTop = parseInt(savedPosition, 10);
+    }
+
+    // Save scroll position
     const saveScrollPosition = () => {
       sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
     };
 
-    // Save on scroll
     sidebar.addEventListener('scroll', saveScrollPosition);
-
-    // Save before view transition starts
     document.addEventListener('astro:before-preparation', saveScrollPosition);
 
-    // Save before navigation
-    window.addEventListener('beforeunload', saveScrollPosition);
-
-    // Save scroll position on link clicks
-    sidebar.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', saveScrollPosition);
-    });
-  }
-
-  // Setup on initial load
-  document.addEventListener('DOMContentLoaded', setupSidebar);
-
-  // Re-setup after view transitions
-  document.addEventListener('astro:page-load', setupSidebar);
-</script>
-
-<script>
-  function setupMobileAndAccordion() {
-    const sidebar = document.getElementById('sidebar-nav');
-    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-    
     // Mobile menu toggle
-    if (mobileMenuToggle && sidebar) {
+    if (mobileMenuToggle) {
       mobileMenuToggle.addEventListener('click', () => {
         sidebar.classList.toggle('sidebar-open');
       });
 
-      // Close menu when clicking outside
       document.addEventListener('click', (e) => {
         if (!sidebar.contains(e.target as Node) && !mobileMenuToggle.contains(e.target as Node)) {
           sidebar.classList.remove('sidebar-open');
@@ -209,59 +170,49 @@ const { currentProjectSlug } = Astro.props;
     // Accordion functionality (mobile only)
     const categoryToggles = document.querySelectorAll('.category-toggle');
 
-    // Only enable accordion on mobile
-    const handleAccordion = () => {
-      if (window.innerWidth >= 768) {
-        // Desktop: ensure all categories are visible
-        categoryToggles.forEach(toggle => {
-          const content = toggle.nextElementSibling as HTMLElement;
+    const setupAccordion = () => {
+      const isMobile = window.innerWidth < 768;
+
+      categoryToggles.forEach(toggle => {
+        const content = toggle.nextElementSibling as HTMLElement;
+
+        if (!isMobile) {
+          // Desktop: all visible
           toggle.setAttribute('aria-expanded', 'true');
           content?.classList.remove('hidden');
-        });
-        return;
-      }
+        } else {
+          // Mobile: accordion behavior
+          toggle.addEventListener('click', () => {
+            const icon = toggle.querySelector('.chevron');
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
 
-      // Mobile: accordion behavior
-      categoryToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-          const content = toggle.nextElementSibling as HTMLElement;
-          const icon = toggle.querySelector('.chevron');
-          const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            // Close all others
+            categoryToggles.forEach(other => {
+              if (other !== toggle) {
+                const otherContent = other.nextElementSibling as HTMLElement;
+                const otherIcon = other.querySelector('.chevron');
+                other.setAttribute('aria-expanded', 'false');
+                otherContent?.classList.add('hidden');
+                otherIcon?.classList.remove('rotate-180');
+              }
+            });
 
-          // Close all other categories
-          categoryToggles.forEach(otherToggle => {
-            if (otherToggle !== toggle) {
-              const otherContent = otherToggle.nextElementSibling as HTMLElement;
-              const otherIcon = otherToggle.querySelector('.chevron');
-              otherToggle.setAttribute('aria-expanded', 'false');
-              otherContent?.classList.add('hidden');
-              otherIcon?.classList.remove('rotate-180');
-            }
+            // Toggle current
+            toggle.setAttribute('aria-expanded', (!isExpanded).toString());
+            content?.classList.toggle('hidden');
+            icon?.classList.toggle('rotate-180');
           });
-
-          // Toggle current category
-          if (isExpanded) {
-            toggle.setAttribute('aria-expanded', 'false');
-            content?.classList.add('hidden');
-            icon?.classList.remove('rotate-180');
-          } else {
-            toggle.setAttribute('aria-expanded', 'true');
-            content?.classList.remove('hidden');
-            icon?.classList.add('rotate-180');
-          }
-        });
+        }
       });
     };
 
-    handleAccordion();
-    window.addEventListener('resize', handleAccordion);
+    setupAccordion();
+    window.addEventListener('resize', setupAccordion);
   }
 
-  // Setup on initial load
-  document.addEventListener('DOMContentLoaded', setupMobileAndAccordion);
-
-  // Re-setup after view transitions
-  document.addEventListener('astro:page-load', setupMobileAndAccordion);
+  // Run on initial load and after view transitions
+  initSidebar();
+  document.addEventListener('astro:page-load', initSidebar);
 </script>
 
 <style>

@@ -145,6 +145,8 @@ export const pages = defineCollection({
     }),
     title: z.string(),
     description: z.string(),
+    featuredProjects: z.array(z.string()).optional(),
+    body: z.any().optional(),
   }),
 })
 

@@ -14,54 +14,44 @@ const allProjects = await getCollection('projects');
 const homePage = await getEntry('pages', 'home');
 
 // Get TinaCMS data for visual editing
-async function getTinaProps() {
-  const tinaProps = {
-    data: {},
-    query: '',
-    variables: { relativePath: 'home.mdx' },
-  };
-
-  try {
-    const response = await client.queries.pages({
-      relativePath: 'home.mdx',
-    });
-    tinaProps.data = response.data;
-    tinaProps.query = response.query;
-    tinaProps.variables = response.variables;
-  } catch (error) {
-    console.error('Error fetching Tina data:', error);
-  }
-
-  return tinaProps;
-}
-
-const tinaProps = await getTinaProps();
+const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
 // Get category filter from URL
 const categoryFilter = Astro.url.searchParams.get('category');
 
+// Get featured projects list from home page
+const featuredProjectSlugs = homePage?.data.featuredProjects || [];
+
 // Filter projects by category if specified
-let filteredProjects = allProjects;
-if (categoryFilter) {
-  filteredProjects = allProjects.filter(project =>
-    project.data.categories && project.data.categories.includes(categoryFilter)
-  );
-}
+let workingProjects = categoryFilter
+  ? allProjects.filter(project =>
+      project.data.categories && project.data.categories.includes(categoryFilter)
+    )
+  : allProjects;
 
-// Sort with featured projects first, then by year
-const orderedProjects = [...filteredProjects].sort((a, b) => {
-  // Featured projects come first
-  const aFeatured = a.data.featured || false;
-  const bFeatured = b.data.featured || false;
+// Separate featured from non-featured (within the filtered set)
+const featuredProjects = workingProjects.filter(p =>
+  featuredProjectSlugs.includes(p.id) || featuredProjectSlugs.includes(p.slug)
+);
 
-  if (aFeatured && !bFeatured) return -1;
-  if (!aFeatured && bFeatured) return 1;
+const nonFeaturedProjects = workingProjects.filter(p =>
+  !featuredProjectSlugs.includes(p.id) && !featuredProjectSlugs.includes(p.slug)
+);
 
-  // Within same featured status, sort by year (newest first)
+// Sort featured projects by the order in featuredProjectSlugs
+const orderedFeatured = featuredProjectSlugs
+  .map(slug => featuredProjects.find(p => p.id === slug || p.slug === slug))
+  .filter(Boolean);
+
+// Sort non-featured by year (newest first)
+const orderedNonFeatured = nonFeaturedProjects.sort((a, b) => {
   const yearA = a.data.yearCompleted || 0;
   const yearB = b.data.yearCompleted || 0;
   return yearB - yearA;
 });
+
+// Combine: featured first, then non-featured
+const orderedProjects = [...orderedFeatured, ...orderedNonFeatured];
 
 // Get category metadata for title
 const allCategories = await getCollection('categories');
@@ -86,92 +76,30 @@ const categoryData = categoryFilter
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
-      <div class="p-4 md:p-6 lg:p-8">
-        <!-- Welcome Section (shown by default) -->
-        <div id="welcome-section">
-          <!-- TinaCMS Visual Editor Wrapper (only shows in iframe) -->
-          <div id="tina-wrapper" style="display: none;">
-            <PageComponent {...tinaProps} client:tina />
-          </div>
+      <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive) -->
+      <PageComponent {...tinaProps} client:tina />
 
-          <!-- Static Content (shows in production) -->
-          <section id="static-content" class="mb-12">
-            {categoryFilter ? (
-              <div>
-                <h2 class="text-3xl md:text-4xl font-light mb-2">
-                  {categoryData?.data.title || categoryFilter}
-                </h2>
-                {categoryData?.data.description && (
-                  <p class="text-lg text-gray-600 max-w-2xl mb-8">
-                    {categoryData.data.description}
-                  </p>
-                )}
-                <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
-                  ← View all projects
-                </a>
-              </div>
-            ) : (
-              <div>
-                <h2 class="text-3xl md:text-4xl font-light mb-6">
-                  {homePage?.data.title || 'Creative Technologist & Sound Designer'}
-                </h2>
-                <p class="text-lg text-gray-600 max-w-2xl mb-8">
-                  {homePage?.data.description || 'Exploring the intersection of technology, sound, and interactive experiences. Select a project from the sidebar to view details, or browse by category.'}
-                </p>
-              </div>
-            )}
-          </section>
+      <!-- Category filter header (when filtering) -->
+      {categoryFilter && (
+        <div class="p-4 md:p-6 lg:p-8 pb-0">
+          <h2 class="text-3xl md:text-4xl font-light mb-2">
+            {categoryData?.data.title || categoryFilter}
+          </h2>
+          {categoryData?.data.description && (
+            <p class="text-lg text-gray-600 max-w-2xl mb-8">
+              {categoryData.data.description}
+            </p>
+          )}
+          <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
+            ← View all projects
+          </a>
         </div>
+      )}
 
-        <!-- Project Grid -->
-        <section id="projects-section">
-          <ProjectGrid projects={orderedProjects} />
-        </section>
+      <!-- Project Grid -->
+      <div class="p-4 md:p-6 lg:p-8">
+        <ProjectGrid projects={orderedProjects} />
       </div>
     </main>
-
-    <!-- Toggle between TinaCMS and static content based on iframe context -->
-    <script>
-      const isInIframe = window.self !== window.top;
-      const tinaWrapper = document.getElementById('tina-wrapper');
-      const staticContent = document.getElementById('static-content');
-
-      if (isInIframe) {
-        if (tinaWrapper) tinaWrapper.style.display = 'block';
-        if (staticContent) staticContent.style.display = 'none';
-      } else {
-        if (tinaWrapper) tinaWrapper.style.display = 'none';
-        if (staticContent) staticContent.style.display = 'block';
-      }
-    </script>
-
-    <!-- Client-side filtering script -->
-    <script define:vars={{ allProjectsData: allProjects.map(p => ({ slug: p.slug, categories: p.data.categories || [], featured: p.data.featured || false, yearCompleted: p.data.yearCompleted || 0 })) }}>
-      function applyFiltering() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const categoryFilter = urlParams.get('category');
-
-        if (categoryFilter) {
-          // Filter project cards by category
-          const projectItems = document.querySelectorAll('.project-item');
-          projectItems.forEach(item => {
-            const projectSlug = item.getAttribute('href')?.split('/').pop();
-            const project = allProjectsData.find(p => p.slug === projectSlug);
-
-            if (project && project.categories.includes(categoryFilter)) {
-              item.style.display = '';
-            } else {
-              item.style.display = 'none';
-            }
-          });
-        }
-      }
-
-      // Run on initial page load
-      document.addEventListener('DOMContentLoaded', applyFiltering);
-      
-      // Run after view transitions complete
-      document.addEventListener('astro:page-load', applyFiltering);
-    </script>
   </body>
 </html>

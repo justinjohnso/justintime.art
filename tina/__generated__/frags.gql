@@ -39,4 +39,6 @@ fragment PagesParts on Pages {
   __typename
   title
   description
+  featuredProjects
+  body
 }

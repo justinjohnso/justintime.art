@@ -357,6 +357,22 @@ export default defineConfig({
               component: 'textarea',
             },
           },
+          {
+            type: 'string',
+            name: 'featuredProjects',
+            label: 'Featured Projects',
+            description: 'Select projects to feature on the homepage (only visible on home page)',
+            list: true,
+            ui: {
+              component: 'list',
+            },
+          },
+          {
+            type: 'rich-text',
+            name: 'body',
+            label: 'Page Content',
+            isBody: true,
+          },
         ],
       },
     ],
