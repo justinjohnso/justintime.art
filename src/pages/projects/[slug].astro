@@ -10,7 +10,8 @@ export async function getStaticPaths() {
   const projects = await getCollection('projects');
 
   return projects.map((project) => ({
-    params: { slug: project.id },
+    // Remove .mdx extension from slug for clean URLs
+    params: { slug: project.id.replace(/\.mdx$/, '') },
     props: {
       project,
       getTinaProps: async () => {

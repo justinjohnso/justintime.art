@@ -107,21 +107,24 @@ const { currentProjectSlug } = Astro.props;
                 </p>
               )}
               <ul class="project-list space-y-2">
-              {projects.map((project) => (
+              {projects.map((project) => {
+                const cleanSlug = project.id.replace(/\.mdx$/, '');
+                return (
                 <li>
                   <a
-                    href={`/projects/${project.slug}`}
+                    href={`/projects/${cleanSlug}`}
                     class={`project-link block text-base py-1 hover:text-black transition-colors ${
-                      currentProjectSlug === project.slug ? 'text-black font-medium' : 'text-gray-600'
+                      currentProjectSlug === cleanSlug ? 'text-black font-medium' : 'text-gray-600'
                     }`}
-                    data-slug={project.slug}
+                    data-slug={cleanSlug}
                     data-year={project.data.yearCompleted}
                     data-category={categorySlug}
                   >
                     {project.data.title}
                   </a>
                 </li>
-              ))}
+                );
+              })}
               </ul>
             </div>
           </div>

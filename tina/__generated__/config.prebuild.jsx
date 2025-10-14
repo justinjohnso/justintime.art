@@ -27,7 +27,8 @@ var config_default = defineConfig({
         format: "mdx",
         ui: {
           router: ({ document }) => {
-            return `/projects/${document._sys.filename}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, "");
+            return `/projects/${slug}`;
           }
         },
         fields: [
@@ -182,7 +183,8 @@ var config_default = defineConfig({
         format: "mdx",
         ui: {
           router: ({ document }) => {
-            return `/posts/${document._sys.filename}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, "");
+            return `/posts/${slug}`;
           }
         },
         fields: [
@@ -294,7 +296,8 @@ var config_default = defineConfig({
         format: "md",
         ui: {
           router: ({ document }) => {
-            return `/categories/${document._sys.filename}`;
+            const slug = document._sys.filename.replace(/\.md$/, "");
+            return `/categories/${slug}`;
           }
         },
         fields: [
@@ -322,7 +325,8 @@ var config_default = defineConfig({
         format: "mdx",
         ui: {
           router: ({ document }) => {
-            return `/${document._sys.filename}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, "");
+            return `/${slug}`;
           }
         },
         fields: [
