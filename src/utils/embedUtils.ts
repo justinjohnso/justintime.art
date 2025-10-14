@@ -47,16 +47,13 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
       }
     }
 
-    // SoundCloud - must use the exact track URL format
+    // SoundCloud - preserve full URL including secret tokens
     if (hostname.includes('soundcloud.com')) {
-      // SoundCloud URLs should be in format: https://soundcloud.com/user/track
-      // Remove any query parameters and trailing slashes
-      const cleanPath = urlObj.pathname.replace(/\/$/, '')
-      const cleanUrl = `https://soundcloud.com${cleanPath}`
-      
+      // Keep the full URL with all parameters (secret tokens, etc.)
+      // SoundCloud widget needs the exact URL format provided by the user
       return {
         type: 'soundcloud',
-        embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanUrl)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
+        embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
         aspectRatio: '16/9',
       }
     }

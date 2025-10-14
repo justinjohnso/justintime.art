@@ -145,11 +145,12 @@ const rows = chunkArray(remainingAlt, 3);
           <div class="md:col-span-1 relative min-h-[350px]">
             {embedInfo.type === 'soundcloud' ? (
               <iframe
-                src={embedInfo.embedUrl}
-                class="w-full min-h-[350px]"
-                frameborder="0"
+                width="100%"
+                height="300"
                 scrolling="no"
+                frameborder="no"
                 allow="autoplay"
+                src={embedInfo.embedUrl}
                 title={project.data.title}
               ></iframe>
             ) : (
