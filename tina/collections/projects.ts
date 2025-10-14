@@ -1,0 +1,160 @@
+import type { Collection } from 'tinacms'
+
+export const ProjectsCollection: Collection = {
+  name: 'projects',
+  label: 'Projects',
+  path: 'src/content/projects',
+  format: 'mdx',
+  ui: {
+    router: ({ document }) => {
+      // Remove .mdx extension from filename for clean URLs
+      const slug = document._sys.filename.replace(/\.mdx$/, '')
+      return `/projects/${slug}`
+    },
+  },
+  fields: [
+    {
+      type: 'string',
+      name: 'title',
+      label: 'Title',
+      isTitle: true,
+      required: true,
+    },
+    {
+      type: 'string',
+      name: 'description',
+      label: 'Description',
+      ui: {
+        component: 'textarea',
+      },
+    },
+    {
+      type: 'image',
+      name: 'image',
+      label: 'Featured Image',
+    },
+    {
+      type: 'string',
+      name: 'mediaEmbed',
+      label: 'Media Embed URL',
+      description:
+        'Full embed URL for Vimeo, YouTube, or SoundCloud (e.g., https://w.soundcloud.com/player/?url=...)',
+      ui: {
+        component: 'textarea',
+      },
+    },
+    {
+      type: 'string',
+      name: 'categories',
+      label: 'Categories',
+      list: true,
+    },
+    {
+      type: 'boolean',
+      name: 'featured',
+      label: 'Featured Project',
+    },
+    {
+      type: 'datetime',
+      name: 'dateCompleted',
+      label: 'Date Completed',
+      ui: {
+        dateFormat: 'YYYY-MM-DD',
+      },
+    },
+    {
+      type: 'number',
+      name: 'yearCompleted',
+      label: 'Year Completed',
+    },
+    {
+      type: 'object',
+      name: 'links',
+      label: 'Project Links',
+      list: true,
+      fields: [
+        {
+          type: 'string',
+          name: 'title',
+          label: 'Link Title',
+        },
+        {
+          type: 'string',
+          name: 'url',
+          label: 'URL',
+        },
+        {
+          type: 'string',
+          name: 'type',
+          label: 'Link Type',
+          options: ['github', 'live', 'demo', 'other'],
+        },
+      ],
+    },
+    {
+      type: 'image',
+      name: 'additionalImages',
+      label: 'Additional Images',
+      list: true,
+    },
+    {
+      type: 'rich-text',
+      name: 'body',
+      label: 'Content',
+      isBody: true,
+      templates: [
+        {
+          name: 'Banner',
+          label: 'Banner',
+          fields: [
+            {
+              type: 'string',
+              name: 'heading',
+              label: 'Heading',
+            },
+            {
+              type: 'string',
+              name: 'subheading',
+              label: 'Subheading',
+            },
+          ],
+        },
+        {
+          name: 'MediaBlock',
+          label: 'Media Block',
+          fields: [
+            {
+              type: 'image',
+              name: 'media',
+              label: 'Media',
+            },
+            {
+              type: 'string',
+              name: 'caption',
+              label: 'Caption',
+            },
+          ],
+        },
+        {
+          name: 'CodeBlock',
+          label: 'Code Block',
+          fields: [
+            {
+              type: 'string',
+              name: 'language',
+              label: 'Language',
+            },
+            {
+              type: 'string',
+              name: 'code',
+              label: 'Code',
+              ui: {
+                component: 'textarea',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
+}
