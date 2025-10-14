@@ -92,8 +92,8 @@ const rows = chunkArray(remainingAlt, 3);
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
       <article class="p-6 md:p-8 lg:p-12 pb-16">
-    <!-- HERO SECTION – Text on left, media (embed or image) on right -->
-    {(embedInfo || project.data.image) && (
+    <!-- HERO SECTION – Text on left, hero image on right -->
+    {project.data.image && (
       <section class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 items-start">
         <!-- Hero Text Container -->
         <div class="md:col-span-1 relative flex flex-col min-h-[350px]">
@@ -139,49 +139,20 @@ const rows = chunkArray(remainingAlt, 3);
           </div>
         </div>
 
-        <!-- Hero Media Column -->
-        {embedInfo ? (
-          <!-- Media Embed -->
-          <div class="md:col-span-1 relative h-full min-h-[350px]">
-            {embedInfo.type === 'soundcloud' ? (
-              <iframe
-                width="100%"
-                height="100%"
-                scrolling="no"
-                frameborder="no"
-                allow="autoplay"
-                src={embedInfo.embedUrl}
-                title={project.data.title}
-                class="absolute inset-0 min-h-[350px]"
-              ></iframe>
-            ) : (
-              <iframe
-                src={embedInfo.embedUrl}
-                style={`aspect-ratio: ${embedInfo.aspectRatio}`}
-                class="w-full h-full min-h-[350px]"
-                frameborder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                allowfullscreen
-                title={project.data.title}
-              ></iframe>
-            )}
-          </div>
-        ) : project.data.image && (
-          <!-- Hero Image -->
-          <a
-            href={project.data.image}
-            data-lightbox="gallery"
-            class="md:col-span-1 block group relative overflow-hidden h-full min-h-[350px]"
-          >
-            <img
-              src={project.data.image}
-              alt={project.data.title}
-              class="absolute inset-0 w-full h-full object-cover transition-all duration-300"
-            />
-            <!-- White overlay on hover -->
-            <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </a>
-        )}
+        <!-- Hero Image Column -->
+        <a
+          href={project.data.image}
+          data-lightbox="gallery"
+          class="md:col-span-1 block group relative overflow-hidden h-full min-h-[350px]"
+        >
+          <img
+            src={project.data.image}
+            alt={project.data.title}
+            class="absolute inset-0 w-full h-full object-cover transition-all duration-300"
+          />
+          <!-- White overlay on hover -->
+          <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </a>
       </section>
     )}
 
@@ -211,20 +182,48 @@ const rows = chunkArray(remainingAlt, 3);
       </section>
     )}
 
-    <!-- Render Row 3: Single alternate image with body text -->
-    {row3Image && (
+    <!-- Render Row 3: Media embed or image with body text -->
+    {(embedInfo || row3Image) && (
       <section class="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch mb-2">
-        <a
-          href={row3Image}
-          data-lightbox="gallery"
-          class="block group p-0 m-0 relative h-full min-h-[350px]"
-        >
-          <img
-            src={row3Image}
-            alt={`${project.data.title} secondary image`}
-            class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
-          />
-        </a>
+        {embedInfo ? (
+          <!-- Media Embed -->
+          <div class="relative h-full min-h-[350px]">
+            {embedInfo.type === 'soundcloud' ? (
+              <iframe
+                width="100%"
+                height="100%"
+                scrolling="no"
+                frameborder="no"
+                allow="autoplay"
+                src={embedInfo.embedUrl}
+                title={project.data.title}
+                class="absolute inset-0 min-h-[350px]"
+              ></iframe>
+            ) : (
+              <iframe
+                src={embedInfo.embedUrl}
+                style={`aspect-ratio: ${embedInfo.aspectRatio}`}
+                class="w-full h-full min-h-[350px]"
+                frameborder="0"
+                allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+                allowfullscreen
+                title={project.data.title}
+              ></iframe>
+            )}
+          </div>
+        ) : row3Image && (
+          <a
+            href={row3Image}
+            data-lightbox="gallery"
+            class="block group p-0 m-0 relative h-full min-h-[350px]"
+          >
+            <img
+              src={row3Image}
+              alt={`${project.data.title} secondary image`}
+              class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
+            />
+          </a>
+        )}
         <div class="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
           <Content />
         </div>
