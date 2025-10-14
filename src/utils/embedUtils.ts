@@ -47,10 +47,13 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
       }
     }
 
-    // SoundCloud
+    // SoundCloud - must use the exact track URL format
     if (hostname.includes('soundcloud.com')) {
-      // Clean URL by removing query parameters that might interfere
-      const cleanUrl = `${urlObj.origin}${urlObj.pathname}`
+      // SoundCloud URLs should be in format: https://soundcloud.com/user/track
+      // Remove any query parameters and trailing slashes
+      const cleanPath = urlObj.pathname.replace(/\/$/, '')
+      const cleanUrl = `https://soundcloud.com${cleanPath}`
+      
       return {
         type: 'soundcloud',
         embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(cleanUrl)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,

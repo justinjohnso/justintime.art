@@ -143,17 +143,28 @@ const rows = chunkArray(remainingAlt, 3);
         {embedInfo ? (
           <!-- Media Embed -->
           <div class="md:col-span-1 relative min-h-[350px]">
-            <div class="relative w-full h-full min-h-[350px]">
+            {embedInfo.type === 'soundcloud' ? (
               <iframe
                 src={embedInfo.embedUrl}
-                style={`aspect-ratio: ${embedInfo.aspectRatio}`}
-                class="w-full h-full min-h-[350px]"
+                class="w-full min-h-[350px]"
                 frameborder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                allowfullscreen
+                scrolling="no"
+                allow="autoplay"
                 title={project.data.title}
               ></iframe>
-            </div>
+            ) : (
+              <div class="relative w-full h-full min-h-[350px]">
+                <iframe
+                  src={embedInfo.embedUrl}
+                  style={`aspect-ratio: ${embedInfo.aspectRatio}`}
+                  class="w-full h-full min-h-[350px]"
+                  frameborder="0"
+                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+                  allowfullscreen
+                  title={project.data.title}
+                ></iframe>
+              </div>
+            )}
           </div>
         ) : project.data.image && (
           <!-- Hero Image -->
