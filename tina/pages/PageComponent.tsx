@@ -22,7 +22,7 @@ export default function PageComponent(props: PageComponentProps) {
 
   return (
     <main className="p-4 md:p-6 lg:p-8">
-      <div data-tina-field={tinaField(page, 'body')}>
+      <div className="prose prose-lg max-w-none" data-tina-field={tinaField(page, 'body')}>
         <TinaMarkdown content={page.body} />
       </div>
     </main>
