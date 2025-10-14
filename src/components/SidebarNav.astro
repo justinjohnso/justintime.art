@@ -155,6 +155,9 @@ const { currentProjectSlug } = Astro.props;
   document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar-nav');
     if (sidebar) {
+      // Check if we're in TinaCMS iframe
+      const isInTinaCMSIframe = window.self !== window.top;
+
       // Save scroll position before navigation
       const saveScrollPosition = () => {
         sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
@@ -166,7 +169,7 @@ const { currentProjectSlug } = Astro.props;
       // Save before navigation
       window.addEventListener('beforeunload', saveScrollPosition);
 
-      // Save on link clicks
+      // Save scroll position on link clicks
       sidebar.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', saveScrollPosition);
       });

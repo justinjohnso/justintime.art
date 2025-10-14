@@ -33,8 +33,8 @@ export default defineConfig({
         ui: {
           router: ({ document }) => {
             // Remove .mdx extension from filename for clean URLs
-            const slug = document._sys.filename.replace(/\.mdx$/, '');
-            return `/projects/${slug}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, '')
+            return `/projects/${slug}`
           },
         },
         fields: [
@@ -190,8 +190,8 @@ export default defineConfig({
         format: 'mdx',
         ui: {
           router: ({ document }) => {
-            const slug = document._sys.filename.replace(/\.mdx$/, '');
-            return `/posts/${slug}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, '')
+            return `/posts/${slug}`
           },
         },
         fields: [
@@ -303,8 +303,8 @@ export default defineConfig({
         format: 'md',
         ui: {
           router: ({ document }) => {
-            const slug = document._sys.filename.replace(/\.md$/, '');
-            return `/categories/${slug}`;
+            const slug = document._sys.filename.replace(/\.md$/, '')
+            return `/categories/${slug}`
           },
         },
         fields: [
@@ -332,8 +332,8 @@ export default defineConfig({
         format: 'mdx',
         ui: {
           router: ({ document }) => {
-            const slug = document._sys.filename.replace(/\.mdx$/, '');
-            return `/${slug}`;
+            const slug = document._sys.filename.replace(/\.mdx$/, '')
+            return `/${slug}`
           },
         },
         fields: [
