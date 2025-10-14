@@ -87,15 +87,15 @@ const categoryData = categoryFilter
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
       <div class="p-4 md:p-6 lg:p-8">
-        <!-- TinaCMS Visual Editor Wrapper (only shows in iframe) -->
-        <div id="tina-wrapper" style="display: none;">
-          <PageComponent {...tinaProps} client:tina />
-        </div>
+        <!-- Welcome Section (shown by default) -->
+        <div id="welcome-section">
+          <!-- TinaCMS Visual Editor Wrapper (only shows in iframe) -->
+          <div id="tina-wrapper" style="display: none;">
+            <PageComponent {...tinaProps} client:tina />
+          </div>
 
-        <!-- Static Content (shows in production) -->
-        <div id="static-content">
-          <!-- Welcome Section (shown by default) -->
-          <section id="welcome-section" class="mb-12">
+          <!-- Static Content (shows in production) -->
+          <section id="static-content" class="mb-12">
             {categoryFilter ? (
               <div>
                 <h2 class="text-3xl md:text-4xl font-light mb-2">
@@ -115,25 +115,18 @@ const categoryData = categoryFilter
                 <h2 class="text-3xl md:text-4xl font-light mb-6">
                   {homePage?.data.title || 'Creative Technologist & Sound Designer'}
                 </h2>
-                <div class="text-lg text-gray-600 max-w-2xl mb-8 prose prose-lg">
-                  {homePage?.data.body ? (
-                    <div set:html={homePage.data.body} />
-                  ) : (
-                    <p>
-                      Exploring the intersection of technology, sound, and interactive experiences.
-                      Select a project from the sidebar to view details, or browse by category.
-                    </p>
-                  )}
-                </div>
+                <p class="text-lg text-gray-600 max-w-2xl mb-8">
+                  {homePage?.data.description || 'Exploring the intersection of technology, sound, and interactive experiences. Select a project from the sidebar to view details, or browse by category.'}
+                </p>
               </div>
             )}
           </section>
-
-          <!-- Project Grid -->
-          <section id="projects-section">
-            <ProjectGrid projects={orderedProjects} />
-          </section>
         </div>
+
+        <!-- Project Grid -->
+        <section id="projects-section">
+          <ProjectGrid projects={orderedProjects} />
+        </section>
       </div>
     </main>
 

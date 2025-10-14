@@ -144,8 +144,7 @@ export const pages = defineCollection({
       relativePath: z.string(),
     }),
     title: z.string(),
-    description: z.string().optional(),
-    body: z.any().optional(),
+    description: z.string(),
   }),
 })
 

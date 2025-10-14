@@ -289,44 +289,15 @@ type CategoriesConnection implements Connection {
 
 type Pages implements Node & Document {
   title: String!
-  description: String
-  body: JSON
+  description: String!
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
 }
 
-input PagesBodyHeroFilter {
-  heading: StringFilter
-  subheading: StringFilter
-  backgroundImage: ImageFilter
-}
-
-input RichTextFilter {
-  startsWith: String
-  eq: String
-  exists: Boolean
-}
-
-input PagesBodyContentFilter {
-  content: RichTextFilter
-}
-
-input PagesBodyMediaBlockFilter {
-  media: ImageFilter
-  caption: StringFilter
-}
-
-input PagesBodyFilter {
-  Hero: PagesBodyHeroFilter
-  Content: PagesBodyContentFilter
-  MediaBlock: PagesBodyMediaBlockFilter
-}
-
 input PagesFilter {
   title: StringFilter
   description: StringFilter
-  body: PagesBodyFilter
 }
 
 type PagesConnectionEdges {
@@ -409,7 +380,6 @@ input CategoriesMutation {
 input PagesMutation {
   title: String
   description: String
-  body: JSON
 }
 
 schema {

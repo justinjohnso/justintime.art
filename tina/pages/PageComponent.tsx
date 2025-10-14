@@ -21,20 +21,19 @@ export default function PageComponent(props: PageComponentProps) {
   const page = data.pages;
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <h1 
-        className="text-3xl md:text-4xl font-light mb-8" 
+    <section className="mb-12">
+      <h2 
+        className="text-3xl md:text-4xl font-light mb-6" 
         data-tina-field={tinaField(page, 'title')}
       >
         {page.title}
-      </h1>
-
-      <div 
-        className="prose prose-lg max-w-none"
-        data-tina-field={tinaField(page, 'body')}
+      </h2>
+      <p 
+        className="text-lg text-gray-600 max-w-2xl mb-8"
+        data-tina-field={tinaField(page, 'description')}
       >
-        <TinaMarkdown content={page.body} />
-      </div>
-    </div>
+        {page.description}
+      </p>
+    </section>
   );
 }

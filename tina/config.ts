@@ -352,65 +352,10 @@ export default defineConfig({
             type: 'string',
             name: 'description',
             label: 'Description',
+            required: true,
             ui: {
               component: 'textarea',
             },
-          },
-          {
-            type: 'rich-text',
-            name: 'body',
-            label: 'Content',
-            isBody: true,
-            templates: [
-              {
-                name: 'Hero',
-                label: 'Hero Section',
-                fields: [
-                  {
-                    type: 'string',
-                    name: 'heading',
-                    label: 'Heading',
-                  },
-                  {
-                    type: 'string',
-                    name: 'subheading',
-                    label: 'Subheading',
-                  },
-                  {
-                    type: 'image',
-                    name: 'backgroundImage',
-                    label: 'Background Image',
-                  },
-                ],
-              },
-              {
-                name: 'Content',
-                label: 'Content Block',
-                fields: [
-                  {
-                    type: 'rich-text',
-                    name: 'content',
-                    label: 'Content',
-                  },
-                ],
-              },
-              {
-                name: 'MediaBlock',
-                label: 'Media Block',
-                fields: [
-                  {
-                    type: 'image',
-                    name: 'media',
-                    label: 'Media',
-                  },
-                  {
-                    type: 'string',
-                    name: 'caption',
-                    label: 'Caption',
-                  },
-                ],
-              },
-            ],
           },
         ],
       },
