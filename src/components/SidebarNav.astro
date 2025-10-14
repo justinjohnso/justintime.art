@@ -136,10 +136,9 @@ const { currentProjectSlug } = Astro.props;
 
 <script is:inline>
   // Restore scroll position immediately to prevent jump
-  (function() {
+  function restoreSidebarScroll() {
     const savedPosition = sessionStorage.getItem('sidebarScrollPosition');
     if (savedPosition) {
-      // Use requestAnimationFrame to ensure DOM is ready but before paint
       requestAnimationFrame(() => {
         const sidebar = document.getElementById('sidebar-nav');
         if (sidebar) {
@@ -147,36 +146,53 @@ const { currentProjectSlug } = Astro.props;
         }
       });
     }
-  })();
+  }
+
+  // Run on initial page load
+  restoreSidebarScroll();
+
+  // Run after view transitions complete
+  document.addEventListener('astro:page-load', restoreSidebarScroll);
 </script>
 
 <script>
-  // Save scroll position on navigation
-  document.addEventListener('DOMContentLoaded', () => {
+  function setupSidebar() {
     const sidebar = document.getElementById('sidebar-nav');
-    if (sidebar) {
-      // Check if we're in TinaCMS iframe
-      const isInTinaCMSIframe = window.self !== window.top;
+    if (!sidebar) return;
 
-      // Save scroll position before navigation
-      const saveScrollPosition = () => {
-        sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
-      };
+    // Save scroll position before navigation
+    const saveScrollPosition = () => {
+      sessionStorage.setItem('sidebarScrollPosition', sidebar.scrollTop.toString());
+    };
 
-      // Save on scroll
-      sidebar.addEventListener('scroll', saveScrollPosition);
+    // Save on scroll
+    sidebar.addEventListener('scroll', saveScrollPosition);
 
-      // Save before navigation
-      window.addEventListener('beforeunload', saveScrollPosition);
+    // Save before view transition starts
+    document.addEventListener('astro:before-preparation', saveScrollPosition);
 
-      // Save scroll position on link clicks
-      sidebar.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', saveScrollPosition);
-      });
-    }
+    // Save before navigation
+    window.addEventListener('beforeunload', saveScrollPosition);
 
-    // Mobile menu toggle
+    // Save scroll position on link clicks
+    sidebar.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', saveScrollPosition);
+    });
+  }
+
+  // Setup on initial load
+  document.addEventListener('DOMContentLoaded', setupSidebar);
+
+  // Re-setup after view transitions
+  document.addEventListener('astro:page-load', setupSidebar);
+</script>
+
+<script>
+  function setupMobileAndAccordion() {
+    const sidebar = document.getElementById('sidebar-nav');
     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    
+    // Mobile menu toggle
     if (mobileMenuToggle && sidebar) {
       mobileMenuToggle.addEventListener('click', () => {
         sidebar.classList.toggle('sidebar-open');
@@ -239,7 +255,13 @@ const { currentProjectSlug } = Astro.props;
 
     handleAccordion();
     window.addEventListener('resize', handleAccordion);
-  });
+  }
+
+  // Setup on initial load
+  document.addEventListener('DOMContentLoaded', setupMobileAndAccordion);
+
+  // Re-setup after view transitions
+  document.addEventListener('astro:page-load', setupMobileAndAccordion);
 </script>
 
 <style>
