@@ -48,6 +48,15 @@ var config_default = defineConfig({
           },
           {
             type: "string",
+            name: "mediaEmbed",
+            label: "Media Embed URL",
+            description: "Full embed URL for Vimeo, YouTube, or SoundCloud (e.g., https://w.soundcloud.com/player/?url=...)",
+            ui: {
+              component: "textarea"
+            }
+          },
+          {
+            type: "string",
             name: "categories",
             label: "Categories",
             list: true

@@ -106,6 +106,7 @@ type Projects implements Node & Document {
   title: String!
   description: String
   image: String
+  mediaEmbed: String
   categories: [String]
   featured: Boolean
   dateCompleted: String
@@ -186,6 +187,7 @@ input ProjectsFilter {
   title: StringFilter
   description: StringFilter
   image: ImageFilter
+  mediaEmbed: StringFilter
   categories: StringFilter
   featured: BooleanFilter
   dateCompleted: DatetimeFilter
@@ -379,6 +381,7 @@ input ProjectsMutation {
   title: String
   description: String
   image: String
+  mediaEmbed: String
   categories: [String]
   featured: Boolean
   dateCompleted: String

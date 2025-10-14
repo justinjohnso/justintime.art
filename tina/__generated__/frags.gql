@@ -3,6 +3,7 @@ fragment ProjectsParts on Projects {
   title
   description
   image
+  mediaEmbed
   categories
   featured
   dateCompleted

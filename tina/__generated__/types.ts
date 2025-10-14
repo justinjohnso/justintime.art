@@ -231,6 +231,7 @@ export type Projects = Node & Document & {
   title: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
   image?: Maybe<Scalars['String']['output']>;
+  mediaEmbed?: Maybe<Scalars['String']['output']>;
   categories?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   featured?: Maybe<Scalars['Boolean']['output']>;
   dateCompleted?: Maybe<Scalars['String']['output']>;
@@ -311,6 +312,7 @@ export type ProjectsFilter = {
   title?: InputMaybe<StringFilter>;
   description?: InputMaybe<StringFilter>;
   image?: InputMaybe<ImageFilter>;
+  mediaEmbed?: InputMaybe<StringFilter>;
   categories?: InputMaybe<StringFilter>;
   featured?: InputMaybe<BooleanFilter>;
   dateCompleted?: InputMaybe<DatetimeFilter>;
@@ -597,6 +599,7 @@ export type ProjectsMutation = {
   title?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  mediaEmbed?: InputMaybe<Scalars['String']['input']>;
   categories?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   featured?: InputMaybe<Scalars['Boolean']['input']>;
   dateCompleted?: InputMaybe<Scalars['String']['input']>;
@@ -627,7 +630,7 @@ export type PagesMutation = {
   body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-export type ProjectsPartsFragment = { __typename: 'Projects', title: string, description?: string | null, image?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null };
+export type ProjectsPartsFragment = { __typename: 'Projects', title: string, description?: string | null, image?: string | null, mediaEmbed?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null };
 
 export type PostsPartsFragment = { __typename: 'Posts', title: string, description?: string | null, heroImage?: string | null, publishedAt?: string | null, categories?: Array<string | null> | null, relatedPosts?: Array<string | null> | null, body?: any | null };
 
@@ -640,7 +643,7 @@ export type ProjectsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectsQuery = { __typename?: 'Query', projects: { __typename: 'Projects', id: string, title: string, description?: string | null, image?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null } };
+export type ProjectsQuery = { __typename?: 'Query', projects: { __typename: 'Projects', id: string, title: string, description?: string | null, image?: string | null, mediaEmbed?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null } };
 
 export type ProjectsConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -652,7 +655,7 @@ export type ProjectsConnectionQueryVariables = Exact<{
 }>;
 
 
-export type ProjectsConnectionQuery = { __typename?: 'Query', projectsConnection: { __typename?: 'ProjectsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ProjectsConnectionEdges', cursor: string, node?: { __typename: 'Projects', id: string, title: string, description?: string | null, image?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null } | null } | null> | null } };
+export type ProjectsConnectionQuery = { __typename?: 'Query', projectsConnection: { __typename?: 'ProjectsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ProjectsConnectionEdges', cursor: string, node?: { __typename: 'Projects', id: string, title: string, description?: string | null, image?: string | null, mediaEmbed?: string | null, categories?: Array<string | null> | null, featured?: boolean | null, dateCompleted?: string | null, yearCompleted?: number | null, additionalImages?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, links?: Array<{ __typename: 'ProjectsLinks', title?: string | null, url?: string | null, type?: string | null } | null> | null } | null } | null> | null } };
 
 export type PostsQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -717,6 +720,7 @@ export const ProjectsPartsFragmentDoc = gql`
   title
   description
   image
+  mediaEmbed
   categories
   featured
   dateCompleted

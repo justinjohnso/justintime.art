@@ -13,7 +13,7 @@ const categoryFilter = Astro.url.searchParams.get('category');
 // Filter projects by category if specified
 let filteredProjects = allProjects;
 if (categoryFilter) {
-  filteredProjects = allProjects.filter(project => 
+  filteredProjects = allProjects.filter(project =>
     project.data.categories && project.data.categories.includes(categoryFilter)
   );
 }
@@ -23,10 +23,10 @@ const orderedProjects = [...filteredProjects].sort((a, b) => {
   // Featured projects come first
   const aFeatured = a.data.featured || false;
   const bFeatured = b.data.featured || false;
-  
+
   if (aFeatured && !bFeatured) return -1;
   if (!aFeatured && bFeatured) return 1;
-  
+
   // Within same featured status, sort by year (newest first)
   const yearA = a.data.yearCompleted || 0;
   const yearB = b.data.yearCompleted || 0;
@@ -35,7 +35,7 @@ const orderedProjects = [...filteredProjects].sort((a, b) => {
 
 // Get category metadata for title
 const allCategories = await getCollection('categories');
-const categoryData = categoryFilter 
+const categoryData = categoryFilter
   ? allCategories.find(cat => cat.data.categorySlug === categoryFilter)
   : null;
 ---
@@ -97,14 +97,14 @@ const categoryData = categoryFilter
       document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const categoryFilter = urlParams.get('category');
-        
+
         if (categoryFilter) {
           // Filter project cards by category
           const projectItems = document.querySelectorAll('.project-item');
           projectItems.forEach(item => {
             const projectSlug = item.getAttribute('href')?.split('/').pop();
             const project = allProjectsData.find(p => p.slug === projectSlug);
-            
+
             if (project && project.categories.includes(categoryFilter)) {
               item.style.display = '';
             } else {
