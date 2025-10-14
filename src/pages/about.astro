@@ -1,6 +1,38 @@
 ---
 import SidebarNav from '../components/SidebarNav.astro';
+import { getEntry } from 'astro:content';
+import { ViewTransitions } from 'astro:transitions';
+import PageComponent from '../../tina/pages/PageComponent';
+import client from '../../tina/__generated__/client';
+import { TinaMarkdown } from 'tinacms/dist/rich-text';
 import '../styles/global.css';
+
+// Get the about page content
+const aboutPage = await getEntry('pages', 'about');
+
+// Get TinaCMS data for visual editing
+async function getTinaProps() {
+  const tinaProps = {
+    data: {},
+    query: '',
+    variables: { relativePath: 'about.mdx' },
+  };
+
+  try {
+    const response = await client.queries.pages({
+      relativePath: 'about.mdx',
+    });
+    tinaProps.data = response.data;
+    tinaProps.query = response.query;
+    tinaProps.variables = response.variables;
+  } catch (error) {
+    console.error('Error fetching Tina data:', error);
+  }
+
+  return tinaProps;
+}
+
+const tinaProps = await getTinaProps();
 ---
 
 <!DOCTYPE html>
@@ -11,6 +43,7 @@ import '../styles/global.css';
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>About - Justin Johnson</title>
+    <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
     <!-- Sidebar Navigation -->
@@ -18,92 +51,123 @@ import '../styles/global.css';
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
-      <div class="p-4 md:p-6 lg:p-8">
-        <h1 class="text-3xl md:text-4xl font-light mb-8">About</h1>
+      <!-- TinaCMS Visual Editor Wrapper (only shows in iframe) -->
+      <div id="tina-wrapper" style="display: none;">
+        <PageComponent {...tinaProps} client:tina />
+      </div>
 
-        <div class="prose prose-lg max-w-none">
-          <p class="text-lg leading-relaxed mb-6">
-            I play with sound and space.
-          </p>
+      <!-- Static Content (shows in production) -->
+      <div id="static-content">
+        <div class="p-4 md:p-6 lg:p-8">
+          <h1 class="text-3xl md:text-4xl font-light mb-8">
+            {aboutPage?.data.title || 'About'}
+          </h1>
 
-          <p class="text-lg leading-relaxed mb-6">
-            Instruments that move with you. Rooms where the soundscape hangs in the air. Sometimes it is a motion‑controlled synth tuned so it sings at your touch. Sometimes it is an interface that makes remixing as simple as handling an object. In theatre, it is sound that heightens the world onstage rather than sitting on top of it.
-          </p>
+          <div class="prose prose-lg max-w-none">
+            {aboutPage?.data.body ? (
+              <div set:html={aboutPage.data.body} />
+            ) : (
+              <>
+                <p class="text-lg leading-relaxed mb-6">
+                  I play with sound and space.
+                </p>
 
-          <p class="text-lg leading-relaxed mb-6">
-            I work with generous edges. Constraints that help people engage with curiosity. Well‑defined musical modes, clear gestures, invitations to try something different in how you listen, or in how you move. The work sits between bodies and speakers, between headphones and ears. In dance, you listen first to the music, then to your body, then to your partner; I design sound spaces with that order of attention in mind.
-          </p>
+                <p class="text-lg leading-relaxed mb-6">
+                  Instruments that move with you. Rooms where the soundscape hangs in the air. Sometimes it is a motion‑controlled synth tuned so it sings at your touch. Sometimes it is an interface that makes remixing as simple as handling an object. In theatre, it is sound that heightens the world onstage rather than sitting on top of it.
+                </p>
 
-          <p class="text-lg leading-relaxed mb-6">
-            Not everyone arrives in a space with training or confidence. Communities and third spaces built around agency and self‑expression taught me that a room can hold joy, play, grief, honesty if you design for it. That lesson shows up in the things I build and the events I create. It's in the flow of my music, and in how I invite someone to try, fail, experiment, and have fun with the process.
-          </p>
+                <p class="text-lg leading-relaxed mb-6">
+                  I work with generous edges. Constraints that help people engage with curiosity. Well‑defined musical modes, clear gestures, invitations to try something different in how you listen, or in how you move. The work sits between bodies and speakers, between headphones and ears. In dance, you listen first to the music, then to your body, then to your partner; I design sound spaces with that order of attention in mind.
+                </p>
 
-          <p class="text-lg leading-relaxed mb-6">
-            I ground myself in the mediums I work with: wood and filaments I can shape, code I can reason about, sensors and LEDs I can connect, audio I can hear and feel in a room.
-          </p>
+                <p class="text-lg leading-relaxed mb-6">
+                  Not everyone arrives in a space with training or confidence. Communities and third spaces built around agency and self‑expression taught me that a room can hold joy, play, grief, honesty if you design for it. That lesson shows up in the things I build and the events I create. It's in the flow of my music, and in how I invite someone to try, fail, experiment, and have fun with the process.
+                </p>
 
-          <p class="text-lg leading-relaxed mb-6">
-            Onstage or off, I create art that reflects world it's in.
-          </p>
-        </div>
+                <p class="text-lg leading-relaxed mb-6">
+                  I ground myself in the mediums I work with: wood and filaments I can shape, code I can reason about, sensors and LEDs I can connect, audio I can hear and feel in a room.
+                </p>
 
-        <div class="mt-16 pt-8 border-t border-gray-200">
-          <h2 class="text-2xl font-light mb-6">Contact</h2>
-          <p class="text-lg text-gray-600 mb-8">
-            I'm always interested in new projects, collaborations, and conversations
-            about technology, art, and sound.
-          </p>
-
-          <div class="space-y-6 mb-8">
-            <div>
-              <h3 class="text-lg font-medium mb-2">Email</h3>
-              <a
-                href="mailto:hello@jjohnson.art"
-                class="text-lg text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                hello@jjohnson.art
-              </a>
-            </div>
-
-            <div>
-              <h3 class="text-lg font-medium mb-2">Social</h3>
-              <ul class="space-y-2">
-                <li>
-                  <a
-                    href="https://github.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://linkedin.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    LinkedIn
-                  </a>
-                </li>
-              </ul>
-            </div>
+                <p class="text-lg leading-relaxed mb-6">
+                  Onstage or off, I create art that reflects world it's in.
+                </p>
+              </>
+            )}
           </div>
 
-          <a
-            href="mailto:hello@jjohnson.art"
-            class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 hover:border-black transition-colors text-base"
-          >
-            Contact Me
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-          </a>
+          <div class="mt-16 pt-8 border-t border-gray-200">
+            <h2 class="text-2xl font-light mb-6">Contact</h2>
+            <p class="text-lg text-gray-600 mb-8">
+              I'm always interested in new projects, collaborations, and conversations
+              about technology, art, and sound.
+            </p>
+
+            <div class="space-y-6 mb-8">
+              <div>
+                <h3 class="text-lg font-medium mb-2">Email</h3>
+                <a
+                  href="mailto:hello@jjohnson.art"
+                  class="text-lg text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  hello@jjohnson.art
+                </a>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-medium mb-2">Social</h3>
+                <ul class="space-y-2">
+                  <li>
+                    <a
+                      href="https://github.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      GitHub
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://linkedin.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      LinkedIn
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <a
+              href="mailto:hello@jjohnson.art"
+              class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 hover:border-black transition-colors text-base"
+            >
+              Contact Me
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </main>
+
+    <!-- Toggle between TinaCMS and static content based on iframe context -->
+    <script>
+      const isInIframe = window.self !== window.top;
+      const tinaWrapper = document.getElementById('tina-wrapper');
+      const staticContent = document.getElementById('static-content');
+
+      if (isInIframe) {
+        if (tinaWrapper) tinaWrapper.style.display = 'block';
+        if (staticContent) staticContent.style.display = 'none';
+      } else {
+        if (tinaWrapper) tinaWrapper.style.display = 'none';
+        if (staticContent) staticContent.style.display = 'block';
+      }
+    </script>
   </body>
 </html>
 

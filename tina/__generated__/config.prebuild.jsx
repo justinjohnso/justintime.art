@@ -326,6 +326,9 @@ var config_default = defineConfig({
         ui: {
           router: ({ document }) => {
             const slug = document._sys.filename.replace(/\.mdx$/, "");
+            if (slug === "home") {
+              return "/";
+            }
             return `/${slug}`;
           }
         },

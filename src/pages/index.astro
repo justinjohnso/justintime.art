@@ -1,11 +1,41 @@
 ---
 import SidebarNav from '../components/SidebarNav.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
+import { ViewTransitions } from 'astro:transitions';
+import PageComponent from '../../tina/pages/PageComponent';
+import client from '../../tina/__generated__/client';
 import '../styles/global.css';
 
 // Get all projects
 const allProjects = await getCollection('projects');
+
+// Get the home page content
+const homePage = await getEntry('pages', 'home');
+
+// Get TinaCMS data for visual editing
+async function getTinaProps() {
+  const tinaProps = {
+    data: {},
+    query: '',
+    variables: { relativePath: 'home.mdx' },
+  };
+
+  try {
+    const response = await client.queries.pages({
+      relativePath: 'home.mdx',
+    });
+    tinaProps.data = response.data;
+    tinaProps.query = response.query;
+    tinaProps.variables = response.variables;
+  } catch (error) {
+    console.error('Error fetching Tina data:', error);
+  }
+
+  return tinaProps;
+}
+
+const tinaProps = await getTinaProps();
 
 // Get category filter from URL
 const categoryFilter = Astro.url.searchParams.get('category');
@@ -48,6 +78,7 @@ const categoryData = categoryFilter
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Justin Johnson - Creative Technologist</title>
+    <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
     <!-- Sidebar Navigation -->
@@ -56,41 +87,70 @@ const categoryData = categoryFilter
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
       <div class="p-4 md:p-6 lg:p-8">
-        <!-- Welcome Section (shown by default) -->
-        <section id="welcome-section" class="mb-12">
-          {categoryFilter ? (
-            <div>
-              <h2 class="text-3xl md:text-4xl font-light mb-2">
-                {categoryData?.data.title || categoryFilter}
-              </h2>
-              {categoryData?.data.description && (
-                <p class="text-lg text-gray-600 max-w-2xl mb-8">
-                  {categoryData.data.description}
-                </p>
-              )}
-              <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
-                ← View all projects
-              </a>
-            </div>
-          ) : (
-            <div>
-              <h2 class="text-3xl md:text-4xl font-light mb-6">
-                Creative Technologist & Sound Designer
-              </h2>
-              <p class="text-lg text-gray-600 max-w-2xl mb-8">
-                Exploring the intersection of technology, sound, and interactive experiences.
-                Select a project from the sidebar to view details, or browse by category.
-              </p>
-            </div>
-          )}
-        </section>
+        <!-- TinaCMS Visual Editor Wrapper (only shows in iframe) -->
+        <div id="tina-wrapper" style="display: none;">
+          <PageComponent {...tinaProps} client:tina />
+        </div>
 
-        <!-- Project Grid -->
-        <section id="projects-section">
-          <ProjectGrid projects={orderedProjects} />
-        </section>
+        <!-- Static Content (shows in production) -->
+        <div id="static-content">
+          <!-- Welcome Section (shown by default) -->
+          <section id="welcome-section" class="mb-12">
+            {categoryFilter ? (
+              <div>
+                <h2 class="text-3xl md:text-4xl font-light mb-2">
+                  {categoryData?.data.title || categoryFilter}
+                </h2>
+                {categoryData?.data.description && (
+                  <p class="text-lg text-gray-600 max-w-2xl mb-8">
+                    {categoryData.data.description}
+                  </p>
+                )}
+                <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
+                  ← View all projects
+                </a>
+              </div>
+            ) : (
+              <div>
+                <h2 class="text-3xl md:text-4xl font-light mb-6">
+                  {homePage?.data.title || 'Creative Technologist & Sound Designer'}
+                </h2>
+                <div class="text-lg text-gray-600 max-w-2xl mb-8 prose prose-lg">
+                  {homePage?.data.body ? (
+                    <div set:html={homePage.data.body} />
+                  ) : (
+                    <p>
+                      Exploring the intersection of technology, sound, and interactive experiences.
+                      Select a project from the sidebar to view details, or browse by category.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <!-- Project Grid -->
+          <section id="projects-section">
+            <ProjectGrid projects={orderedProjects} />
+          </section>
+        </div>
       </div>
     </main>
+
+    <!-- Toggle between TinaCMS and static content based on iframe context -->
+    <script>
+      const isInIframe = window.self !== window.top;
+      const tinaWrapper = document.getElementById('tina-wrapper');
+      const staticContent = document.getElementById('static-content');
+
+      if (isInIframe) {
+        if (tinaWrapper) tinaWrapper.style.display = 'block';
+        if (staticContent) staticContent.style.display = 'none';
+      } else {
+        if (tinaWrapper) tinaWrapper.style.display = 'none';
+        if (staticContent) staticContent.style.display = 'block';
+      }
+    </script>
 
     <!-- Client-side filtering script -->
     <script define:vars={{ allProjectsData: allProjects.map(p => ({ slug: p.slug, categories: p.data.categories || [], featured: p.data.featured || false, yearCompleted: p.data.yearCompleted || 0 })) }}>

@@ -333,6 +333,10 @@ export default defineConfig({
         ui: {
           router: ({ document }) => {
             const slug = document._sys.filename.replace(/\.mdx$/, '')
+            // Map home.mdx to the root path
+            if (slug === 'home') {
+              return '/'
+            }
             return `/${slug}`
           },
         },
