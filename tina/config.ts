@@ -30,6 +30,11 @@ export default defineConfig({
         label: 'Projects',
         path: 'src/content/projects',
         format: 'mdx',
+        ui: {
+          router: ({ document }) => {
+            return `/projects/${document._sys.filename}`;
+          },
+        },
         fields: [
           {
             type: 'string',
@@ -181,6 +186,11 @@ export default defineConfig({
         label: 'Posts',
         path: 'src/content/posts',
         format: 'mdx',
+        ui: {
+          router: ({ document }) => {
+            return `/posts/${document._sys.filename}`;
+          },
+        },
         fields: [
           {
             type: 'string',
@@ -288,6 +298,11 @@ export default defineConfig({
         label: 'Categories',
         path: 'src/content/categories',
         format: 'md',
+        ui: {
+          router: ({ document }) => {
+            return `/categories/${document._sys.filename}`;
+          },
+        },
         fields: [
           {
             type: 'string',
@@ -311,6 +326,11 @@ export default defineConfig({
         label: 'Pages',
         path: 'src/content/pages',
         format: 'mdx',
+        ui: {
+          router: ({ document }) => {
+            return `/${document._sys.filename}`;
+          },
+        },
         fields: [
           {
             type: 'string',
