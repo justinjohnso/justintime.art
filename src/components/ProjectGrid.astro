@@ -37,11 +37,11 @@ const { projects } = Astro.props;
 
 <script>
   // Client-side grid layout logic
-  document.addEventListener('DOMContentLoaded', () => {
+  function initProjectGrid() {
     const grid = document.getElementById('project-grid');
-    const items = Array.from(document.querySelectorAll('.project-item')) as HTMLElement[];
+    const allItems = Array.from(document.querySelectorAll('.project-item')) as HTMLElement[];
 
-    if (!grid || !items.length) return;
+    if (!grid || !allItems.length) return;
 
     let columns = 3;
 
@@ -77,7 +77,10 @@ const { projects } = Astro.props;
       grid.style.gridAutoRows = '250px';
       grid.style.gap = '0.5rem';
 
-      items.forEach((item, index) => {
+      // Only apply pattern to visible items
+      const visibleItems = allItems.filter(item => item.style.display !== 'none');
+
+      visibleItems.forEach((item, index) => {
         const size = pattern[index % pattern.length];
 
         // Apply size classes
@@ -94,7 +97,14 @@ const { projects } = Astro.props;
 
     layoutGrid();
     window.addEventListener('resize', layoutGrid);
-  });
+
+    // Expose for filtering
+    (window as any).relayoutProjectGrid = layoutGrid;
+  }
+
+  // Initialize on page load and after ViewTransitions navigation
+  document.addEventListener('DOMContentLoaded', initProjectGrid);
+  document.addEventListener('astro:page-load', initProjectGrid);
 </script>
 
 <style>

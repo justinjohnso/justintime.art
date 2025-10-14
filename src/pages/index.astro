@@ -16,18 +16,11 @@ const homePage = await getEntry('pages', 'home');
 // Get TinaCMS data for visual editing
 const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
-// Get category filter from URL
-const categoryFilter = Astro.url.searchParams.get('category');
-
 // Get featured projects list from home page
 const featuredProjectSlugs = homePage?.data.featuredProjects || [];
 
-// Filter projects by category if specified
-let workingProjects = categoryFilter
-  ? allProjects.filter(project =>
-      project.data.categories && project.data.categories.includes(categoryFilter)
-    )
-  : allProjects;
+// Don't filter server-side with static builds - pass all projects to client
+let workingProjects = allProjects;
 
 // Separate featured from non-featured (within the filtered set)
 const featuredProjects = workingProjects.filter(p =>
@@ -53,11 +46,13 @@ const orderedNonFeatured = nonFeaturedProjects.sort((a, b) => {
 // Combine: featured first, then non-featured
 const orderedProjects = [...orderedFeatured, ...orderedNonFeatured];
 
-// Get category metadata for title
+// Get category metadata for client-side use
 const allCategories = await getCollection('categories');
-const categoryData = categoryFilter
-  ? allCategories.find(cat => cat.data.categorySlug === categoryFilter)
-  : null;
+const categoryMetadata = allCategories.map(cat => ({
+  slug: cat.data.categorySlug,
+  title: cat.data.title,
+  description: cat.data.description,
+}));
 ---
 
 <!DOCTYPE html>
@@ -79,27 +74,72 @@ const categoryData = categoryFilter
       <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive) -->
       <Page {...tinaProps} client:tina />
 
-      <!-- Category filter header (when filtering) -->
-      {categoryFilter && (
-        <div class="p-4 md:p-6 lg:p-8 pb-0">
-          <h2 class="text-3xl md:text-4xl font-light mb-2">
-            {categoryData?.data.title || categoryFilter}
-          </h2>
-          {categoryData?.data.description && (
-            <p class="text-lg text-gray-600 max-w-2xl mb-8">
-              {categoryData.data.description}
-            </p>
-          )}
-          <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
-            ← View all projects
-          </a>
-        </div>
-      )}
+      <!-- Category filter header (dynamically shown by client script) -->
+      <div id="category-header" class="p-4 md:p-6 lg:p-8 pb-0" style="display: none;">
+        <h2 id="category-title" class="text-3xl md:text-4xl font-light mb-2"></h2>
+        <p id="category-description" class="text-lg text-gray-600 max-w-2xl mb-8"></p>
+        <a href="/" class="text-sm text-gray-500 hover:text-black transition-colors">
+          ← View all projects
+        </a>
+      </div>
 
-      <!-- Project Grid -->
+      <!-- Project Grid (filtering handled client-side) -->
       <div class="p-4 md:p-6 lg:p-8">
         <ProjectGrid projects={orderedProjects} />
       </div>
     </main>
+
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ slug: p.slug, categories: p.data.categories, title: p.data.title })) }}>
+      // Client-side category filtering for static builds
+      function applyFilter() {
+        const params = new URLSearchParams(window.location.search);
+        const categoryFilter = params.get('category');
+
+        if (categoryFilter) {
+          // Show category header
+          const header = document.getElementById('category-header');
+          const categoryInfo = categoryMetadata.find(c => c.slug === categoryFilter);
+
+          if (categoryInfo && header) {
+            document.getElementById('category-title').textContent = categoryInfo.title;
+            const desc = document.getElementById('category-description');
+            if (categoryInfo.description) {
+              desc.textContent = categoryInfo.description;
+              desc.style.display = 'block';
+            } else {
+              desc.style.display = 'none';
+            }
+            header.style.display = 'block';
+          }
+
+          // Filter project grid
+          const projectItems = document.querySelectorAll('.project-item');
+          projectItems.forEach((item, index) => {
+            const projectData = allProjectsData[index];
+            if (projectData && projectData.categories && projectData.categories.includes(categoryFilter)) {
+              item.style.display = '';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        } else {
+          // Show all projects
+          document.getElementById('category-header').style.display = 'none';
+          document.querySelectorAll('.project-item').forEach(item => {
+            item.style.display = '';
+          });
+        }
+
+        // Trigger grid re-layout after filtering
+        if (window.relayoutProjectGrid) {
+          window.relayoutProjectGrid();
+        }
+      }
+
+      // Apply filter on load and when navigating
+      applyFilter();
+      document.addEventListener('astro:after-swap', applyFilter);
+      window.addEventListener('popstate', applyFilter);
+    </script>
   </body>
 </html>
