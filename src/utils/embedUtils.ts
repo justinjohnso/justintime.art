@@ -47,13 +47,11 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
       }
     }
 
-    // SoundCloud - preserve full URL including secret tokens
+    // SoundCloud - if the URL is already the full widget URL, use it directly
     if (hostname.includes('soundcloud.com')) {
-      // Keep the full URL with all parameters (secret tokens, etc.)
-      // SoundCloud widget needs the exact URL format provided by the user
       return {
         type: 'soundcloud',
-        embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
+        embedUrl: url, // Use the URL as-is since it's already the widget URL
         aspectRatio: '16/9',
       }
     }
