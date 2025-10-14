@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Disable ViewTransitions fade animation (remove ghosting effect) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0ms;
+}
+
 /* Custom styles */
 .page-container {
   max-width: 1200px;
