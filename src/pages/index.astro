@@ -147,7 +147,7 @@ const categoryData = categoryFilter
 
     <!-- Client-side filtering script -->
     <script define:vars={{ allProjectsData: allProjects.map(p => ({ slug: p.slug, categories: p.data.categories || [], featured: p.data.featured || false, yearCompleted: p.data.yearCompleted || 0 })) }}>
-      document.addEventListener('DOMContentLoaded', () => {
+      function applyFiltering() {
         const urlParams = new URLSearchParams(window.location.search);
         const categoryFilter = urlParams.get('category');
 
@@ -165,7 +165,13 @@ const categoryData = categoryFilter
             }
           });
         }
-      });
+      }
+
+      // Run on initial page load
+      document.addEventListener('DOMContentLoaded', applyFiltering);
+      
+      // Run after view transitions complete
+      document.addEventListener('astro:page-load', applyFiltering);
     </script>
   </body>
 </html>
