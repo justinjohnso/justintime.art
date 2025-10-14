@@ -36,73 +36,43 @@ const { projects } = Astro.props;
 </div>
 
 <script>
-  // Client-side grid layout logic
   function initProjectGrid() {
     const grid = document.getElementById('project-grid');
     const allItems = Array.from(document.querySelectorAll('.project-item')) as HTMLElement[];
-
     if (!grid || !allItems.length) return;
 
-    let columns = 3;
-
-    const detectColumns = () => {
-      if (window.innerWidth < 640) {
-        columns = 1;
-      } else if (window.innerWidth < 768) {
-        columns = 2;
-      } else {
-        columns = 3;
-      }
+    const getColumns = () => {
+      if (window.innerWidth < 640) return 1;
+      if (window.innerWidth < 768) return 2;
+      return 3;
     };
 
-    const generatePattern = (cols: number): Array<'small' | 'wide' | 'tall' | 'large'> => {
-      switch (cols) {
-        case 1:
-          return ['small', 'tall'];
-        case 2:
-          return ['large', 'small', 'small', 'tall', 'wide'];
-        case 3:
-        default:
-          return ['large', 'small', 'tall', 'small', 'wide', 'small'];
-      }
-    };
+    const patterns = {
+      1: ['small', 'tall'],
+      2: ['large', 'small', 'small', 'tall', 'wide'],
+      3: ['large', 'small', 'tall', 'small', 'wide', 'small']
+    } as const;
 
     const layoutGrid = () => {
-      detectColumns();
-      const pattern = generatePattern(columns);
-
-      // Apply grid styles
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-      grid.style.gridAutoRows = '250px';
-      grid.style.gap = '0.5rem';
-
-      // Only apply pattern to visible items
+      const columns = getColumns();
+      const pattern = patterns[columns as keyof typeof patterns];
       const visibleItems = allItems.filter(item => item.style.display !== 'none');
 
       visibleItems.forEach((item, index) => {
         const size = pattern[index % pattern.length];
+        const isWide = size === 'wide' || size === 'large';
+        const isTall = size === 'tall' || size === 'large';
 
-        // Apply size classes
-        item.style.gridColumnEnd = size === 'wide' || size === 'large' ? 'span 2' : 'span 1';
-        item.style.gridRowEnd = size === 'tall' || size === 'large' ? 'span 2' : 'span 1';
-
-        // Single column adjustments
-        if (columns === 1) {
-          item.style.gridColumnEnd = 'span 1';
-          item.style.gridRowEnd = size === 'tall' ? 'span 2' : 'span 1';
-        }
+        item.style.gridColumnEnd = columns === 1 ? 'span 1' : isWide ? 'span 2' : 'span 1';
+        item.style.gridRowEnd = isTall ? 'span 2' : 'span 1';
       });
     };
 
     layoutGrid();
     window.addEventListener('resize', layoutGrid);
-
-    // Expose for filtering
     (window as any).relayoutProjectGrid = layoutGrid;
   }
 
-  // Initialize on page load and after ViewTransitions navigation
   document.addEventListener('DOMContentLoaded', initProjectGrid);
   document.addEventListener('astro:page-load', initProjectGrid);
 </script>
@@ -110,6 +80,8 @@ const { projects } = Astro.props;
 <style>
   .project-grid {
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 250px;
     gap: 0.5rem;
     grid-auto-flow: dense;
   }
@@ -134,12 +106,6 @@ const { projects } = Astro.props;
   @media (min-width: 641px) and (max-width: 768px) {
     .project-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 769px) {
-    .project-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 </style>

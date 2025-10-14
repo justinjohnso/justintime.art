@@ -89,54 +89,34 @@ const categoryMetadata = allCategories.map(cat => ({
       </div>
     </main>
 
-    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ slug: p.slug, categories: p.data.categories, title: p.data.title })) }}>
-      // Client-side category filtering for static builds
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories })) }}>
       function applyFilter() {
-        const params = new URLSearchParams(window.location.search);
-        const categoryFilter = params.get('category');
+        const categorySlug = new URLSearchParams(window.location.search).get('category');
+        const categoryHeader = document.getElementById('category-header');
+        const projectItems = document.querySelectorAll('.project-item');
 
-        if (categoryFilter) {
-          // Show category header
-          const header = document.getElementById('category-header');
-          const categoryInfo = categoryMetadata.find(c => c.slug === categoryFilter);
-
-          if (categoryInfo && header) {
-            document.getElementById('category-title').textContent = categoryInfo.title;
+        if (categorySlug) {
+          const category = categoryMetadata.find(c => c.slug === categorySlug);
+          if (category) {
+            document.getElementById('category-title').textContent = category.title;
             const desc = document.getElementById('category-description');
-            if (categoryInfo.description) {
-              desc.textContent = categoryInfo.description;
-              desc.style.display = 'block';
-            } else {
-              desc.style.display = 'none';
-            }
-            header.style.display = 'block';
+            desc.textContent = category.description || '';
+            desc.style.display = category.description ? 'block' : 'none';
+            categoryHeader.style.display = 'block';
           }
 
-          // Filter project grid
-          const projectItems = document.querySelectorAll('.project-item');
           projectItems.forEach((item, index) => {
-            const projectData = allProjectsData[index];
-            if (projectData && projectData.categories && projectData.categories.includes(categoryFilter)) {
-              item.style.display = '';
-            } else {
-              item.style.display = 'none';
-            }
+            const project = allProjectsData[index];
+            item.style.display = project?.categories?.includes(categorySlug) ? '' : 'none';
           });
         } else {
-          // Show all projects
-          document.getElementById('category-header').style.display = 'none';
-          document.querySelectorAll('.project-item').forEach(item => {
-            item.style.display = '';
-          });
+          categoryHeader.style.display = 'none';
+          projectItems.forEach(item => item.style.display = '');
         }
 
-        // Trigger grid re-layout after filtering
-        if (window.relayoutProjectGrid) {
-          window.relayoutProjectGrid();
-        }
+        window.relayoutProjectGrid?.();
       }
 
-      // Apply filter on load and when navigating
       applyFilter();
       document.addEventListener('astro:after-swap', applyFilter);
       window.addEventListener('popstate', applyFilter);
