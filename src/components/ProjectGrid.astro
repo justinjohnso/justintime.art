@@ -79,263 +79,36 @@ const { projects } = Astro.props;
       const totalItems = projectsWithImportance.length;
       if (totalItems === 0) return;
 
-      // PASS 1: Mathematical Grid Construction
-      // Calculate exact cell requirements for perfect fill
-      const calculateCellsUsed = (large: number, wide: number, tall: number, small: number) => {
-        return (large * 4) + (wide * 2) + (tall * 2) + (small * 1);
-      };
-
-      // Start with balanced distribution that favors larger items
+      // PASS 1: Create Size Distribution
+      // Simple percentage-based distribution - CSS Grid dense packing handles the rest
       const targetCounts = {
-        large: Math.floor(totalItems * 0.15), // 15% large (4 cells each)
-        wide: Math.floor(totalItems * 0.30),  // 30% wide (2 cells each)
-        tall: Math.floor(totalItems * 0.25),  // 25% tall (2 cells each)
-        small: 0 // Will be calculated
+        large: Math.floor(totalItems * 0.15), // 15%
+        wide: Math.floor(totalItems * 0.23),  // 23%
+        tall: Math.floor(totalItems * 0.25),  // 25%
+        small: 0 // ~37% (calculated)
       };
 
-      // Calculate remaining items for small
-      const usedItems = targetCounts.large + targetCounts.wide + targetCounts.tall;
-      targetCounts.small = totalItems - usedItems;
+      targetCounts.small = totalItems - (targetCounts.large + targetCounts.wide + targetCounts.tall);
 
-      // Calculate total cells that would be used
-      let totalCellsUsed = calculateCellsUsed(targetCounts.large, targetCounts.wide, targetCounts.tall, targetCounts.small);
+      // Safety check
+      if (targetCounts.small < 0) targetCounts.small = 0;
 
-      // Calculate target grid size (aim for slightly more cells than needed)
-      const minRows = Math.ceil(totalCellsUsed / columns);
-      const targetCells = minRows * columns;
-
-      // Adjust distribution to perfectly fill the grid
-      let cellsNeeded = targetCells - totalCellsUsed;
-
-      // If we need more cells, convert small to larger items
-      while (cellsNeeded > 0 && targetCounts.small > 0) {
-        if (cellsNeeded >= 3 && targetCounts.small >= 1) {
-          // Convert 1 small to 1 large (adds 3 cells)
-          targetCounts.small -= 1;
-          targetCounts.large += 1;
-          cellsNeeded -= 3;
-        } else if (cellsNeeded >= 1 && targetCounts.small >= 1) {
-          // Convert 1 small to 1 wide/tall (adds 1 cell)
-          targetCounts.small -= 1;
-          if (Math.random() > 0.5) {
-            targetCounts.wide += 1;
-          } else {
-            targetCounts.tall += 1;
-          }
-          cellsNeeded -= 1;
-        } else {
-          break;
-        }
-      }
-
-      // If we still have excess cells, convert larger items to smaller
-      while (cellsNeeded < 0) {
-        if (targetCounts.large > 0) {
-          targetCounts.large -= 1;
-          targetCounts.small += 1;
-          cellsNeeded += 3;
-        } else if (targetCounts.wide > 0) {
-          targetCounts.wide -= 1;
-          targetCounts.small += 1;
-          cellsNeeded += 1;
-        } else if (targetCounts.tall > 0) {
-          targetCounts.tall -= 1;
-          targetCounts.small += 1;
-          cellsNeeded += 1;
-        } else {
-          break;
-        }
-      }
-
-      // Create the initial perfect grid
+      // Create size array
       const gridSizes: string[] = [];
-
-      // Add sizes according to target counts
       for (let i = 0; i < targetCounts.large; i++) gridSizes.push('large');
       for (let i = 0; i < targetCounts.wide; i++) gridSizes.push('wide');
       for (let i = 0; i < targetCounts.tall; i++) gridSizes.push('tall');
       for (let i = 0; i < targetCounts.small; i++) gridSizes.push('small');
 
-      // Ensure we have exactly the right number of items
-      while (gridSizes.length < totalItems) gridSizes.push('small');
-      while (gridSizes.length > totalItems) gridSizes.pop();
-
-      // PASS 2: Enhanced Anti-Pattern Shuffling for Vertical Line Breaking
+      // PASS 2: Shuffle for Visual Variety
+      // Simple Fisher-Yates shuffle - CSS Grid dense packing handles the layout
       const shuffledGrid = [...gridSizes];
-
-      // Helper to detect vertical line patterns that need breaking
-      const createsVerticalAlignment = (index: number, testSize: string) => {
-        const row = Math.floor(index / columns);
-        const col = index % columns;
-
-        // Check for vertical line patterns (same column edges aligning)
-        let verticalAlignments = 0;
-
-        // For wide items, check if left or right edge creates vertical lines
-        if (testSize === 'wide') {
-          // Check column alignment (items directly above/below)
-          for (let checkRow = 0; checkRow < Math.ceil(totalItems / columns); checkRow++) {
-            if (checkRow === row) continue;
-            const checkIndex = checkRow * columns + col;
-            if (checkIndex < shuffledGrid.length) {
-              const checkSize = shuffledGrid[checkIndex];
-              if (checkSize === 'small' || checkSize === 'tall' || checkSize === 'wide') {
-                verticalAlignments++;
-              }
-            }
-            // Also check right edge alignment for wide items
-            const rightCheckIndex = checkRow * columns + col + 1;
-            if (rightCheckIndex < shuffledGrid.length && col + 1 < columns) {
-              const rightCheckSize = shuffledGrid[rightCheckIndex];
-              if (rightCheckSize === 'small' || rightCheckSize === 'tall') {
-                verticalAlignments++;
-              }
-            }
-          }
-        }
-
-        // For other items, check if they align with existing wide items' edges
-        if (testSize === 'small' || testSize === 'tall') {
-          for (let checkRow = 0; checkRow < Math.ceil(totalItems / columns); checkRow++) {
-            if (checkRow === row) continue;
-            const checkIndex = checkRow * columns + col;
-            if (checkIndex < shuffledGrid.length) {
-              const checkSize = shuffledGrid[checkIndex];
-              if (checkSize === 'wide' || checkSize === 'large') {
-                verticalAlignments++;
-              }
-            }
-          }
-        }
-
-        return verticalAlignments > 1; // Flag if more than 1 alignment
-      };
-
-      // Helper to check for 4-way intersections
-      const createsFourWayIntersection = (index: number, testSize: string) => {
-        const row = Math.floor(index / columns);
-        const col = index % columns;
-
-        // Check if placing this size creates clean grid intersections
-        const isWide = testSize === 'wide' || testSize === 'large';
-        const isTall = testSize === 'tall' || testSize === 'large';
-
-        // Look for patterns that create too many aligned edges
-        let alignedEdges = 0;
-
-        // Check horizontal neighbors for width alignment
-        if (isWide) {
-          const leftNeighbor = shuffledGrid[index - 1];
-          const rightNeighbor = shuffledGrid[index + 2];
-          if (leftNeighbor === 'wide' || leftNeighbor === 'large') alignedEdges++;
-          if (rightNeighbor === 'wide' || rightNeighbor === 'large') alignedEdges++;
-        }
-
-        // Check vertical neighbors for height alignment
-        if (isTall) {
-          const topNeighbor = shuffledGrid[index - columns];
-          const bottomNeighbor = shuffledGrid[index + columns * 2];
-          if (topNeighbor === 'tall' || topNeighbor === 'large') alignedEdges++;
-          if (bottomNeighbor === 'tall' || bottomNeighbor === 'large') alignedEdges++;
-        }
-        return false;
-      };
-
-      // Phase 1: Break vertical alignments by repositioning wide items
-      for (let i = 0; i < shuffledGrid.length; i++) {
-        if (shuffledGrid[i] === 'wide' && createsVerticalAlignment(i, 'wide')) {
-          // Find better position for this wide item
-          for (let j = 0; j < shuffledGrid.length; j++) {
-            if (i !== j && shuffledGrid[j] !== 'wide' && !createsVerticalAlignment(j, 'wide')) {
-              [shuffledGrid[i], shuffledGrid[j]] = [shuffledGrid[j], shuffledGrid[i]];
-              break;
-            }
-          }
-        }
-      }
-
-      // Phase 2: General anti-pattern shuffling
       for (let i = shuffledGrid.length - 1; i > 0; i--) {
-        let bestJ = i;
-        let lowestScore = 999;
-
-        // Try multiple swap candidates and pick the one that creates least patterns
-        const maxAttempts = Math.min(12, i); // Increased attempts for better results
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          const j = Math.floor(Math.random() * (i + 1));
-
-          // Calculate pattern score for this swap
-          let patternScore = 0;
-          if (createsFourWayIntersection(i, shuffledGrid[j])) patternScore += 3;
-          if (createsFourWayIntersection(j, shuffledGrid[i])) patternScore += 3;
-          if (createsVerticalAlignment(i, shuffledGrid[j])) patternScore += 2;
-          if (createsVerticalAlignment(j, shuffledGrid[i])) patternScore += 2;
-
-          if (patternScore < lowestScore) {
-            lowestScore = patternScore;
-            bestJ = j;
-          }
-
-          // If we found a perfect swap (no patterns), use it
-          if (patternScore === 0) break;
-        }
-
-        // Perform the best swap found
-        [shuffledGrid[i], shuffledGrid[bestJ]] = [shuffledGrid[bestJ], shuffledGrid[i]];
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledGrid[i], shuffledGrid[j]] = [shuffledGrid[j], shuffledGrid[i]];
       }
 
-      // Phase 3: Strategic wide item placement for line breaking
-      const wideIndices = shuffledGrid.map((size, index) => size === 'wide' ? index : -1).filter(i => i !== -1);
-      wideIndices.forEach(wideIndex => {
-        const row = Math.floor(wideIndex / columns);
-        const col = wideIndex % columns;
-
-        // Try to position wide items to break potential vertical lines
-        // Prefer positions where they can disrupt column continuity
-        let betterPosition = -1;
-        let minVerticalCount = 999;
-
-        for (let testIndex = 0; testIndex < shuffledGrid.length; testIndex++) {
-          if (shuffledGrid[testIndex] === 'wide') continue;
-
-          const testRow = Math.floor(testIndex / columns);
-          const testCol = testIndex % columns;
-
-          // Count vertical alignments this position would create
-          let verticalCount = 0;
-          for (let checkRow = 0; checkRow < Math.ceil(totalItems / columns); checkRow++) {
-            if (checkRow === testRow) continue;
-            const checkIndex = checkRow * columns + testCol;
-            if (checkIndex < shuffledGrid.length && shuffledGrid[checkIndex] !== 'wide') {
-              verticalCount++;
-            }
-          }
-
-          if (verticalCount < minVerticalCount) {
-            minVerticalCount = verticalCount;
-            betterPosition = testIndex;
-          }
-        }
-
-        // Swap if we found a better position
-        if (betterPosition !== -1 && minVerticalCount < 2) {
-          [shuffledGrid[wideIndex], shuffledGrid[betterPosition]] = [shuffledGrid[betterPosition], shuffledGrid[wideIndex]];
-        }
-      });
-
-      // Phase 4: Break up clusters of large items
-      for (let i = 0; i < shuffledGrid.length - 1; i++) {
-        if (shuffledGrid[i] === 'large' && shuffledGrid[i + 1] === 'large') {
-          for (let j = i + 2; j < shuffledGrid.length; j++) {
-            if (shuffledGrid[j] !== 'large') {
-              [shuffledGrid[i + 1], shuffledGrid[j]] = [shuffledGrid[j], shuffledGrid[i + 1]];
-              break;
-            }
-          }
-        }
-      }
-
-      // PASS 3: Importance-Based Assignment
+      // PASS 3: Assign Sizes to Projects with Importance Distribution
       // Sort projects by importance
       const importanceOrder = projectsWithImportance
         .map((p, idx) => ({ ...p, originalIndex: idx }))
@@ -344,27 +117,42 @@ const { projects } = Astro.props;
           return b.importance - a.importance;
         });
 
-      // Create final size assignment
-      const finalSizes: string[] = new Array(totalItems).fill('small');
+      // Interleaved distribution pattern: large, small, tall, wide, small, etc.
+      const patternUnit = ['large', 'small', 'tall', 'wide', 'small', 'large', 'small', 'tall', 'wide', 'small'];
+      const distributionPattern: string[] = [];
+      while (distributionPattern.length < totalItems) {
+        distributionPattern.push(...patternUnit);
+      }
 
-      // Sort grid sizes by desirability (large > wide > tall > small)
-      const sizeValue = { large: 4, wide: 2, tall: 2, small: 1 };
-      const sortedGridIndices = shuffledGrid
-        .map((size, index) => ({ size, index }))
-        .sort((a, b) => sizeValue[b.size as keyof typeof sizeValue] - sizeValue[a.size as keyof typeof sizeValue]);
+      // Group shuffled positions by size
+      const positionsBySize: { [key: string]: number[] } = { large: [], tall: [], wide: [], small: [] };
+      shuffledGrid.forEach((size, index) => positionsBySize[size].push(index));
 
-      // Assign best positions to most important projects
+      // Track usage
+      const sizeIndices = { large: 0, tall: 0, wide: 0, small: 0 };
+      const finalSizesForProjects: string[] = new Array(totalItems);
+
+      // Assign using pattern with fallback
       for (let i = 0; i < totalItems; i++) {
         const project = importanceOrder[i];
-        const gridSlot = sortedGridIndices[i];
-        finalSizes[project.originalIndex] = gridSlot.size;
+        let selectedSize = distributionPattern[i];
+
+        // Find available size
+        const sizeOptions = ['large', 'tall', 'wide', 'small'];
+        if (sizeIndices[selectedSize as keyof typeof sizeIndices] >= positionsBySize[selectedSize].length) {
+          selectedSize = sizeOptions.find(s => sizeIndices[s as keyof typeof sizeIndices] < positionsBySize[s].length) || 'small';
+        }
+
+        const positionIndex = sizeIndices[selectedSize as keyof typeof sizeIndices]++;
+        const gridPosition = positionsBySize[selectedSize][positionIndex];
+        finalSizesForProjects[project.originalIndex] = shuffledGrid[gridPosition];
       }
 
       // Apply sizes to DOM elements
       const sizeCounts = { small: 0, wide: 0, tall: 0, large: 0 };
 
       projectsWithImportance.forEach(({ item }, idx) => {
-        const size = finalSizes[idx];
+        const size = finalSizesForProjects[idx];
         sizeCounts[size as keyof typeof sizeCounts]++;
 
         const isWide = size === 'wide' || size === 'large';
@@ -374,13 +162,9 @@ const { projects } = Astro.props;
       });
 
       // Debug output
-      const finalCellsUsed = calculateCellsUsed(targetCounts.large, targetCounts.wide, targetCounts.tall, targetCounts.small);
-      const actualGridRows = Math.ceil(finalCellsUsed / columns);
-      console.log(`Mathematical Grid (${columns} cols, ${actualGridRows} rows):`, sizeCounts);
-      console.log(`Target counts:`, targetCounts);
-      console.log('Grid sizes distribution:', gridSizes.slice(0, 10), '...'); // Show first 10
-      console.log('Shuffled distribution:', shuffledGrid.slice(0, 10), '...'); // Show first 10
-      console.log('Final assignment sample:', finalSizes.slice(0, 10), '...'); // Show first 10
+      console.log(`📊 Grid Layout (${columns} cols, ${totalItems} items):`);
+      console.log(`  Distribution:`, sizeCounts);
+      console.log(`  Sample:`, finalSizesForProjects.slice(0, 10));
     };
 
     layoutGrid();
