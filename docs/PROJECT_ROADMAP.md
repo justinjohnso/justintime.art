@@ -1,45 +1,31 @@
+
 # Project Roadmap
+
+**TL;DR: Key Decisions & Priorities**
+
+- **Hosting**: Digital Ocean App Platform (40 months free via GitHub Student Pack)
+- **Domain**: jjohnson.art (already owned)
+- **Content**: Notion is the single source of truth; bi-directional sync for projects, blog, and resume
+- **PDF Generation**: Puppeteer (HTML → PDF), stored in DO Spaces or Cloudinary
+- **Analytics**: Self-hosted Umami (Docker on DO)
+- **Icons**: Lucide React (SVG, easy setup)
+- **Video Embeds**: Custom Astro components for YouTube/Vimeo
+- **Security**: All secrets in environment variables; webhook authentication for Notion
+- **Development Order**:
+  1. Content & Layout Updates
+  2. Hosting Setup
+  3. Notion Sync (projects)
+  4. Blog Integration
+  5. PDF Generator
+  6. Resume System
+
+---
 
 This document tracks the remaining work needed to complete the portfolio site and achieve full feature parity with the existing site at https://jjohnson.art/.
 
 ## Status: Planning Phase
 
 **Last Updated**: October 15, 2025
-
----
-
-## 📋 Quick Reference (TL;DR)
-
-### Key Decisions
-- **Hosting**: Digital Ocean Droplet ($6/month) or App Platform ($5/month) - **Decision Pending**
-- **Domain**: jjohnson.art (already owned)
-- **Analytics**: Self-hosted Umami (free, privacy-focused, Docker)
-- **Notion**: https://dusty-pineapple.notion.site (already set up)
-- **PDF Generation**: Puppeteer (HTML → PDF)
-- **Icons**: Lucide React
-- **Sync Strategy**: Webhook-triggered static rebuilds (Astro-native)
-
-### Technical Stack
-- Framework: Astro 4.16.18 + TinaCMS 2.2.7
-- Hosting: Digital Ocean ($200 Student Pack = 33-40 months free)
-- API: Express.js on Digital Ocean
-- PDF: Puppeteer for one-sheets and resumes
-- Storage: Droplet filesystem or DO Spaces
-- Analytics: Umami (Docker on same server)
-
-### Development Priorities
-1. **Content & Layout** - Video embeds, single-image layouts, About page
-2. **Hosting Setup** - Deploy to jjohnson.art with DO
-3. **Notion Sync** - Bi-directional sync for projects
-4. **Blog** - ITP work-in-progress blog with Notion
-5. **PDF Generator** - Automated one-sheet creation
-6. **Resume System** - Dynamic composable resumes from Notion
-
-### Related Documentation
-- [Hosting Analysis](./setup/HOSTING_ANALYSIS.md) - Detailed comparison of hosting options
-- [Droplet Setup Guide](./setup/DROPLET_SETUP.md) - Complete server configuration
-- [Featured Projects](./guides/FEATURED_PROJECTS.md) - Grid system documentation
-- [Visual Editor](./guides/VISUAL_EDITOR.md) - TinaCMS integration guide
 
 ---
 
