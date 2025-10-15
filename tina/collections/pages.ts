@@ -1,7 +1,4 @@
 import type { Collection } from 'tinacms'
-import matter from 'gray-matter'
-import fs from 'fs'
-import path from 'path'
 
 export const PagesCollection: Collection = {
   name: 'pages',
@@ -43,19 +40,16 @@ export const PagesCollection: Collection = {
       list: true,
       ui: {
         itemProps: (item) => {
-          // Read the project file to get its title using gray-matter
+          // Extract a readable label from the project path
           if (item?.project) {
-            try {
-              const projectPath = path.join(process.cwd(), item.project)
-              const fileContents = fs.readFileSync(projectPath, 'utf8')
-              const { data } = matter(fileContents)
-              return { label: data.title || 'Untitled Project' }
-            } catch (error) {
-              console.error(`Error reading project file: ${item.project}`, error)
-              return {
-                label: item.project.split('/').pop()?.replace('.mdx', '') || 'Select a project',
-              }
-            }
+            // Convert "src/content/projects/look-listen.mdx" to "look-listen"
+            const slug = item.project.split('/').pop()?.replace('.mdx', '') || ''
+            // Convert kebab-case to Title Case for display
+            const label = slug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')
+            return { label: label || 'Select a project' }
           }
           return { label: 'Select a project' }
         },
