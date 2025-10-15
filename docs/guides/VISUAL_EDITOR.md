@@ -234,7 +234,12 @@ export default function PostPage(props: Props) {
 - Run `pnpm tina:build` to regenerate types
 - Check `tina/__generated__/types.ts` for latest schema
 
-## Resources
+## Related Documentation
+
+- [Featured Projects Guide](./FEATURED_PROJECTS.md) - Grid system implementation
+- [Project Roadmap](../PROJECT_ROADMAP.md) - Development planning and priorities
+
+## External Resources
 
 - [TinaCMS Visual Editing Docs](https://tina.io/docs/contextual-editing/react/)
 - [Astro + TinaCMS Starter](https://github.com/tinacms/tina-astro-starter)

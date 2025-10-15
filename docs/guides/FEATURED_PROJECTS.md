@@ -282,4 +282,5 @@ If upgrading from the old system:
 ## Related Documentation
 
 - [Visual Editor Guide](./VISUAL_EDITOR.md) - TinaCMS visual editing features
-- [README.md](../README.md) - General project documentation
+- [Project Roadmap](../PROJECT_ROADMAP.md) - Development planning and priorities
+- [Documentation Index](../README.md) - All project documentation
