@@ -16,24 +16,37 @@ const homePage = await getEntry('pages', 'home');
 // Get TinaCMS data for visual editing
 const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
-// Extract featured project slugs from homepage (now just simple slug strings)
-const featuredProjectSlugs = new Set(homePage.data.featuredProjects || []);
+// Extract featured project slugs and their order from homepage
+const featuredProjectOrder = (homePage.data.featuredProjects || []).map((item: any, index: number) => {
+  // Extract slug from path like "src/content/projects/look-listen.mdx"
+  const match = item.project?.match(/projects\/(.+)\.mdx$/);
+  return { slug: match ? match[1] : null, order: index };
+}).filter(item => item.slug !== null);
 
-// Sort projects: featured first (by year), then non-featured (by year)
-const featuredProjects = allProjects.filter(p => featuredProjectSlugs.has(p.slug));
+const featuredProjectSlugs = new Set(featuredProjectOrder.map(item => item.slug));
+
+// Sort projects: featured first (by homepage order), then non-featured (by year)
+const featuredProjects = allProjects
+  .filter(p => featuredProjectSlugs.has(p.slug))
+  .sort((a, b) => {
+    // Sort by the order defined in homepage featuredProjects
+    const orderA = featuredProjectOrder.find(item => item.slug === a.slug)?.order ?? 999;
+    const orderB = featuredProjectOrder.find(item => item.slug === b.slug)?.order ?? 999;
+    return orderA - orderB;
+  });
+
 const nonFeaturedProjects = allProjects.filter(p => !featuredProjectSlugs.has(p.slug));
 
-// Sort both groups by year (newest first)
+// Sort non-featured by year (newest first)
 const sortByYear = (a: typeof allProjects[0], b: typeof allProjects[0]) => {
   const yearA = a.data.yearCompleted || 0;
   const yearB = b.data.yearCompleted || 0;
   return yearB - yearA;
 };
 
-featuredProjects.sort(sortByYear);
 nonFeaturedProjects.sort(sortByYear);
 
-// Combine: featured first, then non-featured
+// Combine: featured first (in homepage order), then non-featured (by year)
 const orderedProjects = [...featuredProjects, ...nonFeaturedProjects];
 
 // Get category metadata for client-side use
