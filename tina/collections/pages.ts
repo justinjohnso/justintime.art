@@ -33,11 +33,10 @@ export const PagesCollection: Collection = {
       },
     },
     {
-      type: 'reference',
+      type: 'string',
       name: 'featuredProjects',
       label: 'Featured Projects',
-      description: 'Drag to reorder featured projects for the homepage',
-      collections: ['projects'],
+      description: 'List of featured project slugs (e.g., look-listen, eurydice)',
       list: true,
     },
     {

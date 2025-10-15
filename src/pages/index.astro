@@ -16,9 +16,12 @@ const homePage = await getEntry('pages', 'home');
 // Get TinaCMS data for visual editing
 const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
+// Extract featured project slugs from homepage (now just simple slug strings)
+const featuredProjectSlugs = new Set(homePage.data.featuredProjects || []);
+
 // Sort projects: featured first (by year), then non-featured (by year)
-const featuredProjects = allProjects.filter(p => p.data.featured === true);
-const nonFeaturedProjects = allProjects.filter(p => p.data.featured !== true);
+const featuredProjects = allProjects.filter(p => featuredProjectSlugs.has(p.slug));
+const nonFeaturedProjects = allProjects.filter(p => !featuredProjectSlugs.has(p.slug));
 
 // Sort both groups by year (newest first)
 const sortByYear = (a: typeof allProjects[0], b: typeof allProjects[0]) => {
@@ -78,7 +81,7 @@ const categoryMetadata = allCategories.map(cat => ({
       </div>
     </main>
 
-    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories, featured: p.data.featured || false })) }}>
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories, featured: featuredProjectSlugs.has(p.slug) })) }}>
       function applyFilter() {
         const categorySlug = new URLSearchParams(window.location.search).get('category');
         const categoryHeader = document.getElementById('category-header');
