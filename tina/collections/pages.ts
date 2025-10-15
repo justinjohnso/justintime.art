@@ -52,7 +52,9 @@ export const PagesCollection: Collection = {
               return { label: data.title || 'Untitled Project' }
             } catch (error) {
               console.error(`Error reading project file: ${item.project}`, error)
-              return { label: item.project.split('/').pop()?.replace('.mdx', '') || 'Select a project' }
+              return {
+                label: item.project.split('/').pop()?.replace('.mdx', '') || 'Select a project',
+              }
             }
           }
           return { label: 'Select a project' }
