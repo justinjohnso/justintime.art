@@ -89,7 +89,7 @@ const categoryMetadata = allCategories.map(cat => ({
       </div>
     </main>
 
-    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories })) }}>
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories, featured: p.data.featured, importance: p.data.importance })) }}>
       function applyFilter() {
         const categorySlug = new URLSearchParams(window.location.search).get('category');
         const categoryHeader = document.getElementById('category-header');
