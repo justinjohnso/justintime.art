@@ -148,13 +148,9 @@ const { projects } = Astro.props;
         finalSizesForProjects[project.originalIndex] = shuffledGrid[gridPosition];
       }
 
-      // Apply sizes to DOM elements
-      const sizeCounts = { small: 0, wide: 0, tall: 0, large: 0 };
-
+      // Apply initial sizes to DOM
       projectsWithImportance.forEach(({ item }, idx) => {
         const size = finalSizesForProjects[idx];
-        sizeCounts[size as keyof typeof sizeCounts]++;
-
         const isWide = size === 'wide' || size === 'large';
         const isTall = size === 'tall' || size === 'large';
         item.style.gridColumnEnd = isWide ? 'span 2' : 'span 1';
@@ -162,9 +158,115 @@ const { projects } = Astro.props;
       });
 
       // Debug output
-      console.log(`📊 Grid Layout (${columns} cols, ${totalItems} items):`);
-      console.log(`  Distribution:`, sizeCounts);
-      console.log(`  Sample:`, finalSizesForProjects.slice(0, 10));
+      const sizeCounts = { small: 0, wide: 0, tall: 0, large: 0 };
+      finalSizesForProjects.forEach(size => sizeCounts[size as keyof typeof sizeCounts]++);
+      console.log(`📊 Grid Layout (${columns} cols, ${totalItems} items):`, sizeCounts);
+
+      // PASS 4: Correction Pass - Analyze Actual Rendered Grid
+      requestAnimationFrame(() => {
+        // Get actual rendered positions
+        const itemsWithPositions = projectsWithImportance.map(({ item }, idx) => {
+          const rect = item.getBoundingClientRect();
+          const isTall = finalSizesForProjects[idx] === 'tall' || finalSizesForProjects[idx] === 'large';
+          return {
+            idx,
+            item,
+            size: finalSizesForProjects[idx],
+            y: rect.top,
+            x: rect.left,
+            height: rect.height,
+            spansTwoRows: isTall
+          };
+        });
+
+        // Sort by Y position to identify unique row positions
+        itemsWithPositions.sort((a, b) => a.y - b.y);
+
+        // Find unique row Y positions
+        const uniqueRowYs: number[] = [];
+        const rowThreshold = 10;
+        itemsWithPositions.forEach(item => {
+          if (!uniqueRowYs.some(y => Math.abs(y - item.y) <= rowThreshold)) {
+            uniqueRowYs.push(item.y);
+          }
+        });
+
+        console.log(`🔍 Analyzed ${uniqueRowYs.length} unique row positions`);
+
+        // For each row, count columns occupied (only count items that START in this row)
+        const rowAnalysis = uniqueRowYs.map((rowY, rowIdx) => {
+          const itemsInRow = itemsWithPositions.filter(item =>
+            Math.abs(item.y - rowY) <= rowThreshold
+          );
+
+          // Sort by X position
+          itemsInRow.sort((a, b) => a.x - b.x);
+
+          // Count columns (wide/large = 2 cols, small/tall = 1 col)
+          let colsOccupied = 0;
+          itemsInRow.forEach(item => {
+            const cols = (item.size === 'wide' || item.size === 'large') ? 2 : 1;
+            colsOccupied += cols;
+          });
+
+          return { rowIdx, rowY, itemsInRow, colsOccupied, isComplete: colsOccupied >= columns };
+        });
+
+        // Check last TWO rows for incompleteness
+        const lastRow = rowAnalysis[rowAnalysis.length - 1];
+        const secondToLastRow = rowAnalysis[rowAnalysis.length - 2];
+        const lastRowIncomplete = lastRow && !lastRow.isComplete;
+
+        if (secondToLastRow) {
+          console.log(`   Second-to-last row (${secondToLastRow.rowIdx}): ${secondToLastRow.colsOccupied}/${columns} cols`);
+        }
+        console.log(`   Last row (${lastRow.rowIdx}): ${lastRow.colsOccupied}/${columns} cols ${lastRowIncomplete ? '(incomplete - will fix)' : '(complete)'}`);
+
+        if (lastRowIncomplete) {
+          console.log(`🔧 Correction: Last row needs fixing`);
+
+          // Collect downsize candidates from BOTH last two rows
+          const downsizeCandidates: { idx: number; size: string; rowIdx: number }[] = [];
+
+          // Add candidates from last row
+          lastRow.itemsInRow.forEach(item => {
+            if (item.size === 'wide' || item.size === 'large') {
+              downsizeCandidates.push({ idx: item.idx, size: item.size, rowIdx: lastRow.rowIdx });
+            }
+          });
+
+          // Add candidates from second-to-last row
+          if (secondToLastRow) {
+            secondToLastRow.itemsInRow.forEach(item => {
+              if (item.size === 'wide' || item.size === 'large') {
+                downsizeCandidates.push({ idx: item.idx, size: item.size, rowIdx: secondToLastRow.rowIdx });
+              }
+            });
+          }
+
+          console.log(`   Found ${downsizeCandidates.length} downsize candidates in last 2 rows`);
+
+          if (downsizeCandidates.length > 0) {
+            const changes: string[] = [];
+
+            // Downsize ALL wide/large items in last 2 rows
+            // (Being conservative since we can't predict CSS Grid repacking)
+            downsizeCandidates.forEach(candidate => {
+              const oldSize = finalSizesForProjects[candidate.idx];
+              finalSizesForProjects[candidate.idx] = 'small';
+              projectsWithImportance[candidate.idx].item.style.gridColumnEnd = 'span 1';
+              projectsWithImportance[candidate.idx].item.style.gridRowEnd = 'span 1';
+              changes.push(`[${candidate.idx}]: ${oldSize}→small (row ${candidate.rowIdx})`);
+            });
+
+            console.log(`✓ Downsized all ${changes.length} wide/large item(s) in last 2 rows:`, changes);
+          } else {
+            console.log(`⚠️  No downsize candidates found in last 2 rows`);
+          }
+        } else {
+          console.log(`✓ Last row is complete!`);
+        }
+      });
     };
 
     layoutGrid();
