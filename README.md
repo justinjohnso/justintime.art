@@ -16,21 +16,42 @@ A clean, git-based portfolio built with Astro and TinaCMS. This project was migr
 
 ```
 /
+├── docs/                # Documentation
+│   ├── FEATURED_PROJECTS.md    # Featured projects system guide
+│   └── VISUAL_EDITOR.md        # TinaCMS visual editor guide
+├── migration-backup/    # Archived migration scripts and old code
 ├── public/              # Static assets
+│   ├── admin/           # TinaCMS admin UI
 │   └── uploads/         # Media files
+├── scripts/             # Development and build scripts
+│   ├── dev-with-sync.mjs         # Development with live sync
+│   └── notion-sync.mjs           # Notion integration (if used)
 ├── src/
 │   ├── components/      # Astro components
-│   ├── content/         # Content collections
-│   │   ├── projects/    # Project MDX files
-│   │   ├── posts/       # Blog post MDX files
-│   │   ├── categories/  # Category MD files
-│   │   └── pages/       # Page MDX files
+│   │   ├── ProjectGrid.astro     # Intelligent grid layout
+│   │   └── SidebarNav.astro      # Navigation sidebar
+│   ├── content/         # Content collections (Markdown/MDX)
+│   │   ├── categories/  # Project categories
+│   │   ├── pages/       # Static pages (including home.mdx)
+│   │   ├── posts/       # Blog posts
+│   │   └── projects/    # Portfolio projects
 │   ├── layouts/         # Page layouts
-│   ├── pages/           # Astro pages
-│   └── styles/          # Global styles
-├── tina/
-│   └── config.ts        # TinaCMS configuration
-└── astro.config.mjs     # Astro configuration
+│   ├── pages/           # Astro pages and routes
+│   │   ├── index.astro  # Homepage with featured projects logic
+│   │   └── projects/    # Dynamic project pages
+│   └── styles/          # Global CSS styles
+├── tina/                # TinaCMS configuration and generated files
+│   ├── __generated__/   # Auto-generated TinaCMS client code
+│   ├── collections/     # TinaCMS schema definitions
+│   │   ├── pages.ts     # Pages schema (includes featured projects)
+│   │   ├── projects.ts  # Projects schema
+│   │   ├── posts.ts     # Posts schema
+│   │   └── categories.ts # Categories schema
+│   ├── config.ts        # Main TinaCMS configuration
+│   └── pages/           # TinaCMS page components
+├── astro.config.mjs     # Astro configuration
+├── package.json         # Dependencies and scripts
+└── tailwind.config.mjs  # Tailwind CSS configuration
 ```
 
 ## 🛠️ Content Management
@@ -42,11 +63,23 @@ Content is managed through TinaCMS and stored as Markdown/MDX files in the `src/
 - **Projects** (`src/content/projects/`): Portfolio projects with rich content
 - **Posts** (`src/content/posts/`): Blog posts and articles
 - **Categories** (`src/content/categories/`): Project and post categories
-- **Pages** (`src/content/pages/`): Static pages like About
+- **Pages** (`src/content/pages/`): Static pages including homepage with featured projects
 
 ### TinaCMS Admin
 
 Access the CMS at `/admin` when running in development mode. TinaCMS provides a visual editor for all content types.
+
+### Featured Projects System
+
+Featured projects are managed from the **homepage** in TinaCMS, providing centralized control with drag-and-drop ordering:
+
+- **Manage from one place**: All featured project control in homepage frontmatter
+- **Drag and drop**: Reorder featured projects visually in TinaCMS
+- **Visual priority**: Featured projects automatically get larger grid cells
+- **Manual curation**: Featured projects display in your specified order
+- **Smart sorting**: Non-featured projects sort by year (newest first)
+
+For detailed information, see [Featured Projects Documentation](./docs/FEATURED_PROJECTS.md).
 
 ### Visual Editing
 
@@ -58,6 +91,8 @@ This portfolio supports TinaCMS's **Visual Editor** for contextual editing:
 - **Component-level Editing**: Edit specific fields without navigating away
 
 The visual editor only loads when you're editing in TinaCMS (inside the iframe). On your production site, only the static content is served for optimal performance.
+
+For detailed information, see [Visual Editor Documentation](./docs/VISUAL_EDITOR.md).
 
 ## 🚦 Getting Started
 
@@ -133,16 +168,31 @@ The site uses Tailwind CSS for styling with a clean, minimal design focused on s
 
 ### Key Design Features
 
-- **Responsive Grid Layout**: Projects displayed in a dynamic grid that adapts to content
-- **Featured Projects**: Can be marked as featured for prominence
+- **Intelligent Grid Layout**: Dynamic grid with 4 cell sizes (large 2×2, wide 2×1, tall 1×2, small 1×1)
+- **Smart Sizing**: Automatic distribution (15% large, 23% wide, 25% tall, 37% small)
+- **Featured Prioritization**: Featured projects automatically get first pick of larger cells
+- **Gap Prevention**: Correction pass downsizes cells in incomplete rows to prevent gaps
+- **Responsive Design**: 3/2/1 column layout for desktop/tablet/mobile
 - **Smooth Animations**: Subtle hover effects and transitions
 - **Typography**: Clean, readable typography with proper hierarchy
+
+### Grid System Architecture
+
+The `ProjectGrid.astro` component implements a 4-pass sizing system:
+
+1. **Size Distribution**: Allocate percentages of each cell size
+2. **Shuffle**: Randomize for visual variety
+3. **Priority Assignment**: Featured projects get larger cells first
+4. **Correction Pass**: Fix incomplete last rows to prevent gaps
+
+See component comments for detailed implementation notes.
 
 ### Customization
 
 - Modify styles in `src/styles/global.css`
-- Update Tailwind config in `tailwind.config.js`
+- Update Tailwind config in `tailwind.config.mjs`
 - Customize components in `src/components/`
+- Adjust grid size percentages in `ProjectGrid.astro`
 
 ## 🚀 Deployment
 
@@ -178,6 +228,8 @@ Deploy the `dist/` folder to any static hosting service.
 - `pnpm build` - Build for production
 - `pnpm preview` - Preview production build
 - `pnpm astro` - Run Astro CLI commands
+- `pnpm dev:sync` - Development server with live sync (if configured)
+- `pnpm notion:export` - Export content from Notion (if integrated)
 
 ### Adding New Components
 
@@ -244,9 +296,15 @@ This project was migrated from Next.js + PayloadCMS. Key changes:
 
 MIT License - feel free to use this as a template for your own portfolio.
 
+## 📚 Documentation
+
+- [Featured Projects System](./docs/FEATURED_PROJECTS.md) - Complete guide to managing featured projects
+- [Visual Editor Guide](./docs/VISUAL_EDITOR.md) - TinaCMS visual editing features and usage
+
 ## 🆘 Support
 
 For questions or issues:
 - Check the [Astro documentation](https://docs.astro.build)
 - Review [TinaCMS docs](https://tina.io/docs/)
+- Review project documentation in the `docs/` folder
 - Open an issue in this repository

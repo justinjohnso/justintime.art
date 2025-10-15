@@ -47,10 +47,18 @@ const { projects } = Astro.props;
       return 3;
     };
 
+    /**
+     * Main layout function that implements a 4-pass grid sizing system:
+     * 1. Size Distribution: Allocate percentages of each cell size
+     * 2. Shuffle: Randomize for visual variety
+     * 3. Priority Assignment: Featured projects get first pick of larger cells
+     * 4. Correction Pass: Fix incomplete last rows to prevent gaps
+     */
     const layoutGrid = () => {
       const columns = getColumns();
       const visibleItems = allItems.filter(item => item.style.display !== 'none');
 
+      // Attach project metadata (featured status) to each grid item
       const projectsWithImportance = visibleItems.map((item) => {
         const projectData = (window as any).allProjectsData?.[parseInt(item.getAttribute('data-index') || '0')];
         return {
@@ -85,6 +93,8 @@ const { projects } = Astro.props;
       }
 
       // Pass 3: Assign sizes prioritizing featured projects for larger cells
+      // Featured projects get first pick from large → tall → wide → small
+      // Non-featured projects get remaining sizes with an interleaved pattern
       const featuredProjects = projectsWithImportance
         .map((p, idx) => ({ ...p, originalIndex: idx }))
         .filter(p => p.featured);
@@ -135,14 +145,15 @@ const { projects } = Astro.props;
 
         const posIndex = sizeIndices[selectedSize as keyof typeof sizeIndices]++;
         finalSizes[project.originalIndex] = sizes[positionsBySize[selectedSize][posIndex]];
-      });      // Apply sizes to DOM
+      });      // Apply sizes to DOM elements
       projectsWithImportance.forEach(({ item }, idx) => {
         const size = finalSizes[idx];
         item.style.gridColumnEnd = (size === 'wide' || size === 'large') ? 'span 2' : 'span 1';
         item.style.gridRowEnd = (size === 'tall' || size === 'large') ? 'span 2' : 'span 1';
       });
 
-      // Pass 4: Fix incomplete last row
+      // Pass 4: Fix incomplete last row by downsizing wide/large cells
+      // This prevents gaps in the grid when the last row doesn't fill completely
       requestAnimationFrame(() => {
         const itemsWithPos = projectsWithImportance.map(({ item }, idx) => ({
           idx,

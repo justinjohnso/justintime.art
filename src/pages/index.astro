@@ -16,6 +16,17 @@ const homePage = await getEntry('pages', 'home');
 // Get TinaCMS data for visual editing
 const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
+/**
+ * Featured Projects Sorting System
+ *
+ * Featured projects are managed from the homepage frontmatter in TinaCMS.
+ * This allows for drag-and-drop ordering and centralized control.
+ *
+ * Sorting logic:
+ * - Featured projects: Sorted by homepage list order (manual curation)
+ * - Non-featured projects: Sorted by yearCompleted (newest first)
+ */
+
 // Extract featured project slugs and their order from homepage
 const featuredProjectOrder = (homePage.data.featuredProjects || []).map((item: any, index: number) => {
   // Extract slug from path like "src/content/projects/look-listen.mdx"
