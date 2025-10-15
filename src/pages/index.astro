@@ -16,35 +16,22 @@ const homePage = await getEntry('pages', 'home');
 // Get TinaCMS data for visual editing
 const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
 
-// Get featured projects list from home page
-const featuredProjectSlugs = homePage?.data.featuredProjects || [];
+// Sort projects: featured first (by year), then non-featured (by year)
+const featuredProjects = allProjects.filter(p => p.data.featured === true);
+const nonFeaturedProjects = allProjects.filter(p => p.data.featured !== true);
 
-// Don't filter server-side with static builds - pass all projects to client
-let workingProjects = allProjects;
-
-// Separate featured from non-featured (within the filtered set)
-const featuredProjects = workingProjects.filter(p =>
-  featuredProjectSlugs.includes(p.id) || featuredProjectSlugs.includes(p.slug)
-);
-
-const nonFeaturedProjects = workingProjects.filter(p =>
-  !featuredProjectSlugs.includes(p.id) && !featuredProjectSlugs.includes(p.slug)
-);
-
-// Sort featured projects by the order in featuredProjectSlugs
-const orderedFeatured = featuredProjectSlugs
-  .map(slug => featuredProjects.find(p => p.id === slug || p.slug === slug))
-  .filter(Boolean);
-
-// Sort non-featured by year (newest first)
-const orderedNonFeatured = nonFeaturedProjects.sort((a, b) => {
+// Sort both groups by year (newest first)
+const sortByYear = (a: typeof allProjects[0], b: typeof allProjects[0]) => {
   const yearA = a.data.yearCompleted || 0;
   const yearB = b.data.yearCompleted || 0;
   return yearB - yearA;
-});
+};
+
+featuredProjects.sort(sortByYear);
+nonFeaturedProjects.sort(sortByYear);
 
 // Combine: featured first, then non-featured
-const orderedProjects = [...orderedFeatured, ...orderedNonFeatured];
+const orderedProjects = [...featuredProjects, ...nonFeaturedProjects];
 
 // Get category metadata for client-side use
 const allCategories = await getCollection('categories');
@@ -71,8 +58,10 @@ const categoryMetadata = allCategories.map(cat => ({
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
-      <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive) -->
-      <Page {...tinaProps} client:tina />
+      <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive, hidden when filtering) -->
+      <div id="homepage-content">
+        <Page {...tinaProps} client:tina />
+      </div>
 
       <!-- Category filter header (dynamically shown by client script) -->
       <div id="category-header" class="p-4 md:p-6 lg:p-8 pb-0" style="display: none;">
@@ -89,10 +78,11 @@ const categoryMetadata = allCategories.map(cat => ({
       </div>
     </main>
 
-    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories, featured: p.data.featured, importance: p.data.importance })) }}>
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ categories: p.data.categories, featured: p.data.featured || false })) }}>
       function applyFilter() {
         const categorySlug = new URLSearchParams(window.location.search).get('category');
         const categoryHeader = document.getElementById('category-header');
+        const homepageContent = document.getElementById('homepage-content');
         const projectItems = document.querySelectorAll('.project-item');
 
         if (categorySlug) {
@@ -103,6 +93,7 @@ const categoryMetadata = allCategories.map(cat => ({
             desc.textContent = category.description || '';
             desc.style.display = category.description ? 'block' : 'none';
             categoryHeader.style.display = 'block';
+            homepageContent.style.display = 'none';
           }
 
           projectItems.forEach((item, index) => {
@@ -111,6 +102,7 @@ const categoryMetadata = allCategories.map(cat => ({
           });
         } else {
           categoryHeader.style.display = 'none';
+          homepageContent.style.display = 'block';
           projectItems.forEach(item => item.style.display = '');
         }
 

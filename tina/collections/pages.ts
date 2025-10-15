@@ -33,14 +33,12 @@ export const PagesCollection: Collection = {
       },
     },
     {
-      type: 'string',
+      type: 'reference',
       name: 'featuredProjects',
       label: 'Featured Projects',
-      description: 'Select projects to feature on the homepage (only visible on home page)',
+      description: 'Drag to reorder featured projects for the homepage',
+      collections: ['projects'],
       list: true,
-      ui: {
-        component: 'list',
-      },
     },
     {
       type: 'rich-text',

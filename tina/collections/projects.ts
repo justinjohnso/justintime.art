@@ -50,11 +50,6 @@ export const ProjectsCollection: Collection = {
       list: true,
     },
     {
-      type: 'boolean',
-      name: 'featured',
-      label: 'Featured Project',
-    },
-    {
       type: 'datetime',
       name: 'dateCompleted',
       label: 'Date Completed',
