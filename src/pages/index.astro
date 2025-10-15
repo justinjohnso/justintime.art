@@ -28,9 +28,10 @@ const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
  */
 
 // Extract featured project slugs and their order from homepage
-const featuredProjectOrder = (homePage.data.featuredProjects || []).map((item: any, index: number) => {
+const featuredProjectOrder = (homePage.data.featuredProjects || []).map((item: unknown, index: number) => {
   // Extract slug from path like "src/content/projects/look-listen.mdx"
-  const match = item.project?.match(/projects\/(.+)\.mdx$/);
+  const projectPath = (item as any)?.project as string | undefined;
+  const match = projectPath ? projectPath.match(/projects\/(.+)\.mdx$/) : null;
   return { slug: match ? match[1] : null, order: index };
 }).filter(item => item.slug !== null);
 
@@ -87,7 +88,8 @@ const categoryMetadata = allCategories.map(cat => ({
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
       <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive, hidden when filtering) -->
       <div id="homepage-content">
-        <Page {...tinaProps} client:tina />
+        <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+        <Page {...(tinaProps as any)} client:tina />
       </div>
 
       <!-- Category filter header (dynamically shown by client script) -->

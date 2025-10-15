@@ -60,7 +60,9 @@ const { projects } = Astro.props;
 
       // Attach project metadata (featured status) to each grid item
       const projectsWithImportance = visibleItems.map((item) => {
-        const projectData = (window as any).allProjectsData?.[parseInt(item.getAttribute('data-index') || '0')];
+        const dataIndex = parseInt(item.getAttribute('data-index') || '0');
+        const maybeAllProjects = (window as unknown) as { allProjectsData?: Array<{ featured?: boolean; importance?: number }> };
+        const projectData = maybeAllProjects.allProjectsData?.[dataIndex];
         return {
           item,
           featured: projectData?.featured || false,

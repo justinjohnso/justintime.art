@@ -5,6 +5,7 @@ declare module '*.css' {
 }
 
 // Suppress CSS at-rule warnings for Tailwind CSS
+declare global {
 declare module 'csstype' {
   interface Properties {
     '--tw-bg-opacity'?: string;
@@ -21,14 +22,14 @@ declare module 'csstype' {
 declare global {
   namespace CSS {
     interface AtRules {
-      tailwind: any;
-      apply: any;
-      layer: any;
-      variants: any;
-      responsive: any;
-      screen: any;
-      media: any;
-      supports: any;
+      tailwind: unknown;
+      apply: unknown;
+      layer: unknown;
+      variants: unknown;
+      responsive: unknown;
+      screen: unknown;
+      media: unknown;
+      supports: unknown;
     }
   }
 }

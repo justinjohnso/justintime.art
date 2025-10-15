@@ -4,8 +4,8 @@
  */
 export default async (load, options, el) => {
   try {
-    const isInIframe = window.self !== window.top
-    if (!isInIframe) {
+    const _isInIframe = window.self !== window.top
+    if (!_isInIframe) {
       return
     }
 

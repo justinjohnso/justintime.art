@@ -22,7 +22,7 @@ declare namespace astroHTML.JSX {
   }
 
   interface IntrinsicElements {
-    [elemName: string]: any;
+    [elemName: string]: unknown;
   }
 }
 
@@ -30,8 +30,8 @@ declare namespace astroHTML.JSX {
 declare global {
   namespace astroHTML.JSX {
     interface IntrinsicElements {
-      [elemName: string]: any;
-    }
+        [elemName: string]: unknown;
+      }
   }
 }
 
