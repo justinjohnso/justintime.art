@@ -22,6 +22,7 @@
     "@astrojs/react": "^3.6.2",
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^5.1.2",
+    "@notionhq/client": "^5.2.0",
     "@tinacms/cli": "^1.6.8",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -29,14 +30,13 @@
     "framer-motion": "^11.11.11",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.545.0",
+    "puppeteer": "^24.25.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.17",
     "tinacms": "^2.2.7",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "@notionhq/client": "^2.2.15",
-    "puppeteer": "^21.11.0"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -48,5 +48,13 @@
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1"
   },
-  "packageManager": "pnpm@10.6.4+sha512.da3d715bfd22a9a105e6e8088cfc7826699332ded60c423b14ec613a185f1602206702ff0fe4c438cb15c979081ce4cb02568e364b15174503a63c7a8e2a5f6c"
+  "packageManager": "pnpm@10.6.4+sha512.da3d715bfd22a9a105e6e8088cfc7826699332ded60c423b14ec613a185f1602206702ff0fe4c438cb15c979081ce4cb02568e364b15174503a63c7a8e2a5f6c",
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "puppeteer"
+    ],
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
+  }
 }

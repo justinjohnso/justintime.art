@@ -51,7 +51,7 @@ if [ "$SKIP_BACKUP" = false ]; then
     mkdir -p $BACKUP_DIR
     sudo tar -czf $BACKUP_DIR/portfolio-backup-$DATE.tar.gz -C $WEB_ROOT .
     echo "✅ Backup saved to $BACKUP_DIR/portfolio-backup-$DATE.tar.gz"
-    
+
     # Keep only last 5 backups
     cd $BACKUP_DIR
     ls -t portfolio-backup-*.tar.gz | tail -n +6 | xargs -r rm --
@@ -68,16 +68,16 @@ echo ""
 # --------------------------------------------
 if [ -d .git ]; then
   echo "📥 Pulling latest changes..."
-  
+
   # Stash any local changes
   git stash
-  
+
   # Pull from main branch
   git pull origin main
-  
+
   # Apply stashed changes back (if any)
   git stash pop || true
-  
+
   echo "✅ Code updated"
 else
   echo "⚠️  Not a git repository, skipping pull"
@@ -90,6 +90,13 @@ echo ""
 # --------------------------------------------
 echo "📦 Installing dependencies..."
 pnpm install --frozen-lockfile
+
+# Approve build scripts if needed
+if ! grep -q "puppeteer" ~/.pnpm-store/.pnpmrc 2>/dev/null; then
+  echo "🔧 Approving build scripts..."
+  pnpm approve-builds puppeteer || true
+fi
+
 echo "✅ Dependencies installed"
 
 echo ""
@@ -103,7 +110,7 @@ if [ "$SKIP_BUILD" = false ]; then
   echo "✅ Build complete"
 else
   echo "⏭️  Skipping build..."
-  
+
   if [ ! -d "./dist" ]; then
     echo "❌ Error: No dist/ directory found and --skip-build was specified"
     exit 1

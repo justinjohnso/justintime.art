@@ -62,8 +62,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Notion client
-        run: pnpm add @notionhq/client
+      - name: Approve build scripts
+        run: pnpm approve-builds puppeteer || true
 
       - name: Sync from Notion
         env:

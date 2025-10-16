@@ -28,10 +28,13 @@ Complete guide to take the portfolio from current state to live production site.
 # Install all dependencies
 pnpm install
 
+# Approve necessary build scripts
+pnpm approve-builds puppeteer
+
 # This will install:
-# - @notionhq/client (Notion API)
-# - puppeteer (PDF generation)
-# - tsx (TypeScript execution)
+# - @notionhq/client v5.2.0 (Notion API)
+# - puppeteer v24.25.0 (PDF generation)
+# - tsx v4.20.6 (TypeScript execution)
 # - All other project dependencies
 ```
 
@@ -327,8 +330,18 @@ pnpm astro check
 # Clear cache and rebuild
 rm -rf .astro dist node_modules
 pnpm install
+pnpm approve-builds puppeteer
 pnpm build
 ```
+
+### Peer Dependency Warnings
+
+Some peer dependency warnings from TinaCMS packages are expected and can be ignored:
+- Warnings about `typescript` version mismatches with typedoc
+- Warnings about `yup` version mismatches
+- Warnings about `fs-extra` version mismatches
+
+These don't affect functionality and are due to TinaCMS internal dependencies.
 
 ### Deployment Fails
 
