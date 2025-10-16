@@ -16,6 +16,7 @@ if (!fs.existsSync(BACKUP_DIR)) {
   fs.mkdirSync(BACKUP_DIR, { recursive: true })
 }
 
+/* eslint-disable no-console */
 console.log('🚀 Starting migration from PayloadCMS to TinaCMS + Astro')
 console.log('')
 
