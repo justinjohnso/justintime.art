@@ -43,7 +43,7 @@ const posts = (await getCollection('posts')).sort(
                   {post.data.title}
                 </h2>
               </a>
-              
+
               <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
                 <time datetime={post.data.date}>
                   {new Date(post.data.date).toLocaleDateString('en-US', {
@@ -52,7 +52,7 @@ const posts = (await getCollection('posts')).sort(
                     day: 'numeric'
                   })}
                 </time>
-                
+
                 {post.data.categories && post.data.categories.length > 0 && (
                   <span class="flex gap-2">
                     {post.data.categories.map((cat) => (
@@ -70,7 +70,7 @@ const posts = (await getCollection('posts')).sort(
                 </p>
               )}
 
-              <a 
+              <a
                 href={`/blog/${slug}`}
                 class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
               >
@@ -83,8 +83,8 @@ const posts = (await getCollection('posts')).sort(
 
       <!-- RSS Link -->
       <div class="mt-12 pt-8 border-t border-gray-200 text-center">
-        <a 
-          href="/rss.xml" 
+        <a
+          href="/rss.xml"
           class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-black"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

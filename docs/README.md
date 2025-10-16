@@ -19,10 +19,18 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 - **[guides/UMAMI_ANALYTICS.md](./guides/UMAMI_ANALYTICS.md)** - Self-hosted analytics setup with Docker
 - **[guides/PDF_GENERATOR.md](./guides/PDF_GENERATOR.md)** - PDF one-sheet generation infrastructure
 
+### Deployment & Infrastructure
+
+- **[guides/DROPLET_DEPLOYMENT.md](./guides/DROPLET_DEPLOYMENT.md)** - Complete Digital Ocean Droplet deployment guide
+- **[guides/NGINX_CONFIGURATION.md](./guides/NGINX_CONFIGURATION.md)** - Nginx web server configuration reference
+- **[../scripts/setup-droplet.sh](../scripts/setup-droplet.sh)** - Automated server setup script
+- **[../scripts/deploy.sh](../scripts/deploy.sh)** - Deployment automation script
+
 ### Planning & Schema
 
 - **[planning/NOTION_SCHEMA_MAPPING.md](./planning/NOTION_SCHEMA_MAPPING.md)** - Notion database schema and sync mapping
 - **[OPTIONAL_DEPENDENCIES.md](./OPTIONAL_DEPENDENCIES.md)** - Optional packages and when to install them
+- **[implementation/OCTOBER_16_SUMMARY.md](./implementation/OCTOBER_16_SUMMARY.md)** - Recent infrastructure work summary
 
 ## 🎯 Quick Start
 
@@ -35,8 +43,9 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 - **Hosting decisions**: [planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md)
 
 ### For DevOps
-- **Deployment**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md#priority-2-hosting--deployment)
-- **Alternative setup**: [planning/DROPLET_ALTERNATIVE.md](./planning/DROPLET_ALTERNATIVE.md)
+- **Deployment**: [guides/DROPLET_DEPLOYMENT.md](./guides/DROPLET_DEPLOYMENT.md)
+- **Nginx setup**: [guides/NGINX_CONFIGURATION.md](./guides/NGINX_CONFIGURATION.md)
+- **Server setup**: [../scripts/setup-droplet.sh](../scripts/setup-droplet.sh)
 
 ## 🏗️ Technology Stack
 

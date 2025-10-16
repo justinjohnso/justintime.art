@@ -1,6 +1,6 @@
 /**
  * Data Transformation Utilities
- * 
+ *
  * Transform Notion API responses to portfolio data structures
  */
 
@@ -10,54 +10,54 @@ import type {
   NotionRichText,
   PortfolioProject,
   PortfolioBlogPost,
-} from '../types/notion';
+} from '../types/notion'
 
 /**
  * Extract plain text from Notion rich text array
  */
 export function extractPlainText(richText: NotionRichText[]): string {
-  return richText.map(rt => rt.plain_text).join('');
+  return richText.map((rt) => rt.plain_text).join('')
 }
 
 /**
  * Transform Notion project to portfolio project
  */
 export function transformNotionProject(
-  notionPage: NotionProjectPage
+  notionPage: NotionProjectPage,
 ): Omit<PortfolioProject, 'body'> {
-  const props = notionPage.properties;
+  const props = notionPage.properties
 
   return {
     title: extractPlainText(props.Title.title),
     description: extractPlainText(props.Description.rich_text),
     yearCompleted: props.Year.number || undefined,
     mediaEmbed: extractPlainText(props['Media Embed'].rich_text) || undefined,
-    categories: props.Categories.multi_select.map(cat => cat.name),
-    
+    categories: props.Categories.multi_select.map((cat) => cat.name),
+
     // Image will be populated by download process
     image: undefined,
     additionalImages: [],
-    
+
     // Links need to be parsed from rich text
     links: parseLinksFromRichText(props['Links (Rich Text)'].rich_text),
-  };
+  }
 }
 
 /**
  * Transform Notion blog post to portfolio blog post
  */
 export function transformNotionBlogPost(
-  notionPage: NotionBlogPost
+  notionPage: NotionBlogPost,
 ): Omit<PortfolioBlogPost, 'body'> {
-  const props = notionPage.properties;
+  const props = notionPage.properties
 
   return {
     title: extractPlainText(props.Title.title),
     description: extractPlainText(props.Description.rich_text),
     date: props.Date.date?.start || new Date().toISOString(),
-    categories: props.Categories.multi_select.map(cat => cat.name),
+    categories: props.Categories.multi_select.map((cat) => cat.name),
     featuredImage: undefined, // Will be populated by download process
-  };
+  }
 }
 
 /**
@@ -66,9 +66,9 @@ export function transformNotionBlogPost(
  * Expected text formats: "[Title](URL)" or "Title (URL)" or plain URLs
  */
 export function parseLinksFromRichText(
-  richText: NotionRichText[]
+  richText: NotionRichText[],
 ): Array<{ title: string; url: string; type?: string }> {
-  const links: Array<{ title: string; url: string; type?: string }> = [];
+  const links: Array<{ title: string; url: string; type?: string }> = []
 
   // First, extract native Notion links (most reliable)
   for (const rt of richText) {
@@ -77,51 +77,51 @@ export function parseLinksFromRichText(
         title: rt.plain_text || new URL(rt.href).hostname,
         url: rt.href,
         type: inferLinkType(rt.href),
-      });
+      })
     }
   }
 
   // If no native links found, try parsing text
   if (links.length === 0) {
-    const text = extractPlainText(richText);
+    const text = extractPlainText(richText)
 
     // Try markdown format: [Title](URL)
-    const markdownLinks = text.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
+    const markdownLinks = text.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)
     for (const match of markdownLinks) {
       links.push({
         title: match[1],
         url: match[2],
         type: inferLinkType(match[2]),
-      });
+      })
     }
 
     // If still none, try: Title (URL)
     if (links.length === 0) {
-      const parenLinks = text.matchAll(/([^(]+)\(([^)]+)\)/g);
+      const parenLinks = text.matchAll(/([^(]+)\(([^)]+)\)/g)
       for (const match of parenLinks) {
-        const url = match[2].trim();
+        const url = match[2].trim()
         if (url.startsWith('http')) {
           links.push({
             title: match[1].trim(),
             url: url,
             type: inferLinkType(url),
-          });
+          })
         }
       }
     }
   }
 
-  return links;
+  return links
 }
 
 /**
  * Infer link type from URL
  */
 function inferLinkType(url: string): 'github' | 'live' | 'demo' | 'other' {
-  if (url.includes('github.com')) return 'github';
-  if (url.includes('vercel.app') || url.includes('netlify.app')) return 'demo';
+  if (url.includes('github.com')) return 'github'
+  if (url.includes('vercel.app') || url.includes('netlify.app')) return 'demo'
   // Could add more heuristics here
-  return 'other';
+  return 'other'
 }
 
 /**
@@ -131,47 +131,50 @@ export function generateSlug(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/^-|-$/g, '')
 }
 
 /**
  * Generate frontmatter for MDX file
  */
 export function generateFrontmatter(data: Partial<PortfolioProject | PortfolioBlogPost>): string {
-  const lines = ['---'];
+  const lines = ['---']
 
   for (const [key, value] of Object.entries(data)) {
-    if (value === undefined || value === null) continue;
+    if (value === undefined || value === null) continue
 
     if (Array.isArray(value)) {
-      if (value.length === 0) continue;
-      lines.push(`${key}:`);
+      if (value.length === 0) continue
+      lines.push(`${key}:`)
       for (const item of value) {
         if (typeof item === 'string') {
-          lines.push(`  - ${item}`);
+          lines.push(`  - ${item}`)
         } else if (typeof item === 'object') {
-          lines.push(`  - title: ${item.title}`);
-          lines.push(`    url: ${item.url}`);
-          if (item.type) lines.push(`    type: ${item.type}`);
+          lines.push(`  - title: ${item.title}`)
+          lines.push(`    url: ${item.url}`)
+          if (item.type) lines.push(`    type: ${item.type}`)
         }
       }
     } else if (typeof value === 'string') {
       // Escape quotes and handle multiline
       if (value.includes('\n')) {
-        lines.push(`${key}: >`);
-        const indented = value.split('\n').map(line => `  ${line}`).join('\n');
-        lines.push(indented);
+        lines.push(`${key}: >`)
+        const indented = value
+          .split('\n')
+          .map((line) => `  ${line}`)
+          .join('\n')
+        lines.push(indented)
       } else {
-        const escaped = value.replace(/"/g, '\\"');
-        lines.push(`${key}: "${escaped}"`);
+        const escaped = value.replace(/"/g, '\\"')
+        lines.push(`${key}: "${escaped}"`)
       }
     } else {
-      lines.push(`${key}: ${value}`);
+      lines.push(`${key}: ${value}`)
     }
   }
 
-  lines.push('---');
-  lines.push('');
+  lines.push('---')
+  lines.push('')
 
-  return lines.join('\n');
+  return lines.join('\n')
 }

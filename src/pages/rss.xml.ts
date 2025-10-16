@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 
 export async function GET(context) {
   const posts = await getCollection('posts');
-  
+
   // Sort by date, newest first
   const sortedPosts = posts.sort(
     (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()

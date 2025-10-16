@@ -1,77 +1,74 @@
 /**
  * Media Storage Utilities
- * 
+ *
  * Handle downloading and storing media files to local filesystem
  * Files stored in public/media/ for both dev and production (Droplet)
  */
 
-import { mkdir, writeFile } from 'fs/promises';
-import { dirname, join } from 'path';
+import { mkdir, writeFile } from 'fs/promises'
+import { dirname, join } from 'path'
 
 /**
  * Get media storage path
  */
 export function getMediaPath(): string {
-  return import.meta.env.MEDIA_PATH || 'media';
+  return import.meta.env.MEDIA_PATH || 'media'
 }
 
 /**
  * Download image from URL
- * 
+ *
  * @param url - Image URL (Notion temporary URL or external)
  * @returns Buffer containing image data
  */
 export async function downloadImage(url: string): Promise<Buffer> {
-  const response = await fetch(url);
-  
+  const response = await fetch(url)
+
   if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.statusText}`);
+    throw new Error(`Failed to download image: ${response.statusText}`)
   }
 
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  const arrayBuffer = await response.arrayBuffer()
+  return Buffer.from(arrayBuffer)
 }
 
 /**
  * Save image to local filesystem
- * 
+ *
  * @param buffer - Image data
  * @param filename - Filename (e.g., "project-slug-hero.jpg")
  * @returns Public URL for the image
  */
-export async function saveImage(
-  buffer: Buffer,
-  filename: string
-): Promise<string> {
-  const mediaPath = getMediaPath();
-  const publicDir = join(process.cwd(), 'public', mediaPath);
-  const filePath = join(publicDir, filename);
+export async function saveImage(buffer: Buffer, filename: string): Promise<string> {
+  const mediaPath = getMediaPath()
+  const publicDir = join(process.cwd(), 'public', mediaPath)
+  const filePath = join(publicDir, filename)
 
   // Ensure directory exists
-  await mkdir(dirname(filePath), { recursive: true });
+  await mkdir(dirname(filePath), { recursive: true })
 
   // Write file
-  await writeFile(filePath, buffer);
+  await writeFile(filePath, buffer)
 
   // Return public URL
-  return `/${mediaPath}/${filename}`;
+  return `/${mediaPath}/${filename}`
 }
 
 /**
  * Download and save image in one step
- * 
+ *
  * @param url - Source URL
  * @param filename - Target filename
  * @returns Public URL for saved image
  */
 export async function downloadAndSaveImage(url: string, filename: string): Promise<string> {
-  const buffer = await downloadImage(url);
-  return saveImage(buffer, filename);
+  const buffer = await downloadImage(url)
+  return saveImage(buffer, filename)
 }
 
 /**
  * Generate filename for project image
- * 
+ *
  * @param slug - Project slug
  * @param type - Image type ('hero', 'additional', etc.)
  * @param index - Index for additional images
@@ -82,11 +79,11 @@ export function generateImageFilename(
   slug: string,
   type: 'hero' | 'additional' | 'featured',
   index?: number,
-  originalUrl?: string
+  originalUrl?: string,
 ): string {
-  const ext = originalUrl ? getExtensionFromUrl(originalUrl) : 'jpg';
-  const suffix = type === 'additional' && index !== undefined ? `-${index + 1}` : '';
-  return `${slug}-${type}${suffix}.${ext}`;
+  const ext = originalUrl ? getExtensionFromUrl(originalUrl) : 'jpg'
+  const suffix = type === 'additional' && index !== undefined ? `-${index + 1}` : ''
+  return `${slug}-${type}${suffix}.${ext}`
 }
 
 /**
@@ -94,30 +91,30 @@ export function generateImageFilename(
  */
 function getExtensionFromUrl(url: string): string {
   try {
-    const pathname = new URL(url).pathname;
-    const ext = pathname.split('.').pop()?.toLowerCase();
-    
+    const pathname = new URL(url).pathname
+    const ext = pathname.split('.').pop()?.toLowerCase()
+
     // Validate extension
-    const validExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+    const validExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
     if (ext && validExts.includes(ext)) {
-      return ext;
+      return ext
     }
   } catch {
     // Invalid URL
   }
-  
-  return 'jpg'; // Default
+
+  return 'jpg' // Default
 }
 
 /**
  * Optimize image (optional future enhancement)
  * Could use sharp library for resizing/compression
- * 
+ *
  * @param buffer - Original image buffer
  * @returns Optimized image buffer
  */
 export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
   // TODO: Install 'sharp' when ready to implement
   // Could resize large images, compress, convert to WebP, etc.
-  return buffer;
+  return buffer
 }
