@@ -110,7 +110,12 @@ export function validateEnvVars(vars: Record<string, string | undefined>): void 
 
 /**
  * Rate limiting (simple in-memory implementation)
- * For production, use Redis or similar
+ * 
+ * NOTE: This is a basic implementation suitable for single-instance deployments.
+ * For production with multiple instances, use Redis with a library like 'ioredis' 
+ * or a managed service like Upstash.
+ * 
+ * For now, this provides basic protection against abuse without additional dependencies.
  */
 class RateLimiter {
   private requests: Map<string, number[]> = new Map();

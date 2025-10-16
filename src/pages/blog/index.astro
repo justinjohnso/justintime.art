@@ -7,12 +7,6 @@ import { ViewTransitions } from 'astro:transitions';
 const posts = (await getCollection('posts')).sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
-
-// Pagination settings
-const POSTS_PER_PAGE = 10;
-const currentPage = 1;
-const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-const paginatedPosts = posts.slice(0, POSTS_PER_PAGE);
 ---
 
 <!DOCTYPE html>
@@ -40,7 +34,7 @@ const paginatedPosts = posts.slice(0, POSTS_PER_PAGE);
 
       <!-- Blog Posts List -->
       <div class="space-y-12">
-        {paginatedPosts.map((post) => {
+        {posts.map((post) => {
           const slug = post.id.replace(/\.mdx$/, '');
           return (
             <article class="border-b border-gray-200 pb-8">
@@ -86,33 +80,6 @@ const paginatedPosts = posts.slice(0, POSTS_PER_PAGE);
           );
         })}
       </div>
-
-      <!-- Pagination (if needed) -->
-      {totalPages > 1 && (
-        <nav class="mt-12 flex justify-center gap-4" aria-label="Pagination">
-          {currentPage > 1 && (
-            <a
-              href={currentPage === 2 ? '/blog' : `/blog/page/${currentPage - 1}`}
-              class="px-4 py-2 border border-gray-300 hover:border-black transition-colors"
-            >
-              ← Previous
-            </a>
-          )}
-          
-          <span class="px-4 py-2 bg-gray-100">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          {currentPage < totalPages && (
-            <a
-              href={`/blog/page/${currentPage + 1}`}
-              class="px-4 py-2 border border-gray-300 hover:border-black transition-colors"
-            >
-              Next →
-            </a>
-          )}
-        </nav>
-      )}
 
       <!-- RSS Link -->
       <div class="mt-12 pt-8 border-t border-gray-200 text-center">

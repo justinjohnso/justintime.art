@@ -62,64 +62,51 @@ export function transformNotionBlogPost(
 
 /**
  * Parse links from Notion rich text
- * Expected format: "Title (URL)" or "[Title](URL)" or just URLs
+ * Handles Notion's native links (href property) first, then falls back to parsing text
+ * Expected text formats: "[Title](URL)" or "Title (URL)" or plain URLs
  */
 export function parseLinksFromRichText(
   richText: NotionRichText[]
 ): Array<{ title: string; url: string; type?: string }> {
   const links: Array<{ title: string; url: string; type?: string }> = [];
-  const text = extractPlainText(richText);
 
-  // Try to parse links from text
-  // Format 1: [Title](URL)
-  const markdownLinks = text.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
-  for (const match of markdownLinks) {
-    links.push({
-      title: match[1],
-      url: match[2],
-      type: inferLinkType(match[2]),
-    });
-  }
-
-  // Format 2: Title (URL)
-  if (links.length === 0) {
-    const parenLinks = text.matchAll(/([^(]+)\(([^)]+)\)/g);
-    for (const match of parenLinks) {
-      const url = match[2].trim();
-      if (url.startsWith('http')) {
-        links.push({
-          title: match[1].trim(),
-          url: url,
-          type: inferLinkType(url),
-        });
-      }
-    }
-  }
-
-  // Format 3: Just URLs (one per line)
-  if (links.length === 0) {
-    const urls = text.match(/https?:\/\/[^\s]+/g);
-    if (urls) {
-      for (const url of urls) {
-        links.push({
-          title: new URL(url).hostname,
-          url: url,
-          type: inferLinkType(url),
-        });
-      }
-    }
-  }
-
-  // Also check for href in rich text objects
+  // First, extract native Notion links (most reliable)
   for (const rt of richText) {
     if (rt.href) {
-      const existingLink = links.find(l => l.url === rt.href);
-      if (!existingLink) {
-        links.push({
-          title: rt.plain_text || new URL(rt.href).hostname,
-          url: rt.href,
-          type: inferLinkType(rt.href),
-        });
+      links.push({
+        title: rt.plain_text || new URL(rt.href).hostname,
+        url: rt.href,
+        type: inferLinkType(rt.href),
+      });
+    }
+  }
+
+  // If no native links found, try parsing text
+  if (links.length === 0) {
+    const text = extractPlainText(richText);
+
+    // Try markdown format: [Title](URL)
+    const markdownLinks = text.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g);
+    for (const match of markdownLinks) {
+      links.push({
+        title: match[1],
+        url: match[2],
+        type: inferLinkType(match[2]),
+      });
+    }
+
+    // If still none, try: Title (URL)
+    if (links.length === 0) {
+      const parenLinks = text.matchAll(/([^(]+)\(([^)]+)\)/g);
+      for (const match of parenLinks) {
+        const url = match[2].trim();
+        if (url.startsWith('http')) {
+          links.push({
+            title: match[1].trim(),
+            url: url,
+            type: inferLinkType(url),
+          });
+        }
       }
     }
   }

@@ -14,6 +14,15 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 
 - **[guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)** - Featured projects system usage and configuration
 - **[guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)** - TinaCMS visual editor integration and workflow
+- **[guides/ICON_SYSTEM.md](./guides/ICON_SYSTEM.md)** - Lucide React icon system implementation
+- **[guides/VIDEO_EMBEDS.md](./guides/VIDEO_EMBEDS.md)** - Video/audio embed system (YouTube, Vimeo, SoundCloud)
+- **[guides/UMAMI_ANALYTICS.md](./guides/UMAMI_ANALYTICS.md)** - Self-hosted analytics setup with Docker
+- **[guides/PDF_GENERATOR.md](./guides/PDF_GENERATOR.md)** - PDF one-sheet generation infrastructure
+
+### Planning & Schema
+
+- **[planning/NOTION_SCHEMA_MAPPING.md](./planning/NOTION_SCHEMA_MAPPING.md)** - Notion database schema and sync mapping
+- **[OPTIONAL_DEPENDENCIES.md](./OPTIONAL_DEPENDENCIES.md)** - Optional packages and when to install them
 
 ## 🎯 Quick Start
 
