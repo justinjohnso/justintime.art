@@ -1,49 +1,18 @@
 /**
  * Media Storage Utilities
  * 
- * Handle downloading, optimizing, and storing media files
- * Supports both local filesystem and Digital Ocean Spaces
+ * Handle downloading and storing media files to local filesystem
+ * Files stored in public/media/ for both dev and production (Droplet)
  */
 
-import { createWriteStream } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
-import { pipeline } from 'stream/promises';
 
 /**
- * Storage configuration
+ * Get media storage path
  */
-export interface StorageConfig {
-  type: 'local' | 'spaces';
-  localPath?: string; // For local: path relative to public/
-  spacesEndpoint?: string; // For DO Spaces
-  spacesRegion?: string;
-  spacesBucket?: string;
-  spacesKey?: string;
-  spacesSecret?: string;
-}
-
-/**
- * Get storage configuration from environment
- */
-export function getStorageConfig(): StorageConfig {
-  const type = import.meta.env.STORAGE_TYPE || 'local';
-
-  if (type === 'local') {
-    return {
-      type: 'local',
-      localPath: import.meta.env.MEDIA_PATH || 'media',
-    };
-  }
-
-  return {
-    type: 'spaces',
-    spacesEndpoint: import.meta.env.DO_SPACES_ENDPOINT,
-    spacesRegion: import.meta.env.DO_SPACES_REGION || 'nyc3',
-    spacesBucket: import.meta.env.DO_SPACES_BUCKET,
-    spacesKey: import.meta.env.DO_SPACES_KEY,
-    spacesSecret: import.meta.env.DO_SPACES_SECRET,
-  };
+export function getMediaPath(): string {
+  return import.meta.env.MEDIA_PATH || 'media';
 }
 
 /**
@@ -64,19 +33,17 @@ export async function downloadImage(url: string): Promise<Buffer> {
 }
 
 /**
- * Save image locally
+ * Save image to local filesystem
  * 
  * @param buffer - Image data
  * @param filename - Filename (e.g., "project-slug-hero.jpg")
- * @param config - Storage configuration
  * @returns Public URL for the image
  */
-export async function saveImageLocal(
+export async function saveImage(
   buffer: Buffer,
-  filename: string,
-  config: StorageConfig
+  filename: string
 ): Promise<string> {
-  const mediaPath = config.localPath || 'media';
+  const mediaPath = getMediaPath();
   const publicDir = join(process.cwd(), 'public', mediaPath);
   const filePath = join(publicDir, filename);
 
@@ -91,70 +58,15 @@ export async function saveImageLocal(
 }
 
 /**
- * Upload image to Digital Ocean Spaces
- * 
- * @param buffer - Image data
- * @param filename - Filename
- * @param config - Storage configuration
- * @returns Public URL for the image
- */
-export async function uploadImageToSpaces(
-  buffer: Buffer,
-  filename: string,
-  config: StorageConfig
-): Promise<string> {
-  // Will be implemented when DO Spaces is set up
-  // Requires: @aws-sdk/client-s3 (DO Spaces is S3-compatible)
-  
-  throw new Error('DO Spaces upload not yet implemented. Install @aws-sdk/client-s3 and implement.');
-  
-  // Implementation outline:
-  // 1. Create S3Client with DO Spaces endpoint
-  // 2. Use PutObjectCommand to upload
-  // 3. Return CDN URL
-  
-  /*
-  import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-  
-  const s3Client = new S3Client({
-    endpoint: config.spacesEndpoint,
-    region: config.spacesRegion,
-    credentials: {
-      accessKeyId: config.spacesKey!,
-      secretAccessKey: config.spacesSecret!,
-    },
-  });
-
-  const command = new PutObjectCommand({
-    Bucket: config.spacesBucket,
-    Key: filename,
-    Body: buffer,
-    ACL: 'public-read',
-    ContentType: getContentType(filename),
-  });
-
-  await s3Client.send(command);
-
-  return `https://${config.spacesBucket}.${config.spacesRegion}.digitaloceanspaces.com/${filename}`;
-  */
-}
-
-/**
- * Save image (abstracts local vs cloud storage)
+ * Download and save image in one step
  * 
  * @param url - Source URL
  * @param filename - Target filename
  * @returns Public URL for saved image
  */
-export async function saveImage(url: string, filename: string): Promise<string> {
-  const config = getStorageConfig();
+export async function downloadAndSaveImage(url: string, filename: string): Promise<string> {
   const buffer = await downloadImage(url);
-
-  if (config.type === 'local') {
-    return saveImageLocal(buffer, filename, config);
-  } else {
-    return uploadImageToSpaces(buffer, filename, config);
-  }
+  return saveImage(buffer, filename);
 }
 
 /**
@@ -198,29 +110,14 @@ function getExtensionFromUrl(url: string): string {
 }
 
 /**
- * Get content type from filename
- */
-function getContentType(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase();
-  
-  const contentTypes: Record<string, string> = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    svg: 'image/svg+xml',
-  };
-
-  return contentTypes[ext || ''] || 'application/octet-stream';
-}
-
-/**
  * Optimize image (optional future enhancement)
  * Could use sharp library for resizing/compression
+ * 
+ * @param buffer - Original image buffer
+ * @returns Optimized image buffer
  */
 export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
-  // Placeholder for image optimization
-  // Install 'sharp' when ready to implement
+  // TODO: Install 'sharp' when ready to implement
+  // Could resize large images, compress, convert to WebP, etc.
   return buffer;
 }

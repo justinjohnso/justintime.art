@@ -26,27 +26,15 @@ pnpm add notion-to-md  # For rich text conversion
 **Size**: ~2MB
 **Purpose**: Notion API integration for content sync
 
-## AWS SDK / DO Spaces (Future)
+## Image Optimization (Future)
 
-**When to install**: For production media storage
-
-```bash
-pnpm add @aws-sdk/client-s3  # Works with DO Spaces (S3-compatible)
-```
-
-**Purpose**: Upload generated PDFs and media to Digital Ocean Spaces
-
-## Email Service (Future)
-
-**When to install**: For contact form or notifications
+**When to install**: For automatic image optimization
 
 ```bash
-pnpm add nodemailer
-# or
-pnpm add @sendgrid/mail
+pnpm add sharp
 ```
 
-**Purpose**: Send emails for contact form or error notifications
+**Purpose**: Resize, compress, and convert images for web optimization
 
 ## Notes
 
@@ -54,3 +42,11 @@ pnpm add @sendgrid/mail
 - Only install when actively implementing feature
 - Document installation command and purpose here
 - Check package size before installing (`pnpm info <package>`)
+
+## Architecture Decisions
+
+**Media Storage**: Using local filesystem (public/media/) for both development and production.
+- Development: Astro dev server serves from public/
+- Production (Droplet): Nginx serves static files from public/
+- No cloud storage (DO Spaces, S3, Cloudinary) needed - everything in one place
+- Simpler deployment, no per-service costs, easier backups

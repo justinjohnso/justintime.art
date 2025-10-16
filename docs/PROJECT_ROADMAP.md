@@ -13,7 +13,7 @@
 - **Hosting**: Digital Ocean App Platform ($5/month, 40 months free via GitHub Student Pack)
 - **Domain**: jjohnson.art (already owned)
 - **Analytics**: Self-hosted Umami (Docker on DO)
-- **Media Storage**: DO Spaces or Cloudinary
+- **Media Storage**: Local filesystem (public/media/) on Droplet
 - **Decision Rationale**: See [planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md) for full comparison
 
 ### Features & Integrations
@@ -21,10 +21,11 @@
 - **Icons**: Lucide React (tree-shakeable SVGs)
 - **Video Embeds**: Custom Astro components for YouTube/Vimeo with aspect ratio handling
 - **Blog**: Weekly ITP posts via Notion sync workflow
+- **Media Storage**: Local filesystem (public/media/) - no cloud storage needed
 
 ### Development Priorities
 1. Content & Layout Updates (video embeds, single-image projects, about page)
-2. Hosting Setup (Digital Ocean App Platform deployment)
+2. Hosting Setup (Digital Ocean Droplet or App Platform)
 3. Notion Sync (projects first, establish webhook workflow)
 4. Blog Integration (extend Notion sync to blog posts)
 5. PDF One-Sheet Generator (automated project documentation)
@@ -705,13 +706,13 @@ Each row has buttons:
 - **Language**: TypeScript 5.7.3
 
 ### Proposed Additions
-- **Hosting**: Digital Ocean App Platform
+- **Hosting**: Digital Ocean Droplet or App Platform
 - **Notion SDK**: `@notionhq/client`
 - **PDF Generation**: Puppeteer (for HTML → PDF rendering)
 - **Icon Library**: Lucide React (well-documented, actively maintained, tree-shakeable)
-- **Webhook Handling**: Express.js API route (on Digital Ocean)
-- **Analytics**: Plausible Analytics or Umami (both privacy-focused, lightweight)
-- **Media Storage**: Digital Ocean Spaces (S3-compatible) or Cloudinary free tier
+- **Webhook Handling**: Built into Astro (API routes)
+- **Analytics**: Self-hosted Umami (Docker, privacy-focused, lightweight)
+- **Media Storage**: Local filesystem (public/media/) - served by Nginx on Droplet
 
 ### Analytics Options (Free/Cheap, Non-Google)
 
