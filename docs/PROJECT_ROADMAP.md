@@ -1,23 +1,34 @@
 
 # Project Roadmap
 
-**TL;DR: Key Decisions & Priorities**
+## TL;DR: Key Decisions & Priorities
 
-- **Hosting**: Digital Ocean App Platform (40 months free via GitHub Student Pack)
+### Architecture & Approach
+- **Framework**: Astro 4.16+ with static site generation (SSG preferred over SSR)
+- **CMS**: TinaCMS for local editing, Notion as single source of truth for content
+- **Content Strategy**: Bi-directional sync between Notion and portfolio (projects, blog, resume)
+- **Security**: Environment variables only; webhook authentication for all external triggers
+
+### Hosting & Infrastructure
+- **Hosting**: Digital Ocean App Platform ($5/month, 40 months free via GitHub Student Pack)
 - **Domain**: jjohnson.art (already owned)
-- **Content**: Notion is the single source of truth; bi-directional sync for projects, blog, and resume
-- **PDF Generation**: Puppeteer (HTML → PDF), stored in DO Spaces or Cloudinary
 - **Analytics**: Self-hosted Umami (Docker on DO)
-- **Icons**: Lucide React (SVG, easy setup)
-- **Video Embeds**: Custom Astro components for YouTube/Vimeo
-- **Security**: All secrets in environment variables; webhook authentication for Notion
-- **Development Order**:
-  1. Content & Layout Updates
-  2. Hosting Setup
-  3. Notion Sync (projects)
-  4. Blog Integration
-  5. PDF Generator
-  6. Resume System
+- **Media Storage**: DO Spaces or Cloudinary
+- **Decision Rationale**: See [planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md) for full comparison
+
+### Features & Integrations
+- **PDF Generation**: Puppeteer (HTML → PDF) for project one-sheets and resumes
+- **Icons**: Lucide React (tree-shakeable SVGs)
+- **Video Embeds**: Custom Astro components for YouTube/Vimeo with aspect ratio handling
+- **Blog**: Weekly ITP posts via Notion sync workflow
+
+### Development Priorities
+1. Content & Layout Updates (video embeds, single-image projects, about page)
+2. Hosting Setup (Digital Ocean App Platform deployment)
+3. Notion Sync (projects first, establish webhook workflow)
+4. Blog Integration (extend Notion sync to blog posts)
+5. PDF One-Sheet Generator (automated project documentation)
+6. Dynamic Resume System (composable, context-specific resumes)
 
 ---
 

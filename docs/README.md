@@ -1,68 +1,57 @@
 # Portfolio Documentation
 
-This directory contains comprehensive documentation for the Astro + TinaCMS portfolio project.
+Comprehensive documentation for the Astro + TinaCMS portfolio project with Notion integration.
 
 ## 📚 Documentation Structure
 
-### Core Documentation
+### Project Planning
 
-- **[PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md)** - Complete project roadmap with priorities, technical decisions, and implementation plans
-- **[DECISIONS.md](./DECISIONS.md)** - Key architectural and technical decisions (references roadmap for details)
+- **[PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md)** - Complete roadmap with priorities, decisions, and implementation plans
+- **[planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md)** - Hosting provider comparison and rationale
+- **[planning/DROPLET_ALTERNATIVE.md](./planning/DROPLET_ALTERNATIVE.md)** - Alternative all-in-one Droplet setup guide
 
-### Guides
+### User Guides
 
-- **[guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)** - How the featured projects system works and how to use it
-- **[guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)** - TinaCMS visual editor integration and usage
+- **[guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)** - Featured projects system usage and configuration
+- **[guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)** - TinaCMS visual editor integration and workflow
 
-### Setup & Infrastructure
+## 🎯 Quick Start
 
-- **[setup/DROPLET_SETUP.md](./setup/DROPLET_SETUP.md)** - Digital Ocean Droplet configuration guide
-- **[setup/HOSTING_ANALYSIS.md](./setup/HOSTING_ANALYSIS.md)** - Hosting provider comparison and decision rationale
+### For Content Editors
+- **Featured projects**: [guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)
+- **Visual editing**: [guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)
 
-## 🎯 Quick Links by Task
+### For Developers
+- **Project overview**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md)
+- **Hosting decisions**: [planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md)
 
-### Content Management
-- **Adding featured projects**: [guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)
-- **Using visual editor**: [guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)
-- **Content structure**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md#priority-3-notion-integration)
+### For DevOps
+- **Deployment**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md#priority-2-hosting--deployment)
+- **Alternative setup**: [planning/DROPLET_ALTERNATIVE.md](./planning/DROPLET_ALTERNATIVE.md)
 
-### Development
-- **Project roadmap**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md)
-- **Technical decisions**: [DECISIONS.md](./DECISIONS.md)
-- **Development workflow**: [guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md#development-workflow)
+## 🏗️ Technology Stack
 
-### Deployment
-- **Hosting setup**: [setup/HOSTING_ANALYSIS.md](./setup/HOSTING_ANALYSIS.md)
-- **Server configuration**: [setup/DROPLET_SETUP.md](./setup/DROPLET_SETUP.md)
-- **Deployment process**: [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md#priority-2-hosting--deployment)
+- **Framework**: Astro 4.16+ (static site generation)
+- **CMS**: TinaCMS 2.2+ (visual editing) + Notion (content source)
+- **Styling**: Tailwind CSS 3.4+
+- **Language**: TypeScript 5.7+
+- **Hosting**: Digital Ocean App Platform (via GitHub Student Pack)
 
-## 🏗️ Project Overview
+## 🎯 Key Features
 
-### Technology Stack
-- **Framework**: Astro 4.16.18
-- **CMS**: TinaCMS 2.2.7
-- **Styling**: Tailwind CSS 3.4.17
-- **Language**: TypeScript 5.7.3
+- Static site generation with Astro for optimal performance
+- Visual content editing through TinaCMS
+- Notion as single source of truth for content (projects, blog, resume)
+- Featured projects system with drag-and-drop prioritization
+- Bi-directional sync between Notion and portfolio
+- Automated PDF generation for project one-sheets and resumes
 
-### Key Features
-- Static site generation with Astro
-- Visual content editing with TinaCMS
-- Featured projects system with drag-and-drop ordering
-- Planned Notion integration for content management
-- Responsive grid layout with smart project prioritization
+## 📋 Project Status
 
-## 🚀 Getting Started
-
-1. **For content editors**: Start with [guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md) and [guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)
-2. **For developers**: Review [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md) and [DECISIONS.md](./DECISIONS.md)
-3. **For deployment**: Check [setup/HOSTING_ANALYSIS.md](./setup/HOSTING_ANALYSIS.md) and [setup/DROPLET_SETUP.md](./setup/DROPLET_SETUP.md)
-
-## 📋 Current Status
-
-**Phase**: Planning & Development
+**Phase**: Planning & Development  
 **Last Updated**: October 16, 2025
 
-See [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md) for detailed status and priorities.
+See [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md) for detailed priorities and implementation plans.
 
 ## 🔗 External Resources
 

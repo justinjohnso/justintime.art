@@ -1,4 +1,6 @@
-# Digital Ocean Droplet Setup Guide
+# Digital Ocean Droplet - Alternative Setup
+
+> **Note**: This is an alternative approach to the selected [Digital Ocean App Platform](../PROJECT_ROADMAP.md#priority-2-hosting--deployment) solution. This guide is preserved for reference and as a fallback option if needs change.
 
 Complete all-in-one hosting solution for portfolio with Notion sync, analytics, and PDF generation.
 
