@@ -81,12 +81,12 @@ import { generateOneSheet } from '@/lib/pdf/generator';
 
 export const POST: APIRoute = async ({ request }) => {
   const data = await request.json();
-  
+
   // Validate request
   // Generate PDF
   // Store/upload PDF
   // Return URL
-  
+
   return new Response(JSON.stringify({ url: pdfUrl }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }

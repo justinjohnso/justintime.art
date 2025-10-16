@@ -1,0 +1,132 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { ViewTransitions } from 'astro:transitions';
+
+// Get all blog posts, sorted by date (newest first)
+const posts = (await getCollection('posts')).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+// Pagination settings
+const POSTS_PER_PAGE = 10;
+const currentPage = 1;
+const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
+const paginatedPosts = posts.slice(0, POSTS_PER_PAGE);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Blog posts about interactive technology, sound design, and physical computing by Justin Johnson" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Blog - Justin Johnson</title>
+    <ViewTransitions />
+  </head>
+  <body class="text-black bg-white">
+    <main class="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      <!-- Header -->
+      <header class="mb-12">
+        <nav class="mb-8">
+          <a href="/" class="text-sm hover:underline">← Back to Home</a>
+        </nav>
+        <h1 class="text-4xl md:text-5xl font-medium mb-4">Blog</h1>
+        <p class="text-lg text-gray-600">
+          Weekly updates from my work at NYU ITP exploring interactive technology, sound design, and physical computing.
+        </p>
+      </header>
+
+      <!-- Blog Posts List -->
+      <div class="space-y-12">
+        {paginatedPosts.map((post) => {
+          const slug = post.id.replace(/\.mdx$/, '');
+          return (
+            <article class="border-b border-gray-200 pb-8">
+              <a href={`/blog/${slug}`} class="group">
+                <h2 class="text-2xl md:text-3xl font-medium mb-2 group-hover:underline">
+                  {post.data.title}
+                </h2>
+              </a>
+              
+              <div class="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                <time datetime={post.data.date}>
+                  {new Date(post.data.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+                
+                {post.data.categories && post.data.categories.length > 0 && (
+                  <span class="flex gap-2">
+                    {post.data.categories.map((cat) => (
+                      <span class="px-2 py-1 bg-gray-100 rounded text-xs">
+                        {cat}
+                      </span>
+                    ))}
+                  </span>
+                )}
+              </div>
+
+              {post.data.description && (
+                <p class="text-gray-700 mb-4">
+                  {post.data.description}
+                </p>
+              )}
+
+              <a 
+                href={`/blog/${slug}`}
+                class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
+              >
+                Read more →
+              </a>
+            </article>
+          );
+        })}
+      </div>
+
+      <!-- Pagination (if needed) -->
+      {totalPages > 1 && (
+        <nav class="mt-12 flex justify-center gap-4" aria-label="Pagination">
+          {currentPage > 1 && (
+            <a
+              href={currentPage === 2 ? '/blog' : `/blog/page/${currentPage - 1}`}
+              class="px-4 py-2 border border-gray-300 hover:border-black transition-colors"
+            >
+              ← Previous
+            </a>
+          )}
+          
+          <span class="px-4 py-2 bg-gray-100">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          {currentPage < totalPages && (
+            <a
+              href={`/blog/page/${currentPage + 1}`}
+              class="px-4 py-2 border border-gray-300 hover:border-black transition-colors"
+            >
+              Next →
+            </a>
+          )}
+        </nav>
+      )}
+
+      <!-- RSS Link -->
+      <div class="mt-12 pt-8 border-t border-gray-200 text-center">
+        <a 
+          href="/rss.xml" 
+          class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-black"
+        >
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z"/>
+            <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z"/>
+          </svg>
+          Subscribe via RSS
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

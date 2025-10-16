@@ -10,8 +10,8 @@ This document tracks optional dependencies that can be installed when needed for
 pnpm add puppeteer
 ```
 
-**Size**: ~300MB (includes Chromium)  
-**Purpose**: HTML-to-PDF rendering for project one-sheets  
+**Size**: ~300MB (includes Chromium)
+**Purpose**: HTML-to-PDF rendering for project one-sheets
 **Alternative**: Could use lighter libraries like `jsPDF` but less control over layout
 
 ## Notion SDK (Priority 3)
@@ -23,7 +23,7 @@ pnpm add @notionhq/client
 pnpm add notion-to-md  # For rich text conversion
 ```
 
-**Size**: ~2MB  
+**Size**: ~2MB
 **Purpose**: Notion API integration for content sync
 
 ## AWS SDK / DO Spaces (Future)

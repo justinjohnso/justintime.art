@@ -1,69 +1,69 @@
 /**
  * PDF Generator for Project One-Sheets
- * 
+ *
  * Uses Puppeteer to render HTML templates to PDF
  * Supports multiple layout orientations and templates
  */
 
-import type { Browser } from 'puppeteer';
+import type { Browser } from 'puppeteer'
 
 export interface OneSheetData {
-  title: string;
-  tagline?: string;
-  year?: number;
-  location?: string;
-  projectType?: string;
-  duration?: string;
-  description: string;
-  technicalDetails?: string[];
-  heroImage?: string;
-  diagramImage?: string;
-  categories?: string[];
-  links?: Array<{ title: string; url: string }>;
+  title: string
+  tagline?: string
+  year?: number
+  location?: string
+  projectType?: string
+  duration?: string
+  description: string
+  technicalDetails?: string[]
+  heroImage?: string
+  diagramImage?: string
+  categories?: string[]
+  links?: Array<{ title: string; url: string }>
 }
 
 export interface PDFOptions {
-  layout?: 'vertical' | 'horizontal';
-  template?: 'default' | 'minimal' | 'detailed';
+  layout?: 'vertical' | 'horizontal'
+  template?: 'default' | 'minimal' | 'detailed'
 }
 
 /**
  * Generate a PDF one-sheet from project data
- * 
+ *
  * @param data - Project data to render
  * @param options - PDF generation options
  * @returns PDF buffer
  */
 export async function generateOneSheet(
   data: OneSheetData,
-  options: PDFOptions = {}
+  options: PDFOptions = {},
 ): Promise<Buffer> {
-  const { layout = 'vertical', template = 'default' } = options;
-  
+  const { layout = 'vertical', template = 'default' } = options
+
   // Dynamic import to avoid loading Puppeteer during build
-  const puppeteer = await import('puppeteer');
-  
-  let browser: Browser | null = null;
-  
+  const puppeteer = await import('puppeteer')
+
+  let browser: Browser | null = null
+
   try {
     // Launch browser
     browser = await puppeteer.default.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    
-    const page = await browser.newPage();
-    
+    })
+
+    const page = await browser.newPage()
+
     // Set page size based on layout
-    const pageFormat = layout === 'horizontal' ? 'Letter' : 'Letter';
-    const isLandscape = layout === 'horizontal';
-    
+    const pageFormat = layout === 'horizontal' ? 'Letter' : 'Letter'
+    const isLandscape = layout === 'horizontal'
+
     // Generate HTML from template
-    const html = generateHTML(data, template, layout);
-    
+    const html = generateHTML(data, template, layout)
+
     // Set content and wait for images to load
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    
+    await page.setContent(html, { waitUntil: 'networkidle0' })
+
     // Generate PDF
     const pdf = await page.pdf({
       format: pageFormat,
@@ -75,13 +75,12 @@ export async function generateOneSheet(
         bottom: '0.5in',
         left: '0.5in',
       },
-    });
-    
-    return Buffer.from(pdf);
-    
+    })
+
+    return Buffer.from(pdf)
   } finally {
     if (browser) {
-      await browser.close();
+      await browser.close()
     }
   }
 }
@@ -89,13 +88,9 @@ export async function generateOneSheet(
 /**
  * Generate HTML from template
  */
-function generateHTML(
-  data: OneSheetData,
-  template: string,
-  layout: string
-): string {
-  const styles = getTemplateStyles(template, layout);
-  
+function generateHTML(data: OneSheetData, template: string, layout: string): string {
+  const styles = getTemplateStyles(template, layout)
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -125,46 +120,70 @@ function generateHTML(
       <section class="description">
         <h2>Overview</h2>
         <p>${data.description}</p>
-        
-        ${data.technicalDetails && data.technicalDetails.length > 0 ? `
+
+        ${
+          data.technicalDetails && data.technicalDetails.length > 0
+            ? `
           <h3>Technical Details</h3>
           <ul class="tech-list">
-            ${data.technicalDetails.map(detail => `<li>${detail}</li>`).join('')}
+            ${data.technicalDetails.map((detail) => `<li>${detail}</li>`).join('')}
           </ul>
-        ` : ''}
-        
-        ${data.categories && data.categories.length > 0 ? `
+        `
+            : ''
+        }
+
+        ${
+          data.categories && data.categories.length > 0
+            ? `
           <div class="categories">
-            ${data.categories.map(cat => `<span class="category-tag">${cat}</span>`).join('')}
+            ${data.categories.map((cat) => `<span class="category-tag">${cat}</span>`).join('')}
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </section>
 
       <!-- Hero Image -->
-      ${data.heroImage ? `
+      ${
+        data.heroImage
+          ? `
         <div class="image-container hero-image">
           <img src="${data.heroImage}" alt="${data.title}">
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <!-- Diagram/Technical Image -->
-      ${data.diagramImage ? `
+      ${
+        data.diagramImage
+          ? `
         <div class="image-container diagram-image">
           <img src="${data.diagramImage}" alt="${data.title} - Technical Diagram">
         </div>
-      ` : ''}
+      `
+          : ''
+      }
     </div>
 
     <!-- Footer with Links -->
-    ${data.links && data.links.length > 0 ? `
+    ${
+      data.links && data.links.length > 0
+        ? `
       <footer class="footer">
         <div class="links">
-          ${data.links.map(link => `
+          ${data.links
+            .map(
+              (link) => `
             <a href="${link.url}" class="link-item">${link.title}</a>
-          `).join('')}
+          `,
+            )
+            .join('')}
         </div>
       </footer>
-    ` : ''}
+    `
+        : ''
+    }
 
     <!-- Branding -->
     <div class="branding">
@@ -173,7 +192,7 @@ function generateHTML(
   </div>
 </body>
 </html>
-  `.trim();
+  `.trim()
 }
 
 /**
@@ -340,10 +359,12 @@ function getTemplateStyles(template: string, layout: string): string {
         print-color-adjust: exact;
       }
     }
-  `;
+  `
 
   // Layout-specific adjustments
-  const layoutStyles = layout === 'horizontal' ? `
+  const layoutStyles =
+    layout === 'horizontal'
+      ? `
     .content-grid {
       grid-template-columns: 2fr 1fr;
     }
@@ -356,9 +377,10 @@ function getTemplateStyles(template: string, layout: string): string {
       grid-column: span 1;
       grid-row: 1 / 3;
     }
-  ` : '';
+  `
+      : ''
 
-  return baseStyles + layoutStyles;
+  return baseStyles + layoutStyles
 }
 
-export default generateOneSheet;
+export default generateOneSheet
