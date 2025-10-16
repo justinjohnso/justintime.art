@@ -23,8 +23,10 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 
 - **[guides/DROPLET_DEPLOYMENT.md](./guides/DROPLET_DEPLOYMENT.md)** - Complete Digital Ocean Droplet deployment guide
 - **[guides/NGINX_CONFIGURATION.md](./guides/NGINX_CONFIGURATION.md)** - Nginx web server configuration reference
+- **[guides/GITHUB_ACTIONS.md](./guides/GITHUB_ACTIONS.md)** - Automated Notion sync and deployment workflow
 - **[../scripts/setup-droplet.sh](../scripts/setup-droplet.sh)** - Automated server setup script
 - **[../scripts/deploy.sh](../scripts/deploy.sh)** - Deployment automation script
+- **[../scripts/sync-notion.ts](../scripts/sync-notion.ts)** - Notion content synchronization script
 
 ### Planning & Schema
 
@@ -45,6 +47,7 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 ### For DevOps
 - **Deployment**: [guides/DROPLET_DEPLOYMENT.md](./guides/DROPLET_DEPLOYMENT.md)
 - **Nginx setup**: [guides/NGINX_CONFIGURATION.md](./guides/NGINX_CONFIGURATION.md)
+- **CI/CD**: [guides/GITHUB_ACTIONS.md](./guides/GITHUB_ACTIONS.md)
 - **Server setup**: [../scripts/setup-droplet.sh](../scripts/setup-droplet.sh)
 
 ## 🏗️ Technology Stack

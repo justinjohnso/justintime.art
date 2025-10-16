@@ -1,0 +1,165 @@
+name: Notion Sync & Deploy
+
+on:
+  # Webhook from Notion
+  repository_dispatch:
+    types: [notion-update]
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      sync_projects:
+        description: 'Sync projects'
+        required: false
+        default: 'true'
+      sync_blog:
+        description: 'Sync blog'
+        required: false
+        default: 'true'
+      force_sync:
+        description: 'Force sync (ignore timestamps)'
+        required: false
+        default: 'false'
+
+  # Scheduled sync (optional - runs daily at 2am UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git operations
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Notion client
+        run: pnpm add @notionhq/client
+
+      - name: Sync from Notion
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_PROJECTS_DB_ID: ${{ secrets.NOTION_PROJECTS_DB_ID }}
+          NOTION_BLOG_DB_ID: ${{ secrets.NOTION_BLOG_DB_ID }}
+        run: |
+          FLAGS=""
+          
+          # Manual workflow inputs
+          if [ "${{ github.event.inputs.sync_projects }}" = "false" ]; then
+            FLAGS="$FLAGS --blog"
+          fi
+          if [ "${{ github.event.inputs.sync_blog }}" = "false" ]; then
+            FLAGS="$FLAGS --projects"
+          fi
+          if [ "${{ github.event.inputs.force_sync }}" = "true" ]; then
+            FLAGS="$FLAGS --force"
+          fi
+          
+          # Run sync script
+          pnpm tsx scripts/sync-notion.ts $FLAGS
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Content changes detected"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "⏭️  No content changes"
+          fi
+
+      - name: Commit synced content
+        if: steps.check-changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/content/
+          git add public/media/
+          git commit -m "chore: sync content from Notion [skip ci]"
+          git push
+
+      - name: Build site
+        if: steps.check-changes.outputs.changes == 'true'
+        env:
+          NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+          NEXT_PUBLIC_TINA_BRANCH: ${{ github.ref_name }}
+          PUBLIC_SITE_URL: ${{ secrets.PUBLIC_SITE_URL }}
+          PUBLIC_UMAMI_SRC: ${{ secrets.PUBLIC_UMAMI_SRC }}
+          PUBLIC_UMAMI_WEBSITE_ID: ${{ secrets.PUBLIC_UMAMI_WEBSITE_ID }}
+        run: pnpm run build
+
+      - name: Deploy to Droplet
+        if: steps.check-changes.outputs.changes == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          source: "dist/*"
+          target: "~/portfolio-deploy"
+          strip_components: 1
+
+      - name: Execute deployment on Droplet
+        if: steps.check-changes.outputs.changes == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            # Backup current deployment
+            sudo mkdir -p ~/portfolio-backups
+            if [ -d /var/www/portfolio ] && [ "$(ls -A /var/www/portfolio)" ]; then
+              sudo tar -czf ~/portfolio-backups/portfolio-backup-$(date +%Y%m%d_%H%M%S).tar.gz -C /var/www/portfolio .
+            fi
+            
+            # Deploy new build
+            sudo rm -rf /var/www/portfolio/*
+            sudo cp -r ~/portfolio-deploy/* /var/www/portfolio/
+            sudo chown -R www-data:www-data /var/www/portfolio
+            sudo chmod -R 755 /var/www/portfolio
+            
+            # Clean up
+            rm -rf ~/portfolio-deploy
+            
+            # Reload Nginx
+            sudo nginx -t && sudo systemctl reload nginx
+            
+            echo "✅ Deployment complete!"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Workflow failed. Check logs for details."
+          # Add notification service here (Slack, Discord, email, etc.)

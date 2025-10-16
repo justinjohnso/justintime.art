@@ -28,7 +28,7 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript 
+    gzip_types text/plain text/css text/xml text/javascript
                application/javascript application/xml+rss application/json;
 
     # Cache static assets
@@ -55,7 +55,7 @@ After running Certbot, your config will look like:
 server {
     listen 80;
     server_name yourdomain.com www.yourdomain.com;
-    
+
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -101,19 +101,19 @@ server {
     location /api/ {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
-        
+
         # WebSocket support
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
-        
+
         # Standard proxy headers
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         proxy_cache_bypass $http_upgrade;
-        
+
         # Timeouts
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
@@ -158,7 +158,7 @@ Protect API endpoints from abuse:
 # Add to http block (usually /etc/nginx/nginx.conf)
 http {
     # ... other config ...
-    
+
     # Define rate limit zones
     limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
     limit_req_zone $binary_remote_addr zone=general_limit:10m rate=100r/m;
@@ -199,11 +199,11 @@ server {
     # Custom error pages
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
-    
+
     location = /404.html {
         internal;
     }
-    
+
     location = /50x.html {
         internal;
     }
@@ -218,10 +218,10 @@ server {
     listen 80;
     listen 443 ssl http2;
     server_name www.yourdomain.com;
-    
+
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    
+
     return 301 https://yourdomain.com$request_uri;
 }
 
@@ -230,10 +230,10 @@ server {
     listen 80;
     listen 443 ssl http2;
     server_name yourdomain.com;
-    
+
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    
+
     return 301 https://www.yourdomain.com$request_uri;
 }
 ```
@@ -245,7 +245,7 @@ server {
 ```nginx
 server {
     listen 443 ssl http2;
-    
+
     location = /index.html {
         http2_push /styles/global.css;
         http2_push /scripts/main.js;
@@ -264,9 +264,9 @@ location /api/posts {
     proxy_cache microcache;
     proxy_cache_valid 200 1m;  # Cache successful responses for 1 minute
     proxy_cache_use_stale error timeout updating;
-    
+
     add_header X-Cache-Status $upstream_cache_status;
-    
+
     proxy_pass http://localhost:3000;
 }
 ```
@@ -287,7 +287,7 @@ http {
     # Enable Brotli
     brotli on;
     brotli_comp_level 6;
-    brotli_types text/plain text/css text/xml text/javascript 
+    brotli_types text/plain text/css text/xml text/javascript
                  application/javascript application/xml+rss application/json;
 }
 ```
