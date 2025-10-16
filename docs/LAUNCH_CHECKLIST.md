@@ -25,14 +25,14 @@ Complete guide to take the portfolio from current state to live production site.
 ### 1. Install Dependencies
 
 ```bash
-# Install optional dependencies for Notion sync
-pnpm add @notionhq/client
-
-# Install if you decide to keep PDF generator
-# pnpm add puppeteer
-
-# Update all dependencies
+# Install all dependencies
 pnpm install
+
+# This will install:
+# - @notionhq/client (Notion API)
+# - puppeteer (PDF generation)
+# - tsx (TypeScript execution)
+# - All other project dependencies
 ```
 
 ### 2. Content Finalization

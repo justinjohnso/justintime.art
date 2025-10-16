@@ -31,7 +31,6 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 ### Planning & Schema
 
 - **[planning/NOTION_SCHEMA_MAPPING.md](./planning/NOTION_SCHEMA_MAPPING.md)** - Notion database schema and sync mapping
-- **[OPTIONAL_DEPENDENCIES.md](./OPTIONAL_DEPENDENCIES.md)** - Optional packages and when to install them
 - **[implementation/OCTOBER_16_SUMMARY.md](./implementation/OCTOBER_16_SUMMARY.md)** - Recent infrastructure work summary
 
 ## 🎯 Quick Start
