@@ -1,9 +1,9 @@
 ---
 /**
  * Contact section component with email and social links
- * 
+ *
  * Displays contact information with icons in a clean, organized layout.
- * 
+ *
  * Usage:
  *   <ContactSection />
  *   <ContactSection email="custom@email.com" />
@@ -40,7 +40,7 @@ const defaultSocialLinks: SocialLink[] = [
   },
 ];
 
-const { 
+const {
   email = 'hello@jjohnson.art',
   socialLinks = defaultSocialLinks,
   showHeading = true,
@@ -52,7 +52,7 @@ const {
   {showHeading && (
     <h2 class="text-2xl font-bold mb-6">Contact</h2>
   )}
-  
+
   <div class="space-y-6">
     <!-- Email -->
     <div class="flex items-start gap-3">
@@ -61,7 +61,7 @@ const {
       </div>
       <div>
         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Email</p>
-        <a 
+        <a
           href={`mailto:${email}`}
           class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
         >
@@ -86,10 +86,10 @@ const {
                 rel="noopener noreferrer"
                 class="group flex items-center gap-3 text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
-                <Icon 
-                  name={link.icon} 
-                  size={18} 
-                  class="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" 
+                <Icon
+                  name={link.icon}
+                  size={18}
+                  class="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
                 />
                 <span class="flex-1">{link.name}</span>
                 {link.username && (

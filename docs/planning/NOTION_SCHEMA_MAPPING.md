@@ -2,7 +2,7 @@
 
 Documentation of Notion database structure and how it maps to the portfolio's project schema.
 
-**Last Updated**: October 16, 2025  
+**Last Updated**: October 16, 2025
 **Notion Workspace**: https://dusty-pineapple.notion.site
 
 ---
@@ -41,7 +41,7 @@ Custom content blocks available in `body`:
 
 ## Notion Database Structure
 
-**Audited from**: https://dusty-pineapple.notion.site/Portfolio-Projects  
+**Audited from**: https://dusty-pineapple.notion.site/Portfolio-Projects
 **Database Name**: 🗂️ Portfolio Projects
 
 ### Actual Fields
@@ -194,7 +194,7 @@ async function syncProjects() {
   // 2. For each project
   for (const notionProject of notionProjects) {
     const props = notionProject.properties;
-    
+
     // 3. Map simple fields
     const projectData = {
       title: props.Title.title[0]?.plain_text,
@@ -204,29 +204,29 @@ async function syncProjects() {
       categories: props.Categories.multi_select.map(c => c.name),
       slug: props.Slug.rich_text[0]?.plain_text,
     };
-    
+
     // 4. Download hero image
     if (props['Hero Image File'].files[0]) {
       const heroUrl = props['Hero Image File'].files[0].file.url;
       projectData.image = await downloadImage(heroUrl, projectData.slug);
     }
-    
+
     // 5. Download additional images
     projectData.additionalImages = [];
     for (const file of props['Additional Image Files'].files) {
       const imagePath = await downloadImage(file.file.url, projectData.slug);
       projectData.additionalImages.push(imagePath);
     }
-    
+
     // 6. Parse links from rich text
     projectData.links = parseLinksFromRichText(props['Links (Rich Text)']);
-    
+
     // 7. Fetch page content and convert to MDX
     const pageBlocks = await notion.blocks.children.list({
       block_id: notionProject.id
     });
     const mdxContent = await convertNotionBlocksToMDX(pageBlocks);
-    
+
     // 8. Write MDX file to src/content/projects/{slug}.mdx
     await writeProjectFile(projectData, mdxContent);
   }
