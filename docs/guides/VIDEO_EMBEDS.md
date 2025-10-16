@@ -68,7 +68,7 @@ const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed
 
 All embeds default to **16/9** aspect ratio:
 - YouTube: 16/9
-- Vimeo: 16/9  
+- Vimeo: 16/9
 - SoundCloud: 16/9 (minimum height: 350px)
 
 ### Iframe Parameters

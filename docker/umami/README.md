@@ -13,7 +13,7 @@ Docker Compose setup for self-hosted Umami analytics.
    ```bash
    # APP_SECRET
    openssl rand -base64 32
-   
+
    # POSTGRES_PASSWORD
    openssl rand -base64 24
    ```

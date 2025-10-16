@@ -37,7 +37,7 @@ services:
       db:
         condition: service_healthy
     restart: always
-    
+
   db:
     image: postgres:15-alpine
     environment:
@@ -186,7 +186,7 @@ const isProduction = import.meta.env.PROD;
   <head>
     <meta charset="UTF-8" />
     <!-- ... other head content ... -->
-    
+
     <!-- Umami Analytics (production only) -->
     {isProduction && (
       <script
@@ -293,7 +293,7 @@ docker-compose up -d
 # Application logs
 docker-compose logs -f umami
 
-# Database logs  
+# Database logs
 docker-compose logs -f db
 
 # All logs
