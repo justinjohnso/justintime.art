@@ -48,7 +48,7 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 
 ## 📋 Project Status
 
-**Phase**: Planning & Development  
+**Phase**: Planning & Development
 **Last Updated**: October 16, 2025
 
 See [PROJECT_ROADMAP.md](./PROJECT_ROADMAP.md) for detailed priorities and implementation plans.

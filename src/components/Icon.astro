@@ -1,0 +1,38 @@
+---
+/**
+ * Icon component wrapper for Lucide React icons
+ * 
+ * Usage:
+ *   <Icon name="Github" size={24} />
+ *   <Icon name="Mail" class="text-blue-500" />
+ * 
+ * Available icons: https://lucide.dev/icons
+ */
+
+import LucideIcon from './LucideIcon';
+
+export interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  strokeWidth?: number;
+  ariaLabel?: string;
+}
+
+const { 
+  name, 
+  size = 24, 
+  class: className = '', 
+  strokeWidth = 2,
+  ariaLabel
+} = Astro.props;
+---
+
+<LucideIcon 
+  name={name}
+  size={size}
+  strokeWidth={strokeWidth}
+  className={className}
+  ariaLabel={ariaLabel || name}
+  client:load
+/>

@@ -1,0 +1,78 @@
+---
+/**
+ * Social media links component with Lucide icons
+ * 
+ * Displays a horizontal list of social media links with icons.
+ * Configure links in this component or pass as props.
+ */
+
+import Icon from './Icon.astro';
+
+export interface SocialLink {
+  name: string;
+  url: string;
+  icon: string;
+  ariaLabel: string;
+}
+
+export interface Props {
+  links?: SocialLink[];
+  size?: number;
+  class?: string;
+}
+
+const defaultLinks: SocialLink[] = [
+  {
+    name: 'GitHub',
+    url: 'https://github.com/justinjohnso',
+    icon: 'Github',
+    ariaLabel: 'Visit my GitHub profile'
+  },
+  {
+    name: 'LinkedIn',
+    url: 'https://linkedin.com/in/justinjohnso',
+    icon: 'Linkedin',
+    ariaLabel: 'Connect on LinkedIn'
+  },
+  {
+    name: 'Email',
+    url: 'mailto:justin@jjohnson.art',
+    icon: 'Mail',
+    ariaLabel: 'Send me an email'
+  }
+];
+
+const { 
+  links = defaultLinks, 
+  size = 24,
+  class: className = ''
+} = Astro.props;
+---
+
+<div class={`flex gap-4 items-center ${className}`}>
+  {links.map((link) => (
+    <a
+      href={link.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={link.ariaLabel}
+      class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors duration-200"
+    >
+      <Icon name={link.icon} size={size} ariaLabel={link.ariaLabel} />
+    </a>
+  ))}
+</div>
+
+<style>
+  /* Additional hover effects */
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  a:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+  }
+</style>
