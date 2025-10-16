@@ -27,7 +27,7 @@ const categoryMetadata = new Map(
 // Get display names for post categories
 const categoryDisplayNames = post.data.categories?.map(catSlug => {
   const catData = categoryMetadata.get(catSlug);
-  return catData?.title || catSlug;
+  return (catData as any)?.title || catSlug;
 }) || [];
 
 // Format date

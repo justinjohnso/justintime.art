@@ -26,7 +26,7 @@ This project keeps optional dependencies minimal. Install them only when you nee
 pnpm add @notionhq/client
 ```
 
-**Used by**: 
+**Used by**:
 - `scripts/sync-notion.ts` - Content synchronization
 - `src/pages/api/notion-webhook.ts` - Webhook handler
 

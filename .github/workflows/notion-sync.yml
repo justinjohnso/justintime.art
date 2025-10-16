@@ -4,7 +4,7 @@ on:
   # Webhook from Notion
   repository_dispatch:
     types: [notion-update]
-  
+
   # Manual trigger
   workflow_dispatch:
     inputs:
@@ -28,7 +28,7 @@ on:
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -72,7 +72,7 @@ jobs:
           NOTION_BLOG_DB_ID: ${{ secrets.NOTION_BLOG_DB_ID }}
         run: |
           FLAGS=""
-          
+
           # Manual workflow inputs
           if [ "${{ github.event.inputs.sync_projects }}" = "false" ]; then
             FLAGS="$FLAGS --blog"
@@ -83,7 +83,7 @@ jobs:
           if [ "${{ github.event.inputs.force_sync }}" = "true" ]; then
             FLAGS="$FLAGS --force"
           fi
-          
+
           # Run sync script
           pnpm tsx scripts/sync-notion.ts $FLAGS
 
@@ -143,19 +143,19 @@ jobs:
             if [ -d /var/www/portfolio ] && [ "$(ls -A /var/www/portfolio)" ]; then
               sudo tar -czf ~/portfolio-backups/portfolio-backup-$(date +%Y%m%d_%H%M%S).tar.gz -C /var/www/portfolio .
             fi
-            
+
             # Deploy new build
             sudo rm -rf /var/www/portfolio/*
             sudo cp -r ~/portfolio-deploy/* /var/www/portfolio/
             sudo chown -R www-data:www-data /var/www/portfolio
             sudo chmod -R 755 /var/www/portfolio
-            
+
             # Clean up
             rm -rf ~/portfolio-deploy
-            
+
             # Reload Nginx
             sudo nginx -t && sudo systemctl reload nginx
-            
+
             echo "✅ Deployment complete!"
 
       - name: Notify on failure

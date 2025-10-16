@@ -204,7 +204,7 @@ Each run shows:
 
 **Error**: `Permission denied`
 
-**Fix**: 
+**Fix**:
 1. Verify SSH key is correct (entire private key including BEGIN/END lines)
 2. Check that public key is in `~/.ssh/authorized_keys` on Droplet
 3. Ensure deployment user has sudo permissions
