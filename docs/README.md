@@ -36,6 +36,9 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 
 ## 🎯 Quick Start
 
+### 🚀 Ready to Launch?
+- **[LAUNCH_CHECKLIST.md](./LAUNCH_CHECKLIST.md)** - Complete step-by-step guide to deploy your site
+
 ### For Content Editors
 - **Featured projects**: [guides/FEATURED_PROJECTS.md](./guides/FEATURED_PROJECTS.md)
 - **Visual editing**: [guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)
