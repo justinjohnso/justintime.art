@@ -17,6 +17,10 @@ const categoryMetadata = new Map(
   allCategories.map(cat => [cat.data.categorySlug, cat.data])
 );
 
+// Debug: log category metadata
+console.log('DEBUG - categoryMetadata keys:', Array.from(categoryMetadata.keys()));
+console.log('DEBUG - physical-computing data:', categoryMetadata.get('physical-computing'));
+
 // Also create a map from filename to categorySlug for backward compatibility
 const filenameToCategorySlug = new Map<string, string>(
   allCategories.map(cat => [cat.id, cat.data.categorySlug])
@@ -172,6 +176,13 @@ const { currentProjectSlug } = Astro.props;
       {categories.map(([categorySlug, projects]) => {
         const categoryData = categoryMetadata.get(categorySlug);
         const displayName = categoryData?.title || categorySlug;
+
+        // Debug specific category
+        if (categorySlug === 'physical-computing') {
+          console.log('DEBUG - Rendering physical-computing');
+          console.log('DEBUG - categoryData:', categoryData);
+          console.log('DEBUG - displayName:', displayName);
+        }
 
         return (
           <div class="category-section mb-8">

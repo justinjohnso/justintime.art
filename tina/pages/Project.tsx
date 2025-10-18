@@ -19,19 +19,12 @@ export default function Project(props: Props) {
 
   const project = data.projects
 
-  // Map category slugs to display names
-  const categoryMap: Record<string, string> = {
-    'sound-design': 'Sound Design',
-    theatre: 'Theatre',
-    'web-development': 'Web Development',
-    'intro-to-fabrication': 'Intro to Fabrication',
-  }
-
   const categoryDisplayNames =
     project.categories
       ?.map((catItem: any) => {
-        const categorySlug = catItem?.category?.categorySlug
-        return categorySlug ? categoryMap[categorySlug] || categorySlug : ''
+        // Extract the category title directly from the reference
+        const categoryTitle = catItem?.category?.title
+        return categoryTitle || ''
       })
       .filter(Boolean) || []
 
