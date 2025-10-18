@@ -34,14 +34,21 @@ const tinaProps = await client.queries.categories({
 const allProjects = await getCollection('projects');
 
 // Filter projects that belong to this category
-const categoryProjects = allProjects.filter(project =>
-  project.data.categories?.includes(slug)
-);
+// Categories are now objects with a 'category' property containing the file path
+const categoryProjects = allProjects.filter(project => {
+  if (!project.data.categories) return false;
+  return project.data.categories.some((cat: any) => {
+    // Extract slug from the category path (e.g., "src/content/categories/theatre.mdx" -> "theatre")
+    const catPath = cat.category || cat;
+    const catSlug = catPath.split('/').pop()?.replace('.mdx', '');
+    return catSlug === slug;
+  });
+});
 
 // Sort by year (newest first)
 const sortedProjects = categoryProjects.sort((a, b) => {
-  const yearA = a.data.yearCompleted || 0;
-  const yearB = b.data.yearCompleted || 0;
+  const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
+  const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
   return yearB - yearA;
 });
 ---
@@ -93,7 +100,7 @@ const sortedProjects = categoryProjects.sort((a, b) => {
       function initTinaVisibility() {
         // Notify parent window (TinaCMS) when page loads in iframe
         const isInIframe = window.self !== window.top;
-        
+
         if (isInIframe && window.parent && window.parent !== window) {
           window.parent.postMessage({ type: 'tina:pageLoaded', url: window.location.href }, '*');
         }
@@ -101,7 +108,7 @@ const sortedProjects = categoryProjects.sort((a, b) => {
 
       // Run on initial load
       initTinaVisibility();
-      
+
       // Re-run after Astro view transitions
       document.addEventListener('astro:page-load', initTinaVisibility);
     </script>

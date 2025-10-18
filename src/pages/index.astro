@@ -120,7 +120,11 @@ const categoryMetadata = allCategories.map(cat => ({
     </main>
 
     <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({
-      categories: p.data.categories || [], // Categories are now already slugs from the loader
+      categories: p.data.categories?.map((cat: any) => {
+        // Extract slug from category path (e.g., "src/content/categories/theatre.mdx" -> "theatre")
+        const catPath = cat.category || cat;
+        return catPath.split('/').pop()?.replace('.mdx', '');
+      }) || [],
       featured: featuredProjectSlugs.has(p.slug)
     })) }}>
       function applyFilter() {

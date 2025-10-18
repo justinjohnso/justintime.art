@@ -201,11 +201,6 @@ const { currentProjectSlug } = Astro.props;
               </svg>
             </button>
             <div class="category-content md:block">
-              {categoryData?.description && (
-                <p class="text-sm text-gray-500 mb-3 leading-relaxed">
-                  {categoryData.description}
-                </p>
-              )}
               <ul class="project-list space-y-2">
               {projects.map((project) => {
                 const cleanSlug = project.id.replace(/\.mdx$/, '');

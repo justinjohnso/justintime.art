@@ -29,9 +29,7 @@ export default function Project(props: Props) {
       .filter(Boolean) || []
 
   // Extract year from dateCompleted
-  const yearCompleted = project.dateCompleted
-    ? new Date(project.dateCompleted).getFullYear()
-    : null
+  const yearCompleted = project.dateCompleted ? new Date(project.dateCompleted).getFullYear() : null
 
   // Helper function to get embed info (placeholder - actual logic in Astro component)
   const hasMediaEmbed = project.mediaEmbed && project.mediaEmbed.trim() !== ''

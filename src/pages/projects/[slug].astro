@@ -41,11 +41,15 @@ const categoryMetadata = new Map(
   allCategories.map(cat => [cat.data.categorySlug, cat.data])
 );
 
-// Get display names for project categories (categories are now already slugs)
-const categoryDisplayNames = project.data.categories?.map(catSlug => {
+// Get display names for project categories
+// Categories are now objects with a 'category' property containing the file path
+const categoryDisplayNames = project.data.categories?.map((cat: any) => {
+  // Extract slug from the category path (e.g., "src/content/categories/theatre.mdx" -> "theatre")
+  const catPath = cat.category || cat;
+  const catSlug = catPath.split('/').pop()?.replace('.mdx', '');
   const catData = categoryMetadata.get(catSlug);
   return catData?.title || catSlug;
-}) || [];
+}).filter(Boolean) || [];
 
 // Check for media embed
 const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed) : null;
@@ -579,7 +583,7 @@ const rows = chunkArray(remainingAlt, 3);
       // In TinaCMS: show visual editor component, hide static content
       if (tinaWrapper) tinaWrapper.style.display = 'block';
       if (staticContent) staticContent.style.display = 'none';
-      
+
       // Notify parent window (TinaCMS) that we've loaded a new page
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'tina:pageLoaded', url: window.location.href }, '*');
@@ -593,7 +597,7 @@ const rows = chunkArray(remainingAlt, 3);
 
   // Run on initial load
   initTinaVisibility();
-  
+
   // Re-run after Astro view transitions
   document.addEventListener('astro:page-load', initTinaVisibility);
 </script>
