@@ -54,35 +54,15 @@ export const ProjectsCollection: Collection = {
         'Full embed URL for Vimeo, YouTube, or SoundCloud (e.g., https://w.soundcloud.com/player/?url=...)',
     },
     {
-      type: 'object',
+      type: 'string',
       name: 'categories',
       label: 'Categories',
-      description: 'Select categories for this project',
+      description: 'Select categories for this project (use category slugs)',
       list: true,
-      ui: {
-        itemProps: (item) => {
-          // Extract a readable label from the category path
-          if (item?.category) {
-            // Convert "src/content/categories/web-development.mdx" to "web-development"
-            const slug = item.category.split('/').pop()?.replace('.mdx', '') || ''
-            // Convert kebab-case to Title Case for display
-            const label = slug
-              .split('-')
-              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ')
-            return { label: label || 'Select a category' }
-          }
-          return { label: 'Select a category' }
-        },
-      },
-      fields: [
-        {
-          type: 'reference',
-          name: 'category',
-          label: 'Category',
-          collections: ['categories'],
-          required: false,
-        },
+      options: [
+        { value: 'sound-design', label: 'Sound Design' },
+        { value: 'web-development', label: 'Web Development' },
+        { value: 'intro-to-fabrication', label: 'Intro to Fabrication' },
       ],
     },
     {
@@ -103,6 +83,13 @@ export const ProjectsCollection: Collection = {
       name: 'links',
       label: 'Project Links',
       list: true,
+      ui: {
+        itemProps: (item) => {
+          return {
+            label: item?.title || 'New Link',
+          }
+        },
+      },
       fields: [
         {
           type: 'string',

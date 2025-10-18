@@ -88,5 +88,22 @@ const sortedProjects = categoryProjects.sort((a, b) => {
         </div>
       </div>
     </main>
+
+    <script>
+      function initTinaVisibility() {
+        // Notify parent window (TinaCMS) when page loads in iframe
+        const isInIframe = window.self !== window.top;
+        
+        if (isInIframe && window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'tina:pageLoaded', url: window.location.href }, '*');
+        }
+      }
+
+      // Run on initial load
+      initTinaVisibility();
+      
+      // Re-run after Astro view transitions
+      document.addEventListener('astro:page-load', initTinaVisibility);
+    </script>
   </body>
 </html>
