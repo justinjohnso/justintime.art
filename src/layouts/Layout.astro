@@ -19,6 +19,32 @@ const { title, description = "Portfolio of Justin Johnson - Creative Technologis
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+
+    <!-- Social Media Meta Tags -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:image" content={`${Astro.site}og-image.png`} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${Astro.site}og-image.png`} />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Analytics -->
+    {import.meta.env.PUBLIC_UMAMI_SRC && (
+      <script
+        async
+        defer
+        data-website-id={import.meta.env.PUBLIC_UMAMI_WEBSITE_ID}
+        src={import.meta.env.PUBLIC_UMAMI_SRC}
+      />
+    )}
   </head>
   <body class="text-black">
     <NavBar />

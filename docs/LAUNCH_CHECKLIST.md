@@ -116,6 +116,9 @@ pnpm astro check
 - [ ] Images load properly
 - [ ] External links open in new tabs
 - [ ] 404 page works
+- [ ] Umami analytics loads and tracks visits
+- [ ] Social media meta tags work
+- [ ] RSS feed validates (if enabled)
 
 ---
 
@@ -440,4 +443,23 @@ pnpm sync:blog            # Sync only blog
 4. Write a blog post about the build process
 5. Start planning new projects to showcase
 
+**Production Deploy Checklist:**
+
+Before each production deployment, verify:
+
+- [ ] All dependencies are up to date (`pnpm update`)
+- [ ] Build scripts are approved (`pnpm approve-builds puppeteer`)
+- [ ] TypeScript checks pass (`pnpm astro check`)
+- [ ] Production build succeeds (`pnpm build`)
+- [ ] No console errors in browser
+- [ ] Sitemap is generated correctly
+- [ ] Environment variables are set correctly
+- [ ] Media assets are optimized
+- [ ] Backup is created before deploy
+- [ ] SSL certificate is valid
+- [ ] DNS settings are correct
+- [ ] Analytics is tracking properly
+
 **Your site is production-ready. Time to ship! 🚀**
+
+````

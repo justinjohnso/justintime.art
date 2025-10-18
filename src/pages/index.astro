@@ -74,10 +74,12 @@ const categoryMetadata = allCategories.map(cat => ({
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Portfolio of Justin Johnson - Creative Technologist, Sound Designer, and Web Developer" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Justin Johnson - Creative Technologist</title>
+    <title>{homePage?.data.title || 'Justin Johnson'}</title>
+    {homePage?.data.description && (
+      <meta name="description" content={homePage.data.description} />
+    )}
     <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
@@ -86,10 +88,22 @@ const categoryMetadata = allCategories.map(cat => ({
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
-      <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive, hidden when filtering) -->
+      <!-- Homepage title and description -->
       <div id="homepage-content">
-        <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
-        <Page {...(tinaProps as any)} client:tina />
+        {homePage && (
+          <div class="p-4 md:p-6 lg:p-8 pb-0">
+            <h1 class="text-4xl md:text-5xl font-light mb-4">{homePage.data.title}</h1>
+            {homePage.data.description && (
+              <p class="text-lg text-gray-600 max-w-2xl mb-8">{homePage.data.description}</p>
+            )}
+          </div>
+        )}
+
+        <!-- TinaCMS visual editor (hidden from display, only for editing) -->
+        <div style="display: none;">
+          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+          <Page {...(tinaProps as any)} client:tina />
+        </div>
       </div>
 
       <!-- Category filter header (dynamically shown by client script) -->

@@ -14,6 +14,9 @@ export const PagesCollection: Collection = {
       }
       return `/${slug}`
     },
+    filename: {
+      readonly: true,
+    },
   },
   fields: [
     {

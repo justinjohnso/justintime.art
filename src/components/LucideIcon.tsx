@@ -23,12 +23,21 @@ export default function LucideIcon({
   ariaLabel,
 }: Props) {
   // Get the icon component from lucide-react
-  const IconComponent = LucideIcons[
+  // Try exact name first, then with "Icon" suffix
+  let IconComponent = LucideIcons[
     name as keyof typeof LucideIcons
   ] as React.ComponentType<LucideProps>
 
+  // If not found, try with "Icon" suffix (e.g., "Github" -> "GithubIcon")
+  if (!IconComponent) {
+    const iconNameWithSuffix = `${name}Icon`
+    IconComponent = LucideIcons[
+      iconNameWithSuffix as keyof typeof LucideIcons
+    ] as React.ComponentType<LucideProps>
+  }
+
   // Warn if icon not found
-  if (!IconComponent || typeof IconComponent !== 'function') {
+  if (!IconComponent) {
     console.warn(`Icon "${name}" not found in lucide-react`)
     return null
   }
