@@ -119,14 +119,14 @@ const categoryMetadata = allCategories.map(cat => ({
       </div>
     </main>
 
-    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({ 
+    <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({
       categories: p.data.categories?.map(catItem => {
         // Handle both old format (string) and new format (object with category property)
-        return typeof catItem === 'string' 
-          ? catItem 
+        return typeof catItem === 'string'
+          ? catItem
           : catItem?.category?.split('/').pop()?.replace('.mdx', '') || '';
-      }) || [], 
-      featured: featuredProjectSlugs.has(p.slug) 
+      }) || [],
+      featured: featuredProjectSlugs.has(p.slug)
     })) }}>
       function applyFilter() {
         const categorySlug = new URLSearchParams(window.location.search).get('category');

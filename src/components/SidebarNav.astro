@@ -26,8 +26,8 @@ sortedProjects.forEach((project) => {
     // Extract category slug from the reference object
     const firstCategoryObj = project.data.categories[0];
     // Handle both old format (string) and new format (object with category property)
-    const firstCategory = typeof firstCategoryObj === 'string' 
-      ? firstCategoryObj 
+    const firstCategory = typeof firstCategoryObj === 'string'
+      ? firstCategoryObj
       : firstCategoryObj?.category?.split('/').pop()?.replace('.mdx', '') || '';
 
     // Only add project if it hasn't been added yet (first category only)
