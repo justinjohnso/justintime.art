@@ -19,6 +19,16 @@ export default function Project(props: Props) {
 
   const project = data.projects
 
+  // Map category slugs to display names
+  const categoryMap: Record<string, string> = {
+    'sound-design': 'Sound Design',
+    'web-development': 'Web Development',
+    'intro-to-fabrication': 'Intro to Fabrication',
+  }
+
+  const categoryDisplayNames =
+    project.categories?.map((slug: string) => categoryMap[slug] || slug) || []
+
   // Helper function to get embed info (placeholder - actual logic in Astro component)
   const hasMediaEmbed = project.mediaEmbed && project.mediaEmbed.trim() !== ''
 
@@ -46,12 +56,12 @@ export default function Project(props: Props) {
                 </p>
               )}
 
-              {project.categories && project.categories.length > 0 && (
+              {categoryDisplayNames.length > 0 && (
                 <p
                   data-tina-field={tinaField(project, 'categories')}
                   className="text-base text-gray-600 mb-3"
                 >
-                  {project.categories.join(', ')}
+                  {categoryDisplayNames.join(', ')}
                 </p>
               )}
 
