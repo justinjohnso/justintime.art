@@ -1,4 +1,6 @@
+import React from 'react'
 import type { Collection } from 'tinacms'
+import { FieldSeparator } from '../components/FieldSeparator'
 
 export const PagesCollection: Collection = {
   name: 'pages',
@@ -60,10 +62,9 @@ export const PagesCollection: Collection = {
     {
       type: 'string',
       name: '_metaSeparator',
-      label: '─────────── Meta Tags ───────────',
-      description: 'The fields below control SEO meta tags only',
+      label: 'Meta Tags',
       ui: {
-        component: () => null,
+        component: FieldSeparator,
       },
     },
     {

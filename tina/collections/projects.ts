@@ -1,4 +1,6 @@
+import React from 'react'
 import type { Collection } from 'tinacms'
+import { FieldSeparator } from '../components/FieldSeparator'
 
 export const ProjectsCollection: Collection = {
   name: 'projects',
@@ -16,10 +18,9 @@ export const ProjectsCollection: Collection = {
     {
       type: 'string',
       name: '_metaSeparator',
-      label: '─────────── Project Info & Meta ───────────',
-      description: 'Title, description, and featured image are used for both display and SEO/OpenGraph',
+      label: 'Project Info & Meta',
       ui: {
-        component: () => null,
+        component: FieldSeparator,
       },
     },
     {
