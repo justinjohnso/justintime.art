@@ -20,20 +20,10 @@ export const PagesCollection: Collection = {
   },
   fields: [
     {
-      type: 'string',
-      name: 'title',
-      label: 'Title',
-      isTitle: true,
-      required: true,
-    },
-    {
-      type: 'string',
-      name: 'description',
-      label: 'Description',
-      required: true,
-      ui: {
-        component: 'textarea',
-      },
+      type: 'rich-text',
+      name: 'body',
+      label: 'Page Content',
+      isBody: true,
     },
     {
       type: 'object',
@@ -68,10 +58,34 @@ export const PagesCollection: Collection = {
       ],
     },
     {
-      type: 'rich-text',
-      name: 'body',
-      label: 'Page Content',
-      isBody: true,
+      type: 'string',
+      name: '_metaSeparator',
+      label: '─────────── Meta Tags ───────────',
+      description: 'The fields below control SEO meta tags only',
+      ui: {
+        component: () => null,
+      },
+    },
+    {
+      type: 'string',
+      name: 'title',
+      label: 'Meta Title',
+      description: 'Used for page title and meta tags only. Does not appear in page content.',
+      isTitle: true,
+      required: true,
+      ui: {
+        component: 'text',
+      },
+    },
+    {
+      type: 'string',
+      name: 'description',
+      label: 'Meta Description',
+      description: 'Used for meta description tag only. Does not appear in page content.',
+      required: true,
+      ui: {
+        component: 'textarea',
+      },
     },
   ],
 }

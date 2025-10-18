@@ -15,8 +15,18 @@ export const ProjectsCollection: Collection = {
   fields: [
     {
       type: 'string',
+      name: '_metaSeparator',
+      label: '─────────── Project Info & Meta ───────────',
+      description: 'Title, description, and featured image are used for both display and SEO/OpenGraph',
+      ui: {
+        component: () => null,
+      },
+    },
+    {
+      type: 'string',
       name: 'title',
       label: 'Title',
+      description: 'Project title. Also used for meta title and OpenGraph tags.',
       isTitle: true,
       required: true,
     },
@@ -24,6 +34,7 @@ export const ProjectsCollection: Collection = {
       type: 'string',
       name: 'description',
       label: 'Description',
+      description: 'Project description. Also used for meta description and OpenGraph tags.',
       ui: {
         component: 'textarea',
       },
@@ -32,6 +43,7 @@ export const ProjectsCollection: Collection = {
       type: 'image',
       name: 'image',
       label: 'Featured Image',
+      description: 'Main project image. Also used as OpenGraph image for social sharing.',
     },
     {
       type: 'string',
