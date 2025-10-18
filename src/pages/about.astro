@@ -1,12 +1,23 @@
 ---
 import SidebarNav from '../components/SidebarNav.astro';
 import { ViewTransitions } from 'astro:transitions';
+import { getEntry } from 'astro:content';
 import Page from '../../tina/pages/Page';
 import client from '../../tina/__generated__/client';
 import '../styles/global.css';
 
-// Get TinaCMS data for visual editing
-const tinaProps = await client.queries.pages({ relativePath: 'about.mdx' });
+// Get the about page content from Astro content collections
+const aboutPage = await getEntry('pages', 'about');
+const { Content: AboutContent } = aboutPage ? await aboutPage.render() : { Content: null };
+
+// Get TinaCMS data for visual editing (this may fail during static build, which is OK)
+let tinaProps;
+try {
+  tinaProps = await client.queries.pages({ relativePath: 'about.mdx' });
+} catch (error) {
+  console.warn('TinaCMS client query failed during build (this is expected for static builds):', error.message);
+  tinaProps = null;
+}
 ---
 
 <!DOCTYPE html>
@@ -25,8 +36,20 @@ const tinaProps = await client.queries.pages({ relativePath: 'about.mdx' });
 
     <!-- Main Content Area -->
     <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
-      <!-- CMS-editable content (only renders in TinaCMS iframe via client:tina directive) -->
-      <Page {...tinaProps} client:tina />
+      <!-- About page content -->
+      {AboutContent && (
+        <div class="p-4 md:p-6 lg:p-8 prose prose-lg max-w-none">
+          <AboutContent />
+        </div>
+      )}
+
+      <!-- TinaCMS visual editor (hidden from display, only for editing) -->
+      {tinaProps && (
+        <div style="display: none;">
+          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+          <Page {...(tinaProps as any)} client:tina />
+        </div>
+      )}
     </main>
   </body>
 </html>
