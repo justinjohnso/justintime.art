@@ -12,22 +12,40 @@ export const projects = defineCollection({
         .map((project) => {
           const node = project?.node
 
-          // Transform category objects to slugs for backward compatibility
-          const categories =
-            node?.categories
-              ?.map((catItem: any) => {
-                // Handle null/undefined items
-                if (!catItem || !catItem.category) return null
+          // Handle categories - they can be either simple strings or TinaCMS reference objects
+          const categories = Array.isArray(node?.categories)
+            ? node.categories
+                .map((catItem: any) => {
+                  // If it's already a string (simple format), use it directly
+                  if (typeof catItem === 'string') {
+                    return catItem
+                  }
 
-                // Try to get relativePath from _sys
-                const relativePath = catItem.category._sys?.relativePath
-                if (!relativePath || typeof relativePath !== 'string') return null
+                  // If it's an object (TinaCMS reference format), extract the slug
+                  if (catItem && typeof catItem === 'object') {
+                    const categoryData = catItem.category
 
-                // Extract slug from path like "src/content/categories/sound-design.mdx"
-                const match = relativePath.match(/([^/]+)\.mdx?$/)
-                return match && match[1] ? match[1] : null
-              })
-              .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0) || []
+                    if (!categoryData) return null
+
+                    // Try to get categorySlug field (best option)
+                    if (
+                      categoryData.categorySlug &&
+                      typeof categoryData.categorySlug === 'string'
+                    ) {
+                      return categoryData.categorySlug
+                    }
+
+                    // Fallback: extract from _sys.relativePath
+                    if (categoryData._sys?.relativePath) {
+                      const match = categoryData._sys.relativePath.match(/([^/]+)\.mdx?$/)
+                      if (match && match[1]) return match[1]
+                    }
+                  }
+
+                  return null
+                })
+                .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0)
+            : []
 
           return {
             ...node,
