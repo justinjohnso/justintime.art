@@ -47,11 +47,34 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
       }
     }
 
-    // SoundCloud - if the URL is already the full widget URL, use it directly
+    // SoundCloud - convert track URLs to widget URLs
     if (hostname.includes('soundcloud.com')) {
+      // If it's already a widget URL, use it directly
+      if (hostname.includes('w.soundcloud.com')) {
+        return {
+          type: 'soundcloud',
+          embedUrl: url,
+          aspectRatio: '16/9',
+        }
+      }
+
+      // Convert regular track URL to widget URL
+      // For URLs with secret tokens, we need to convert them to the API format
+      // e.g., https://soundcloud.com/user/track/s-TOKEN -> need to use API URL
+      let apiUrl = url
+
+      // Check if URL has a secret token (format: /s-XXXXX at the end)
+      const secretMatch = url.match(/\/s-([a-zA-Z0-9]+)$/)
+      if (secretMatch) {
+        // Remove the /s-TOKEN part and add it as a query parameter
+        const baseUrl = url.replace(/\/s-[a-zA-Z0-9]+$/, '')
+        apiUrl = `${baseUrl}?secret_token=s-${secretMatch[1]}`
+      }
+
+      const trackUrl = encodeURIComponent(apiUrl)
       return {
         type: 'soundcloud',
-        embedUrl: url, // Use the URL as-is since it's already the widget URL
+        embedUrl: `https://w.soundcloud.com/player/?url=${trackUrl}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
         aspectRatio: '16/9',
       }
     }

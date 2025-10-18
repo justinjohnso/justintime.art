@@ -51,8 +51,15 @@ const categoryDisplayNames = project.data.categories?.map((cat: any) => {
   return catData?.title || catSlug;
 }).filter(Boolean) || [];
 
-// Check for media embed
-const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed) : null;
+// Check for media embed - trim whitespace/newlines that might come from YAML formatting
+const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed.trim()) : null;
+
+// Debug logging
+if (project.data.mediaEmbed) {
+  console.log('Project:', project.data.title);
+  console.log('Media Embed URL:', project.data.mediaEmbed);
+  console.log('Embed Info:', embedInfo);
+}
 
 // Helper: split an array into chunks of the given size
 const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
