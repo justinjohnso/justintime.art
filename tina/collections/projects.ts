@@ -52,15 +52,38 @@ export const ProjectsCollection: Collection = {
       label: 'Media Embed URL',
       description:
         'Full embed URL for Vimeo, YouTube, or SoundCloud (e.g., https://w.soundcloud.com/player/?url=...)',
-      ui: {
-        component: 'textarea',
-      },
     },
     {
-      type: 'string',
+      type: 'object',
       name: 'categories',
       label: 'Categories',
+      description: 'Select categories for this project',
       list: true,
+      ui: {
+        itemProps: (item) => {
+          // Extract a readable label from the category path
+          if (item?.category) {
+            // Convert "src/content/categories/web-development.mdx" to "web-development"
+            const slug = item.category.split('/').pop()?.replace('.mdx', '') || ''
+            // Convert kebab-case to Title Case for display
+            const label = slug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')
+            return { label: label || 'Select a category' }
+          }
+          return { label: 'Select a category' }
+        },
+      },
+      fields: [
+        {
+          type: 'reference',
+          name: 'category',
+          label: 'Category',
+          collections: ['categories'],
+          required: true,
+        },
+      ],
     },
     {
       type: 'datetime',

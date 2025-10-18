@@ -70,7 +70,7 @@ export const PagesCollection: Collection = {
     {
       type: 'string',
       name: 'title',
-      label: 'Meta Title',
+      label: 'Title',
       description: 'Used for page title and meta tags only. Does not appear in page content.',
       isTitle: true,
       required: true,
@@ -81,7 +81,7 @@ export const PagesCollection: Collection = {
     {
       type: 'string',
       name: 'description',
-      label: 'Meta Description',
+      label: 'Description',
       description: 'Used for meta description tag only. Does not appear in page content.',
       required: true,
       ui: {

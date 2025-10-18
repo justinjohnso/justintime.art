@@ -42,7 +42,11 @@ const categoryMetadata = new Map(
 );
 
 // Get display names for project categories
-const categoryDisplayNames = project.data.categories?.map(catSlug => {
+const categoryDisplayNames = project.data.categories?.map(catItem => {
+  // Handle both old format (string) and new format (object with category property)
+  const catSlug = typeof catItem === 'string'
+    ? catItem
+    : catItem?.category?.split('/').pop()?.replace('.mdx', '') || '';
   const catData = categoryMetadata.get(catSlug);
   return catData?.title || catSlug;
 }) || [];
