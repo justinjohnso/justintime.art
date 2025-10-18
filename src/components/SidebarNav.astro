@@ -20,6 +20,7 @@ const categoryMetadata = new Map(
 // Get unique categories and organize projects by first category
 const categoryMap = new Map<string, typeof sortedProjects>();
 const projectCategoryMap = new Map<string, string>(); // track which category each project belongs to
+const uncategorizedProjects: typeof sortedProjects = [];
 
 sortedProjects.forEach((project) => {
   if (project.data.categories && project.data.categories.length > 0) {
@@ -36,9 +37,20 @@ sortedProjects.forEach((project) => {
         categoryMap.get(firstCategory)?.push(project);
         projectCategoryMap.set(project.slug, firstCategory);
       }
+    } else {
+      // Category array exists but first item is not a valid string
+      uncategorizedProjects.push(project);
     }
+  } else {
+    // No categories at all
+    uncategorizedProjects.push(project);
   }
 });
+
+// Add uncategorized projects to a special category if any exist
+if (uncategorizedProjects.length > 0) {
+  categoryMap.set('uncategorized', uncategorizedProjects);
+}
 
 // Convert to array and sort categories alphabetically
 // Ensure both values being compared are strings
