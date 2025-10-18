@@ -45,12 +45,44 @@ const categoryProjects = allProjects.filter(project => {
   });
 });
 
-// Sort by year (newest first)
-const sortedProjects = categoryProjects.sort((a, b) => {
+// Get homepage to determine featured projects
+const homePage = await getCollection('pages').then(pages => pages.find(p => p.id === 'home.mdx'));
+const featuredProjectOrder = (homePage?.data.featuredProjects || []).map((item: unknown, index: number) => {
+  const projectPath = (item as any)?.project as string | undefined;
+  const match = projectPath ? projectPath.match(/projects\/(.+)\.mdx$/) : null;
+  return { slug: match ? match[1] : null, order: index };
+}).filter(item => item.slug !== null);
+
+const featuredProjectSlugs = new Set(featuredProjectOrder.map(item => item.slug));
+
+// Sort projects: featured first (by homepage order), then non-featured (by date)
+const featuredProjects = categoryProjects
+  .filter(p => {
+    const projectSlug = p.id.replace(/\.mdx$/, '');
+    return featuredProjectSlugs.has(projectSlug);
+  })
+  .sort((a, b) => {
+    const slugA = a.id.replace(/\.mdx$/, '');
+    const slugB = b.id.replace(/\.mdx$/, '');
+    const orderA = featuredProjectOrder.find(item => item.slug === slugA)?.order ?? 999;
+    const orderB = featuredProjectOrder.find(item => item.slug === slugB)?.order ?? 999;
+    return orderA - orderB;
+  });
+
+const nonFeaturedProjects = categoryProjects.filter(p => {
+  const projectSlug = p.id.replace(/\.mdx$/, '');
+  return !featuredProjectSlugs.has(projectSlug);
+});
+
+// Sort non-featured by date (newest first)
+nonFeaturedProjects.sort((a, b) => {
   const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
   const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
   return yearB - yearA;
 });
+
+// Combine: featured first, then non-featured
+const sortedProjects = [...featuredProjects, ...nonFeaturedProjects];
 ---
 
 <!DOCTYPE html>

@@ -52,8 +52,8 @@ const nonFeaturedProjects = allProjects.filter(p => !featuredProjectSlugs.has(p.
 
 // Sort non-featured by year (newest first)
 const sortByYear = (a: typeof allProjects[0], b: typeof allProjects[0]) => {
-  const yearA = a.data.yearCompleted || 0;
-  const yearB = b.data.yearCompleted || 0;
+  const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
+  const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
   return yearB - yearA;
 };
 

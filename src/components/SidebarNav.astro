@@ -1,13 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 
-// Get all projects
+// Get all projects and sort by date (newest first)
 const allProjects = await getCollection('projects');
-
-// Sort projects by yearCompleted (newest first)
-const sortedProjects = [...allProjects].sort((a, b) => {
-  const yearA = a.data.yearCompleted || 0;
-  const yearB = b.data.yearCompleted || 0;
+const sortedProjects = allProjects.sort((a, b) => {
+  const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
+  const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
   return yearB - yearA;
 });
 
@@ -212,7 +210,7 @@ const { currentProjectSlug } = Astro.props;
                       currentProjectSlug === cleanSlug ? 'text-black font-medium' : 'text-gray-600'
                     }`}
                     data-slug={cleanSlug}
-                    data-year={project.data.yearCompleted}
+                    data-year={project.data.dateCompleted ? new Date(project.data.dateCompleted).getFullYear() : ''}
                     data-category={categorySlug}
                   >
                     {project.data.title}
