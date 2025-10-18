@@ -23,28 +23,30 @@ const projectCategoryMap = new Map<string, string>(); // track which category ea
 
 sortedProjects.forEach((project) => {
   if (project.data.categories && project.data.categories.length > 0) {
-    // Extract category slug from the reference object
-    const firstCategoryObj = project.data.categories[0];
-    // Handle both old format (string) and new format (object with category property)
-    const firstCategory = typeof firstCategoryObj === 'string'
-      ? firstCategoryObj
-      : firstCategoryObj?.category?.split('/').pop()?.replace('.mdx', '') || '';
+    // Categories are now already slugs from the loader transformation
+    const firstCategory = project.data.categories[0];
 
-    // Only add project if it hasn't been added yet (first category only)
-    if (!projectCategoryMap.has(project.slug)) {
-      if (!categoryMap.has(firstCategory)) {
-        categoryMap.set(firstCategory, []);
+    // Ensure category is a valid string before using it
+    if (typeof firstCategory === 'string' && firstCategory.length > 0) {
+      // Only add project if it hasn't been added yet (first category only)
+      if (!projectCategoryMap.has(project.slug)) {
+        if (!categoryMap.has(firstCategory)) {
+          categoryMap.set(firstCategory, []);
+        }
+        categoryMap.get(firstCategory)?.push(project);
+        projectCategoryMap.set(project.slug, firstCategory);
       }
-      categoryMap.get(firstCategory)?.push(project);
-      projectCategoryMap.set(project.slug, firstCategory);
     }
   }
 });
 
 // Convert to array and sort categories alphabetically
-const categories = Array.from(categoryMap.entries()).sort((a, b) =>
-  a[0].localeCompare(b[0])
-);
+// Ensure both values being compared are strings
+const categories = Array.from(categoryMap.entries()).sort((a, b) => {
+  const aStr = String(a[0]);
+  const bStr = String(b[0]);
+  return aStr.localeCompare(bStr);
+});
 
 export interface Props {
   currentProjectSlug?: string;

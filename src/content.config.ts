@@ -12,10 +12,28 @@ export const projects = defineCollection({
         .map((project) => {
           const node = project?.node
 
+          // Transform category objects to slugs for backward compatibility
+          const categories =
+            node?.categories
+              ?.map((catItem: any) => {
+                // Handle null/undefined items
+                if (!catItem || !catItem.category) return null
+
+                // Try to get relativePath from _sys
+                const relativePath = catItem.category._sys?.relativePath
+                if (!relativePath || typeof relativePath !== 'string') return null
+
+                // Extract slug from path like "src/content/categories/sound-design.mdx"
+                const match = relativePath.match(/([^/]+)\.mdx?$/)
+                return match && match[1] ? match[1] : null
+              })
+              .filter((slug): slug is string => typeof slug === 'string' && slug.length > 0) || []
+
           return {
             ...node,
             id: node?._sys.relativePath.replace(/\.mdx?$/, ''),
             tinaInfo: node?._sys,
+            categories,
           }
         }) || []
     )
