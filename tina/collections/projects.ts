@@ -89,14 +89,10 @@ export const ProjectsCollection: Collection = {
       type: 'datetime',
       name: 'dateCompleted',
       label: 'Date Completed',
+      description: 'Date the project was completed. Only the year will be displayed on the page.',
       ui: {
         dateFormat: 'YYYY-MM-DD',
       },
-    },
-    {
-      type: 'number',
-      name: 'yearCompleted',
-      label: 'Year Completed',
     },
     {
       type: 'object',

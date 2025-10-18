@@ -28,6 +28,11 @@ export default function Project(props: Props) {
       })
       .filter(Boolean) || []
 
+  // Extract year from dateCompleted
+  const yearCompleted = project.dateCompleted
+    ? new Date(project.dateCompleted).getFullYear()
+    : null
+
   // Helper function to get embed info (placeholder - actual logic in Astro component)
   const hasMediaEmbed = project.mediaEmbed && project.mediaEmbed.trim() !== ''
 
@@ -46,22 +51,17 @@ export default function Project(props: Props) {
                 {project.title}
               </h1>
 
-              {project.yearCompleted && (
+              {yearCompleted && (
                 <p
-                  data-tina-field={tinaField(project, 'yearCompleted')}
+                  data-tina-field={tinaField(project, 'dateCompleted')}
                   className="text-base text-gray-600 mb-1"
                 >
-                  {project.yearCompleted}
+                  {yearCompleted}
                 </p>
               )}
 
               {categoryDisplayNames.length > 0 && (
-                <p
-                  data-tina-field={tinaField(project, 'categories')}
-                  className="text-base text-gray-600 mb-3"
-                >
-                  {categoryDisplayNames.join(', ')}
-                </p>
+                <p className="text-base text-gray-600 mb-3">{categoryDisplayNames.join(', ')}</p>
               )}
 
               {project.description && (
@@ -140,10 +140,7 @@ export default function Project(props: Props) {
 
       {/* Additional Images */}
       {project.additionalImages && project.additionalImages.length > 0 && (
-        <div
-          data-tina-field={tinaField(project, 'additionalImages')}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
           {project.additionalImages.map((image, index) => (
             <img
               key={index}

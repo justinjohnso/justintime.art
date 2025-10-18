@@ -127,8 +127,8 @@ const rows = chunkArray(remainingAlt, 3);
             </h1>
 
             {/* Year */}
-            {project.data.yearCompleted && (
-              <p class="text-base text-gray-600 mb-1">{project.data.yearCompleted}</p>
+            {project.data.dateCompleted && (
+              <p class="text-base text-gray-600 mb-1">{new Date(project.data.dateCompleted).getFullYear()}</p>
             )}
 
             {/* Categories with display names */}
