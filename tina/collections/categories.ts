@@ -4,10 +4,10 @@ export const CategoriesCollection: Collection = {
   name: 'categories',
   label: 'Categories',
   path: 'src/content/categories',
-  format: 'md',
+  format: 'mdx',
   ui: {
     router: ({ document }) => {
-      const slug = document._sys.filename.replace(/\.md$/, '')
+      const slug = document._sys.filename.replace(/\.mdx?$/, '')
       return `/categories/${slug}`
     },
   },
@@ -17,6 +17,13 @@ export const CategoriesCollection: Collection = {
       name: 'title',
       label: 'Title',
       isTitle: true,
+      required: true,
+    },
+    {
+      type: 'string',
+      name: 'categorySlug',
+      label: 'Category Slug',
+      description: 'URL-friendly identifier (e.g., web-development, sound-design)',
       required: true,
     },
     {
