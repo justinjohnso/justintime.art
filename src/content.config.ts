@@ -16,6 +16,11 @@ export const projects = defineCollection({
           const categories = Array.isArray(node?.categories)
             ? node.categories
                 .map((catItem: any) => {
+                  // Debug logging for first project
+                  if (node?.title === 'Behold The Dreamers') {
+                    console.log('LOADER DEBUG - catItem:', JSON.stringify(catItem, null, 2))
+                  }
+
                   // If it's already a string (simple format), use it directly
                   if (typeof catItem === 'string') {
                     return catItem
@@ -27,18 +32,31 @@ export const projects = defineCollection({
 
                     if (!categoryData) return null
 
-                    // Try to get categorySlug field (best option)
-                    if (
-                      categoryData.categorySlug &&
-                      typeof categoryData.categorySlug === 'string'
-                    ) {
-                      return categoryData.categorySlug
+                    // If categoryData is a string path (e.g., "src/content/categories/sound-design.mdx"), extract filename
+                    if (typeof categoryData === 'string') {
+                      const match = categoryData.match(/([^/]+)\.mdx?$/)
+                      if (match && match[1]) {
+                        if (node?.title === 'Behold The Dreamers') {
+                          console.log('LOADER DEBUG - Extracted slug from string path:', match[1])
+                        }
+                        return match[1]
+                      }
                     }
 
-                    // Fallback: extract from _sys.relativePath
-                    if (categoryData._sys?.relativePath) {
-                      const match = categoryData._sys.relativePath.match(/([^/]+)\.mdx?$/)
-                      if (match && match[1]) return match[1]
+                    // If categoryData is an object, try to get categorySlug field
+                    if (typeof categoryData === 'object') {
+                      if (
+                        categoryData.categorySlug &&
+                        typeof categoryData.categorySlug === 'string'
+                      ) {
+                        return categoryData.categorySlug
+                      }
+
+                      // Fallback: extract from _sys.relativePath
+                      if (categoryData._sys?.relativePath) {
+                        const match = categoryData._sys.relativePath.match(/([^/]+)\.mdx?$/)
+                        if (match && match[1]) return match[1]
+                      }
                     }
                   }
 

@@ -22,12 +22,18 @@ export default function Project(props: Props) {
   // Map category slugs to display names
   const categoryMap: Record<string, string> = {
     'sound-design': 'Sound Design',
+    theatre: 'Theatre',
     'web-development': 'Web Development',
     'intro-to-fabrication': 'Intro to Fabrication',
   }
 
   const categoryDisplayNames =
-    project.categories?.map((slug: string) => categoryMap[slug] || slug) || []
+    project.categories
+      ?.map((catItem: any) => {
+        const categorySlug = catItem?.category?.categorySlug
+        return categorySlug ? categoryMap[categorySlug] || categorySlug : ''
+      })
+      .filter(Boolean) || []
 
   // Helper function to get embed info (placeholder - actual logic in Astro component)
   const hasMediaEmbed = project.mediaEmbed && project.mediaEmbed.trim() !== ''

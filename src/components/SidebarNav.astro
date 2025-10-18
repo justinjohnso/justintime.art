@@ -29,21 +29,32 @@ const uncategorizedProjects: typeof sortedProjects = [];
 
 sortedProjects.forEach((project) => {
   if (project.data.categories && project.data.categories.length > 0) {
-    // Categories are simple strings (categorySlug values)
     let firstCategory = project.data.categories[0];
+    let categorySlug: string | undefined;
 
-    // Handle case where it might still be a filename - convert to categorySlug
-    if (typeof firstCategory === 'string' && firstCategory.length > 0) {
-      // If it looks like a filename, try to convert it to categorySlug
-      const categorySlug = filenameToCategorySlug.get(firstCategory) || firstCategory;
+    // Handle both string format and object format
+    if (typeof firstCategory === 'string') {
+      categorySlug = firstCategory;
+    } else if (firstCategory && typeof firstCategory === 'object' && 'category' in firstCategory) {
+      // Extract slug from reference path like "src/content/categories/sound-design.mdx"
+      const categoryPath = firstCategory.category as string;
+      const match = categoryPath.match(/([^/]+)\.mdx?$/);
+      if (match) {
+        categorySlug = match[1];
+      }
+    }
+
+    if (categorySlug) {
+      // Convert filename to categorySlug if needed (check if it's actually a filename)
+      const mappedSlug = filenameToCategorySlug.get(categorySlug) || categorySlug;
 
       // Only add project if it hasn't been added yet (first category only)
-      if (!projectCategoryMap.has(project.slug)) {
-        if (!categoryMap.has(categorySlug)) {
-          categoryMap.set(categorySlug, []);
+      if (!projectCategoryMap.has(project.id)) {
+        if (!categoryMap.has(mappedSlug)) {
+          categoryMap.set(mappedSlug, []);
         }
-        categoryMap.get(categorySlug)?.push(project);
-        projectCategoryMap.set(project.slug, categorySlug);
+        categoryMap.get(mappedSlug)?.push(project);
+        projectCategoryMap.set(project.id, mappedSlug);
       }
     } else {
       // Category array exists but first item is not a valid string
