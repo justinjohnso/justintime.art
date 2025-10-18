@@ -165,7 +165,7 @@ const { currentProjectSlug } = Astro.props;
         return (
           <div class="category-section mb-8">
             <!-- Desktop: simple link, Mobile: accordion button -->
-            <a href={`/?category=${categorySlug}`} class="category-header hidden md:block font-medium text-lg mb-3 text-black hover:text-gray-600 transition-colors">
+            <a href={`/projects/category/${categorySlug}`} class="category-header hidden md:block font-medium text-lg mb-3 text-black hover:text-gray-600 transition-colors">
               {displayName}
             </a>
             <button

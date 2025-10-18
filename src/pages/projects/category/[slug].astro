@@ -1,0 +1,92 @@
+---
+import { getCollection } from 'astro:content';
+import { ViewTransitions } from 'astro:transitions';
+import SidebarNav from '../../../components/SidebarNav.astro';
+import ProjectGrid from '../../../components/ProjectGrid.astro';
+import Category from '../../../../tina/pages/Category';
+import client from '../../../../tina/__generated__/client';
+import '../../../styles/global.css';
+
+export async function getStaticPaths() {
+  const allCategories = await getCollection('categories');
+
+  return allCategories.map(category => ({
+    params: { slug: category.data.categorySlug },
+    props: {
+      categoryData: category.data,
+      categorySlug: category.data.categorySlug,
+      categoryId: category.id
+    }
+  }));
+}
+
+const { categoryData, categorySlug, categoryId } = Astro.props;
+const { slug } = Astro.params;
+
+// Get TinaCMS data for visual editing
+// categoryId already includes the .mdx extension from getCollection
+const relativePath = categoryId.endsWith('.mdx') ? categoryId : `${categoryId}.mdx`;
+const tinaProps = await client.queries.categories({
+  relativePath
+});
+
+// Get all projects
+const allProjects = await getCollection('projects');
+
+// Filter projects that belong to this category
+const categoryProjects = allProjects.filter(project =>
+  project.data.categories?.includes(slug)
+);
+
+// Sort by year (newest first)
+const sortedProjects = categoryProjects.sort((a, b) => {
+  const yearA = a.data.yearCompleted || 0;
+  const yearB = b.data.yearCompleted || 0;
+  return yearB - yearA;
+});
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{categoryData.title} Projects - Justin Johnson</title>
+    {categoryData.description && (
+      <meta name="description" content={categoryData.description} />
+    )}
+    <ViewTransitions />
+  </head>
+  <body class="text-black overflow-x-hidden bg-white">
+    <!-- Sidebar Navigation -->
+    <SidebarNav />
+
+    <!-- Main Content Area -->
+    <main class="ml-0 md:ml-[max(22.8125rem,28%)] lg:ml-[max(22.8125rem,24%)] min-h-screen">
+      <div class="p-4 md:p-6 lg:p-8">
+        <div class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-light mb-3">
+            {categoryData.title}
+          </h1>
+          {categoryData.description && (
+            <p class="text-lg text-gray-600 leading-relaxed">
+              {categoryData.description}
+            </p>
+          )}
+          <p class="text-sm text-gray-500 mt-4">
+            {sortedProjects.length} {sortedProjects.length === 1 ? 'project' : 'projects'}
+          </p>
+        </div>
+
+        <ProjectGrid projects={sortedProjects} />
+
+        {/* TinaCMS visual editor (hidden from display, only for editing) */}
+        <div style="display: none;">
+          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+          <Category {...(tinaProps as any)} client:tina />
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

@@ -7,8 +7,10 @@ export const CategoriesCollection: Collection = {
   format: 'mdx',
   ui: {
     router: ({ document }) => {
-      const slug = document._sys.filename.replace(/\.mdx?$/, '')
-      return `/categories/${slug}`
+      // Get the categorySlug from the document data
+      const categorySlug =
+        (document as any).categorySlug || document._sys.filename.replace(/\.mdx?$/, '')
+      return `/projects/category/${categorySlug}`
     },
   },
   fields: [
