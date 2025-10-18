@@ -81,7 +81,7 @@ export const ProjectsCollection: Collection = {
           name: 'category',
           label: 'Category',
           collections: ['categories'],
-          required: true,
+          required: false,
         },
       ],
     },
