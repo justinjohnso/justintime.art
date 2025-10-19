@@ -275,33 +275,7 @@ const rows = chunkArray(remainingImages, 3);
       </>
     )}
 
-    <!-- Render Row 2/3: Additional images (first 2-3) if no video embed -->
-    {!hasVideoEmbed && row2Images.length > 0 && (
-      <section class="grid gap-2 mb-2">
-        <div class={`grid gap-2 ${
-          row2Images.length === 1 ? 'grid-cols-1' :
-          row2Images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
-        }`}>
-          {row2Images.map((image, index) => (
-            <a
-              href={image}
-              data-lightbox="gallery"
-              class="block group p-0 m-0"
-            >
-              <div class={`relative ${getAspectRatioClass(row2Images.length)}`}>
-                <img
-                  src={image}
-                  alt={`${project.data.title} image ${index + 1}`}
-                  class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
-                />
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Render Row 2/3: SoundCloud embed or image with body text -->
+    <!-- Render Row 2: SoundCloud embed or image with body text -->
     {((embedInfo && embedInfo.type === 'soundcloud') || row3Image) && (
       <section class="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch mb-2">
         {(embedInfo && embedInfo.type === 'soundcloud') ? (
@@ -333,6 +307,32 @@ const rows = chunkArray(remainingImages, 3);
         )}
         <div class="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
           <Content />
+        </div>
+      </section>
+    )}
+
+    <!-- Render Row 3: Additional images grid if no video embed -->
+    {!hasVideoEmbed && row2Images.length > 0 && (
+      <section class="grid gap-2 mb-2">
+        <div class={`grid gap-2 ${
+          row2Images.length === 1 ? 'grid-cols-1' :
+          row2Images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+        }`}>
+          {row2Images.map((image, index) => (
+            <a
+              href={image}
+              data-lightbox="gallery"
+              class="block group p-0 m-0"
+            >
+              <div class={`relative ${getAspectRatioClass(row2Images.length)}`}>
+                <img
+                  src={image}
+                  alt={`${project.data.title} image ${index + 1}`}
+                  class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
+                />
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     )}
