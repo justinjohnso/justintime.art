@@ -126,10 +126,25 @@ export const ProjectsCollection: Collection = {
       ],
     },
     {
-      type: 'image',
+      type: 'object',
       name: 'additionalImages',
       label: 'Additional Images',
       list: true,
+      ui: {
+        itemProps: (item) => {
+          return {
+            label: item?.image ? item.image.split('/').pop() : 'New Image',
+          }
+        },
+      },
+      fields: [
+        {
+          type: 'image',
+          name: 'image',
+          label: 'Image',
+          required: false,
+        },
+      ],
     },
     {
       type: 'rich-text',

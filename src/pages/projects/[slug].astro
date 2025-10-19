@@ -79,7 +79,9 @@ const getAspectRatioClass = (count: number): string => {
 };
 
 // Process additional images for layout
-const validImages = project.data.additionalImages || [];
+const validImages = (project.data.additionalImages || []).map(item => 
+  typeof item === 'string' ? item : item.image
+);
 const n = validImages.length;
 
 // Check if we have a video embed (non-SoundCloud) that affects layout

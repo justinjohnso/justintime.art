@@ -139,14 +139,20 @@ export default function Project(props: Props) {
       {/* Additional Images */}
       {project.additionalImages && project.additionalImages.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
-          {project.additionalImages.map((image, index) => (
-            <img
-              key={index}
-              src={image || ''}
-              alt={`${project.title} image ${index + 1}`}
-              className="w-full h-auto object-cover rounded"
-            />
-          ))}
+          {project.additionalImages
+            .filter((item: any) => item && (typeof item === 'string' || item.image))
+            .map((item: any, index: number) => {
+              const imageSrc = typeof item === 'string' ? item : item.image
+              return (
+                <img
+                  key={index}
+                  data-tina-field={typeof item === 'object' ? tinaField(item, 'image') : undefined}
+                  src={imageSrc}
+                  alt={`${project.title} image ${index + 1}`}
+                  className="w-full h-auto object-cover rounded"
+                />
+              )
+            })}
         </div>
       )}
     </article>

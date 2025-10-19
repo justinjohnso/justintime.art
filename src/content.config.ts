@@ -98,7 +98,7 @@ export const projects = defineCollection({
         }),
       )
       .optional(),
-    additionalImages: z.array(z.string()).optional(),
+    additionalImages: z.array(z.object({ image: z.string().optional() })).optional(),
     body: z.any().optional(),
   }),
 })
