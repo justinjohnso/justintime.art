@@ -60,6 +60,38 @@ export const PagesCollection: Collection = {
       ],
     },
     {
+      type: 'object',
+      name: 'categoryOrder',
+      label: 'Sidebar Category Order',
+      description: 'Drag to reorder categories in the sidebar navigation',
+      list: true,
+      ui: {
+        itemProps: (item) => {
+          // Extract a readable label from the category path
+          if (item?.category) {
+            // Convert "src/content/categories/web-development.mdx" to "web-development"
+            const slug = item.category.split('/').pop()?.replace('.mdx', '') || ''
+            // Convert kebab-case to Title Case for display
+            const label = slug
+              .split('-')
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ')
+            return { label: label || 'Select a category' }
+          }
+          return { label: 'Select a category' }
+        },
+      },
+      fields: [
+        {
+          type: 'reference',
+          name: 'category',
+          label: 'Category',
+          collections: ['categories'],
+          required: true,
+        },
+      ],
+    },
+    {
       type: 'string',
       name: '_metaSeparator',
       label: 'Meta Tags',

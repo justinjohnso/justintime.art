@@ -15,6 +15,11 @@ const categoryMetadata = new Map(
   allCategories.map(cat => [cat.data.categorySlug, cat.data])
 );
 
+// Get category order from home page
+const homePages = await getCollection('pages', ({ id }) => id === 'home.mdx');
+const homePage = homePages[0];
+const categoryOrderConfig = homePage?.data?.categoryOrder || [];
+
 // Debug: log category metadata
 console.log('DEBUG - categoryMetadata keys:', Array.from(categoryMetadata.keys()));
 console.log('DEBUG - physical-computing data:', categoryMetadata.get('physical-computing'));
@@ -73,12 +78,33 @@ if (uncategorizedProjects.length > 0) {
   categoryMap.set('uncategorized', uncategorizedProjects);
 }
 
-// Convert to array and sort categories alphabetically
-// Ensure both values being compared are strings
-const categories = Array.from(categoryMap.entries()).sort((a, b) => {
-  const aStr = String(a[0]);
-  const bStr = String(b[0]);
-  return aStr.localeCompare(bStr);
+// Sort categories based on categoryOrder from home page
+const categoryEntries = Array.from(categoryMap.entries());
+const categories = categoryEntries.sort((a, b) => {
+  const categorySlugA = String(a[0]);
+  const categorySlugB = String(b[0]);
+  
+  // Extract categorySlug from categoryOrder config
+  const getOrderIndex = (slug: string) => {
+    const index = categoryOrderConfig.findIndex((item: any) => {
+      if (item?.category) {
+        const itemSlug = item.category.split('/').pop()?.replace('.mdx', '');
+        return itemSlug === slug;
+      }
+      return false;
+    });
+    return index === -1 ? 999 : index; // Put unconfigured categories at the end
+  };
+  
+  const indexA = getOrderIndex(categorySlugA);
+  const indexB = getOrderIndex(categorySlugB);
+  
+  if (indexA !== indexB) {
+    return indexA - indexB;
+  }
+  
+  // Fall back to alphabetical for categories not in the order config
+  return categorySlugA.localeCompare(categorySlugB);
 });
 
 export interface Props {
