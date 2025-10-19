@@ -66,11 +66,12 @@ const readingTime = wordCount > 0 ? Math.ceil(wordCount / 200) : 1;
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={post.data.description || `${post.data.title} - Blog post by Justin Johnson`} />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{post.data.title} - Justin Johnson</title>
+  <meta charset="UTF-8" />
+  <meta name="description" content={post.data.description || `${post.data.title} - Blog post by Justin Johnson`} />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{post.data.title} - Justin Johnson</title>
     <ViewTransitions />
   </head>
   <body class="text-black bg-white">

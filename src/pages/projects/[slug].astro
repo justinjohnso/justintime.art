@@ -125,11 +125,12 @@ const rows = chunkArray(remainingImages, 3);
 <!DOCTYPE html>
 <html lang="en" style="scroll-behavior: smooth;">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={project.data.description || `${project.data.title} - Justin Johnson`} />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{project.data.title} - Justin Johnson</title>
+  <meta charset="UTF-8" />
+  <meta name="description" content={project.data.description || `${project.data.title} - Justin Johnson`} />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{project.data.title} - Justin Johnson</title>
     <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">

@@ -76,13 +76,14 @@ const categoryMetadata = allCategories.map(cat => ({
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{homePage?.data.title || 'Justin Johnson'}</title>
-    {homePage?.data.description && (
-      <meta name="description" content={homePage.data.description} />
-    )}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>{homePage?.data.title || 'Justin Johnson'}</title>
+  {homePage?.data.description && (
+    <meta name="description" content={homePage.data.description} />
+  )}
     <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
