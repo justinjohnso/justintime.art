@@ -105,7 +105,11 @@ if (hasVideoEmbed) {
   } else if (n === 3) {
     row2Images = validImages.slice(0, 2);
     row3Image = validImages[2] ?? null;
-  } else if (n >= 4) {
+  } else if (n === 4) {
+    // For exactly 4 images: row 2 gets 1 image with text, row 3 gets 3 images
+    row3Image = validImages[0] ?? null;
+    row2Images = validImages.slice(1, 4);
+  } else if (n >= 5) {
     row2Images = validImages.slice(0, 3);
     row3Image = validImages[3] ?? null;
     remainingImages = validImages.slice(4);
