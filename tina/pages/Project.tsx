@@ -75,8 +75,8 @@ export default function Project(props: Props) {
       {project.image && (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 items-start">
           {/* Hero Text */}
-          <div className="md:col-span-1 relative flex flex-col min-h-[350px]">
-            <div className="flex-1 flex flex-col pb-6 pr-6">
+          <div className="md:col-span-1 relative flex flex-col md:min-h-[350px]">
+            <div className="flex-1 flex flex-col pb-6 md:pr-6">
               <h1
                 data-tina-field={tinaField(project, 'title')}
                 className="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2"
@@ -140,7 +140,7 @@ export default function Project(props: Props) {
           {/* Hero Image */}
           <div
             data-tina-field={tinaField(project, 'image')}
-            className="md:col-span-1 block group relative overflow-hidden h-full min-h-[350px]"
+            className="md:col-span-1 block group relative overflow-hidden h-full min-h-[250px] md:min-h-[350px]"
           >
             <img
               src={project.image || ''}
