@@ -84,19 +84,27 @@ const validImages = (project.data.additionalImages || []).map(item =>
 );
 const n = validImages.length;
 
-// Check if we have a video embed (non-SoundCloud) that affects layout
-const hasVideoEmbed = embedInfo && embedInfo.type !== 'soundcloud';
+// Check if we have a media embed (video or SoundCloud) that affects layout
+const hasMediaEmbed = embedInfo !== null;
 
 let row2Images: string[] = [];
 let row3Image: string | null = null;
 let remainingImages: string[] = [];
 
-if (hasVideoEmbed) {
-  // When video present: row 2 is image+text, video is row 3, then remaining images from row 4+
-  row3Image = validImages[0] ?? null;  // First image goes with body text
-  remainingImages = validImages.slice(1);  // All other images cascade after video
+if (hasMediaEmbed) {
+  // When media embed present: row 2 is image+text, media embed is row 3, then remaining images from row 4+
+  // Special case: if only 1 image, don't put it with text - treat as normal layout
+  if (n === 1) {
+    // With 1 image + media: hero row has text+image, row 2 has media embed
+    row3Image = null;
+    remainingImages = [];
+  } else {
+    // With 2+ images: first image goes with body text in row 2, media in row 3, rest after
+    row3Image = validImages[0] ?? null;
+    remainingImages = validImages.slice(1);
+  }
 } else {
-  // No video: standard layout with row 2 images, row 3 image+text, row 4+ remaining
+  // No media embed: standard layout with row 2 images, row 3 image+text, row 4+ remaining
   if (n === 1) {
     row3Image = validImages[0] ?? null;
   } else if (n === 2) {
@@ -116,11 +124,12 @@ if (hasVideoEmbed) {
   }
 }
 
+// Chunk remainingImages into rows of 3
 const rows = chunkArray(remainingImages, 3);
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="scroll-behavior: smooth;">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={project.data.description || `${project.data.title} - Justin Johnson`} />
@@ -146,8 +155,8 @@ const rows = chunkArray(remainingImages, 3);
     <!-- HERO SECTION -->
     {project.data.image && (
       <>
-        {/* If only hero image (no additional images), stack vertically at full width */}
-        {validImages.length === 0 ? (
+        {/* If only hero image (no additional images) AND no media embed, stack vertically at full width */}
+        {validImages.length === 0 && !hasMediaEmbed ? (
           <>
             {/* Hero Text - Full Width */}
             <section class="mb-2">
@@ -172,23 +181,35 @@ const rows = chunkArray(remainingImages, 3);
                 )}
 
                 {/* Links */}
-                {project.data.links && project.data.links.length > 0 && (
-                  <div class="flex flex-wrap gap-3">
-                    {project.data.links.map((link) => (
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
-                      >
-                        {link.title}
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                        </svg>
-                      </a>
-                    ))}
-                  </div>
-                )}
+                <div class="flex flex-wrap gap-3">
+                  {/* Media embed link */}
+                  {embedInfo && (
+                    <a
+                      href="#media-embed"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                    >
+                      {embedInfo.type === 'soundcloud' || embedInfo.type === 'audio' ? 'Listen' : 'Watch'}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </a>
+                  )}
+                  
+                  {/* External links */}
+                  {project.data.links && project.data.links.map((link) => (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                    >
+                      {link.title}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                      </svg>
+                    </a>
+                  ))}
+                </div>
               </div>
             </section>
 
@@ -236,23 +257,35 @@ const rows = chunkArray(remainingImages, 3);
                 )}
 
                 {/* Links */}
-                {project.data.links && project.data.links.length > 0 && (
-                  <div class="flex flex-wrap gap-3">
-                    {project.data.links.map((link) => (
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
-                      >
-                        {link.title}
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                        </svg>
-                      </a>
-                    ))}
-                  </div>
-                )}
+                <div class="flex flex-wrap gap-3">
+                  {/* Media embed link */}
+                  {embedInfo && (
+                    <a
+                      href="#media-embed"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                    >
+                      {embedInfo.type === 'soundcloud' || embedInfo.type === 'audio' ? 'Listen' : 'Watch'}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </a>
+                  )}
+                  
+                  {/* External links */}
+                  {project.data.links && project.data.links.map((link) => (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                    >
+                      {link.title}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                      </svg>
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -275,44 +308,28 @@ const rows = chunkArray(remainingImages, 3);
       </>
     )}
 
-    <!-- Render Row 2: SoundCloud embed or image with body text -->
-    {((embedInfo && embedInfo.type === 'soundcloud') || row3Image) && (
+    <!-- Render Row 2: Image with body text (when media embed present) -->
+    {row3Image && (
       <section class="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch mb-2">
-        {(embedInfo && embedInfo.type === 'soundcloud') ? (
-          <!-- SoundCloud Embed -->
-          <div class="relative h-full min-h-[350px]">
-            <iframe
-              width="100%"
-              height="100%"
-              scrolling="no"
-              frameborder="no"
-              allow="autoplay"
-              src={embedInfo.embedUrl}
-              title={project.data.title}
-              class="absolute inset-0 min-h-[350px]"
-            ></iframe>
-          </div>
-        ) : row3Image && (
-          <a
-            href={row3Image}
-            data-lightbox="gallery"
-            class="block group p-0 m-0 relative h-full min-h-[350px]"
-          >
-            <img
-              src={row3Image}
-              alt={`${project.data.title} secondary image`}
-              class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
-            />
-          </a>
-        )}
+        <a
+          href={row3Image}
+          data-lightbox="gallery"
+          class="block group p-0 m-0 relative h-full min-h-[350px]"
+        >
+          <img
+            src={row3Image}
+            alt={`${project.data.title} secondary image`}
+            class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
+          />
+        </a>
         <div class="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
           <Content />
         </div>
       </section>
     )}
 
-    <!-- Render Row 3: Additional images grid if no video embed -->
-    {!hasVideoEmbed && row2Images.length > 0 && (
+    <!-- Render Row 3: Additional images grid if no media embed -->
+    {!hasMediaEmbed && row2Images.length > 0 && (
       <section class="grid gap-2 mb-2">
         <div class={`grid gap-2 ${
           row2Images.length === 1 ? 'grid-cols-1' :
@@ -337,9 +354,41 @@ const rows = chunkArray(remainingImages, 3);
       </section>
     )}
 
-    <!-- Render Row 3/4: Video embed (full width) if present and not SoundCloud -->
-    {hasVideoEmbed && (
-      <section class="mb-2">
+    <!-- Render Row 3: Media embed (video, SoundCloud, or audio) full width -->
+    {embedInfo && embedInfo.type === 'soundcloud' && (
+      <section class="mb-2" id="media-embed">
+        <div class="relative w-full min-h-[350px]">
+          <iframe
+            width="100%"
+            height="100%"
+            scrolling="no"
+            frameborder="no"
+            allow="autoplay"
+            src={embedInfo.embedUrl}
+            title={project.data.title}
+            class="min-h-[350px]"
+          ></iframe>
+        </div>
+      </section>
+    )}
+
+    {embedInfo && embedInfo.type === 'audio' && (
+      <section class="mb-2" id="media-embed">
+        <div class="relative w-full flex items-center justify-center py-8">
+          <audio
+            controls
+            class="w-full"
+            preload="metadata"
+          >
+            <source src={embedInfo.embedUrl} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      </section>
+    )}
+
+    {embedInfo && embedInfo.type !== 'soundcloud' && embedInfo.type !== 'audio' && (
+      <section class="mb-2" id="media-embed">
         <div class="relative w-full min-h-[350px]">
           <iframe
             src={embedInfo.embedUrl}
@@ -354,33 +403,7 @@ const rows = chunkArray(remainingImages, 3);
       </section>
     )}
 
-    <!-- Render Row 3/4: Additional images if video embed present -->
-    {hasVideoEmbed && row2Images.length > 0 && (
-      <section class="grid gap-2 mb-2">
-        <div class={`grid gap-2 ${
-          row2Images.length === 1 ? 'grid-cols-1' :
-          row2Images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
-        }`}>
-          {row2Images.map((image, index) => (
-            <a
-              href={image}
-              data-lightbox="gallery"
-              class="block group p-0 m-0"
-            >
-              <div class={`relative ${getAspectRatioClass(row2Images.length)}`}>
-                <img
-                  src={image}
-                  alt={`${project.data.title} image ${index + 1}`}
-                  class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
-                />
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Render Remaining Alternating Rows -->
+    <!-- Render Remaining Rows (3 per row) -->
     {rows.map((row) => {
       const gridColsClass =
         row.length === 1 ? 'grid-cols-1' :

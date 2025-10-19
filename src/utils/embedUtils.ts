@@ -3,7 +3,7 @@
  */
 
 export interface EmbedInfo {
-  type: 'vimeo' | 'youtube' | 'soundcloud' | 'unknown'
+  type: 'vimeo' | 'youtube' | 'soundcloud' | 'audio' | 'unknown'
   embedUrl: string
   aspectRatio: string
 }
@@ -75,6 +75,17 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
       return {
         type: 'soundcloud',
         embedUrl: `https://w.soundcloud.com/player/?url=${trackUrl}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
+        aspectRatio: '16/9',
+      }
+    }
+
+    // Audio files (MP3, WAV, OGG, etc.)
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac']
+    const pathname = urlObj.pathname.toLowerCase()
+    if (audioExtensions.some(ext => pathname.endsWith(ext))) {
+      return {
+        type: 'audio',
+        embedUrl: url,
         aspectRatio: '16/9',
       }
     }
