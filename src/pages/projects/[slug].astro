@@ -126,68 +126,136 @@ const rows = chunkArray(remainingAlt, 3);
 
       <!-- Static content (hidden when in TinaCMS iframe) -->
       <article id="static-content" class="p-4 md:p-6 lg:p-8 pb-12">
-    <!-- HERO SECTION – Text on left, hero image on right -->
+    <!-- HERO SECTION -->
     {project.data.image && (
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 items-start">
-        <!-- Hero Text Container -->
-        <div class="md:col-span-1 relative flex flex-col min-h-[350px]">
-          <!-- Main text content -->
-          <div class="flex-1 flex flex-col">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
-              {project.data.title}
-            </h1>
+      <>
+        {/* If only hero image (no additional images), stack vertically at full width */}
+        {validImages.length === 0 ? (
+          <>
+            {/* Hero Text - Full Width */}
+            <section class="mb-2">
+              <div class="flex flex-col pb-6">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
+                  {project.data.title}
+                </h1>
 
-            {/* Year */}
-            {project.data.dateCompleted && (
-              <p class="text-base text-gray-600 mb-1">{new Date(project.data.dateCompleted).getFullYear()}</p>
-            )}
+                {/* Year */}
+                {project.data.dateCompleted && (
+                  <p class="text-base text-gray-600 mb-1">{new Date(project.data.dateCompleted).getFullYear()}</p>
+                )}
 
-            {/* Categories with display names */}
-            {categoryDisplayNames.length > 0 && (
-              <p class="text-base text-gray-600 mb-3">{categoryDisplayNames.join(', ')}</p>
-            )}
+                {/* Categories with display names */}
+                {categoryDisplayNames.length > 0 && (
+                  <p class="text-base text-gray-600 mb-3">{categoryDisplayNames.join(', ')}</p>
+                )}
 
-            {/* Description */}
-            {project.data.description && (
-              <p class="text-base text-gray-600 mb-3">{project.data.description}</p>
-            )}
+                {/* Description */}
+                {project.data.description && (
+                  <p class="text-base text-gray-600 mb-3">{project.data.description}</p>
+                )}
 
-            {/* Links */}
-            {project.data.links && project.data.links.length > 0 && (
-              <div class="flex flex-wrap gap-3">
-                {project.data.links.map((link) => (
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
-                  >
-                    {link.title}
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                  </a>
-                ))}
+                {/* Links */}
+                {project.data.links && project.data.links.length > 0 && (
+                  <div class="flex flex-wrap gap-3">
+                    {project.data.links.map((link) => (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                      >
+                        {link.title}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </section>
 
-        <!-- Hero Image Column -->
-        <a
-          href={project.data.image}
-          data-lightbox="gallery"
-          class="md:col-span-1 block group relative overflow-hidden h-full min-h-[350px]"
-        >
-          <img
-            src={project.data.image}
-            alt={project.data.title}
-            class="absolute inset-0 w-full h-full object-cover transition-all duration-300"
-          />
-          <!-- White overlay on hover -->
-          <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </a>
-      </section>
+            {/* Hero Image - Full Width */}
+            <section class="mb-2">
+              <a
+                href={project.data.image}
+                data-lightbox="gallery"
+                class="block group relative overflow-hidden min-h-[350px]"
+              >
+                <img
+                  src={project.data.image}
+                  alt={project.data.title}
+                  class="w-full h-full object-cover transition-all duration-300"
+                />
+                <!-- White overlay on hover -->
+                <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </a>
+            </section>
+          </>
+        ) : (
+          /* Default: Text on left, hero image on right */
+          <section class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2 items-start">
+            {/* Hero Text Container */}
+            <div class="md:col-span-1 relative flex flex-col min-h-[350px]">
+              {/* Main text content */}
+              <div class="flex-1 flex flex-col pb-6 pr-6">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
+                  {project.data.title}
+                </h1>
+
+                {/* Year */}
+                {project.data.dateCompleted && (
+                  <p class="text-base text-gray-600 mb-1">{new Date(project.data.dateCompleted).getFullYear()}</p>
+                )}
+
+                {/* Categories with display names */}
+                {categoryDisplayNames.length > 0 && (
+                  <p class="text-base text-gray-600 mb-3">{categoryDisplayNames.join(', ')}</p>
+                )}
+
+                {/* Description */}
+                {project.data.description && (
+                  <p class="text-base text-gray-600 mb-3">{project.data.description}</p>
+                )}
+
+                {/* Links */}
+                {project.data.links && project.data.links.length > 0 && (
+                  <div class="flex flex-wrap gap-3">
+                    {project.data.links.map((link) => (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
+                      >
+                        {link.title}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Hero Image Column */}
+            <a
+              href={project.data.image}
+              data-lightbox="gallery"
+              class="md:col-span-1 block group relative overflow-hidden h-full min-h-[350px]"
+            >
+              <img
+                src={project.data.image}
+                alt={project.data.title}
+                class="absolute inset-0 w-full h-full object-cover transition-all duration-300"
+              />
+              {/* White overlay on hover */}
+              <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+          </section>
+        )}
+      </>
     )}
 
     <!-- Render Row 2 if defined (first 2-3 additional images) -->
