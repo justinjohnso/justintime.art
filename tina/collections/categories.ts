@@ -25,7 +25,7 @@ export const CategoriesCollection: Collection = {
       type: 'string',
       name: 'categorySlug',
       label: 'Category Slug',
-      description: 'URL-friendly identifier (e.g., web-development, sound-design)',
+      description: 'URL-friendly identifier (e.g., web-development, audio-installations)',
       required: true,
     },
     {

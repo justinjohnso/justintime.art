@@ -27,7 +27,7 @@ export const projects = defineCollection({
 
                     if (!categoryData) return null
 
-                    // If categoryData is a string path (e.g., "src/content/categories/sound-design.mdx"), extract filename
+                    // If categoryData is a string path (e.g., "src/content/categories/audio-installations.mdx"), extract filename
                     if (typeof categoryData === 'string') {
                       const match = categoryData.match(/([^/]+)\.mdx?$/)
                       if (match && match[1]) {

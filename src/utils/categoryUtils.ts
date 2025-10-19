@@ -15,7 +15,7 @@ export function extractCategorySlug(category: any): string | null {
     return category
   }
 
-  // If it's a file path (e.g., "src/content/categories/sound-design.mdx")
+  // If it's a file path (e.g., "src/content/categories/audio-installations.mdx")
   if (typeof category === 'string' && category.includes('/')) {
     const match = category.match(/([^/]+)\.mdx?$/)
     return match ? match[1] : null

@@ -63,7 +63,7 @@ export const ProjectsCollection: Collection = {
         itemProps: (item) => {
           // Extract a readable label from the category reference
           if (item?.category) {
-            // Convert "src/content/categories/sound-design.mdx" to readable format
+            // Convert "src/content/categories/audio-installations.mdx" to readable format
             const slug = item.category.split('/').pop()?.replace('.mdx', '') || ''
             // Convert kebab-case to Title Case for display
             const label = slug
