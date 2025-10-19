@@ -22,3 +22,18 @@ footer {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* Consistent heading styles across site */
+/* H1s scale down to H2 size on mobile/tablet */
+h1 {
+  @apply text-2xl lg:text-3xl font-light;
+}
+
+/* Prose (Markdown) content keeps its own styles */
+.prose h1 {
+  @apply text-2xl lg:text-3xl;
+}
+
+.prose h2 {
+  @apply text-xl lg:text-2xl;
+}

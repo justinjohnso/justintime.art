@@ -41,14 +41,16 @@ const { projects } = Astro.props;
 </div>
 
 <script>
+  import { BREAKPOINTS } from '../utils/constants';
+
   function initProjectGrid() {
     const grid = document.getElementById('project-grid');
     const allItems = Array.from(document.querySelectorAll('.project-item')) as HTMLElement[];
     if (!grid || !allItems.length) return;
 
     const getColumns = () => {
-      if (window.innerWidth < 640) return 1;
-      if (window.innerWidth < 1024) return 2;
+      if (window.innerWidth < BREAKPOINTS.SM) return 1;
+      if (window.innerWidth < BREAKPOINTS.LG) return 2;
       return 3;
     };
 

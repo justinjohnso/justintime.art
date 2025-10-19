@@ -16,11 +16,6 @@ export const projects = defineCollection({
           const categories = Array.isArray(node?.categories)
             ? node.categories
                 .map((catItem: any) => {
-                  // Debug logging for first project
-                  if (node?.title === 'Behold The Dreamers') {
-                    console.log('LOADER DEBUG - catItem:', JSON.stringify(catItem, null, 2))
-                  }
-
                   // If it's already a string (simple format), use it directly
                   if (typeof catItem === 'string') {
                     return catItem
@@ -36,9 +31,6 @@ export const projects = defineCollection({
                     if (typeof categoryData === 'string') {
                       const match = categoryData.match(/([^/]+)\.mdx?$/)
                       if (match && match[1]) {
-                        if (node?.title === 'Behold The Dreamers') {
-                          console.log('LOADER DEBUG - Extracted slug from string path:', match[1])
-                        }
                         return match[1]
                       }
                     }

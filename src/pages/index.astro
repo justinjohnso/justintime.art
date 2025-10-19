@@ -1,6 +1,7 @@
 ---
 import SidebarNav from '../components/SidebarNav.astro';
 import MobileTopNav from '../components/MobileTopNav.astro';
+import MainContent from '../layouts/MainContent.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { ViewTransitions } from 'astro:transitions';
@@ -92,7 +93,7 @@ const categoryMetadata = allCategories.map(cat => ({
     <SidebarNav />
 
     <!-- Main Content Area -->
-    <main class="ml-0 md:ml-[max(18rem,28%)] lg:ml-[max(18rem,24%)] min-h-screen pt-16 md:pt-0">
+    <MainContent>
       <!-- Homepage content from CMS -->
       <div id="homepage-content">
         {HomeContent && (
@@ -121,7 +122,7 @@ const categoryMetadata = allCategories.map(cat => ({
       <div class="p-4 md:p-6 lg:p-8">
         <ProjectGrid projects={orderedProjects} />
       </div>
-    </main>
+    </MainContent>
 
     <script define:vars={{ categoryMetadata, allProjectsData: orderedProjects.map(p => ({
       categories: p.data.categories?.map((cat: any) => {

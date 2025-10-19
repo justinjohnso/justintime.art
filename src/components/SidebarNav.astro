@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { extractCategorySlug } from '../utils/categoryUtils';
 
 // Get all projects and sort by date (newest first)
 const allProjects = await getCollection('projects');
@@ -20,10 +21,6 @@ const homePages = await getCollection('pages', ({ id }) => id === 'home.mdx');
 const homePage = homePages[0];
 const categoryOrderConfig = homePage?.data?.categoryOrder || [];
 
-// Debug: log category metadata
-console.log('DEBUG - categoryMetadata keys:', Array.from(categoryMetadata.keys()));
-console.log('DEBUG - physical-computing data:', categoryMetadata.get('physical-computing'));
-
 // Also create a map from filename to categorySlug for backward compatibility
 const filenameToCategorySlug = new Map<string, string>(
   allCategories.map(cat => [cat.id, cat.data.categorySlug])
@@ -36,23 +33,10 @@ const uncategorizedProjects: typeof sortedProjects = [];
 
 sortedProjects.forEach((project) => {
   if (project.data.categories && project.data.categories.length > 0) {
-    let firstCategory = project.data.categories[0];
-    let categorySlug: string | undefined;
-
-    // Handle both string format and object format
-    if (typeof firstCategory === 'string') {
-      categorySlug = firstCategory;
-    } else if (firstCategory && typeof firstCategory === 'object' && 'category' in firstCategory) {
-      // Extract slug from reference path like "src/content/categories/sound-design.mdx"
-      const categoryPath = firstCategory.category as string;
-      const match = categoryPath.match(/([^/]+)\.mdx?$/);
-      if (match) {
-        categorySlug = match[1];
-      }
-    }
+    const firstCategory = project.data.categories[0];
+    const categorySlug = extractCategorySlug(firstCategory);
 
     if (categorySlug) {
-      // Convert filename to categorySlug if needed (check if it's actually a filename)
       const mappedSlug = filenameToCategorySlug.get(categorySlug) || categorySlug;
 
       // Only add project if it hasn't been added yet (first category only)
@@ -119,7 +103,7 @@ const { currentProjectSlug } = Astro.props;
 
     <!-- Header -->
     <div class="mb-8 pb-6 border-b border-gray-200">
-      <a href="/" class="hidden">
+      <a href="/" class="hidden md:block">
         <h1 class="text-2xl md:text-3xl font-light mb-2 group-hover:text-gray-600 transition-colors">
           Justin Johnson
         </h1>
@@ -190,13 +174,6 @@ const { currentProjectSlug } = Astro.props;
       {categories.map(([categorySlug, projects]) => {
         const categoryData = categoryMetadata.get(categorySlug);
         const displayName = categoryData?.title || categorySlug;
-
-        // Debug specific category
-        if (categorySlug === 'physical-computing') {
-          console.log('DEBUG - Rendering physical-computing');
-          console.log('DEBUG - categoryData:', categoryData);
-          console.log('DEBUG - displayName:', displayName);
-        }
 
         return (
           <div class="category-section mb-8">

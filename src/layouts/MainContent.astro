@@ -1,0 +1,15 @@
+---
+/**
+ * Main content layout wrapper
+ * Handles consistent spacing for sidebar margin and mobile top nav padding
+ */
+export interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<main class={`ml-0 md:ml-[max(18rem,28%)] lg:ml-[max(18rem,24%)] min-h-screen pt-16 md:pt-0 ${className}`}>
+  <slot />
+</main>

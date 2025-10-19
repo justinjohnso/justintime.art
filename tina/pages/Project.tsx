@@ -79,7 +79,7 @@ export default function Project(props: Props) {
             <div className="flex-1 flex flex-col pb-6 md:pr-6">
               <h1
                 data-tina-field={tinaField(project, 'title')}
-                className="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2"
+                className="text-2xl lg:text-3xl font-light text-black mb-2"
               >
                 {project.title}
               </h1>

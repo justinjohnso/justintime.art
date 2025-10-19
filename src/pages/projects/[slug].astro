@@ -2,7 +2,9 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import SidebarNav from '../../components/SidebarNav.astro';
 import MobileTopNav from '../../components/MobileTopNav.astro';
+import MainContent from '../../layouts/MainContent.astro';
 import { getEmbedInfo } from '../../utils/embedUtils';
+import { extractCategorySlug } from '../../utils/categoryUtils';
 import '../../styles/global.css';
 import client from '../../../tina/__generated__/client';
 import Project from '../../../tina/pages/Project';
@@ -43,24 +45,15 @@ const categoryMetadata = new Map(
 );
 
 // Get display names for project categories
-// Categories are now objects with a 'category' property containing the file path
 const categoryDisplayNames = project.data.categories?.map((cat: any) => {
-  // Extract slug from the category path (e.g., "src/content/categories/theatre.mdx" -> "theatre")
-  const catPath = cat.category || cat;
-  const catSlug = catPath.split('/').pop()?.replace('.mdx', '');
+  const catSlug = extractCategorySlug(cat);
+  if (!catSlug) return null;
   const catData = categoryMetadata.get(catSlug);
   return catData?.title || catSlug;
 }).filter(Boolean) || [];
 
 // Check for media embed - trim whitespace/newlines that might come from YAML formatting
 const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed.trim()) : null;
-
-// Debug logging
-if (project.data.mediaEmbed) {
-  console.log('Project:', project.data.title);
-  console.log('Media Embed URL:', project.data.mediaEmbed);
-  console.log('Embed Info:', embedInfo);
-}
 
 // Helper: split an array into chunks of the given size
 const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
@@ -147,7 +140,7 @@ const rows = chunkArray(remainingImages, 3);
     <SidebarNav currentProjectSlug={project.slug} />
 
     <!-- Main Content Area -->
-    <main class="ml-0 md:ml-[max(18rem,28%)] lg:ml-[max(18rem,24%)] min-h-screen pt-16 md:pt-0">
+    <MainContent>
       <!-- TinaCMS Visual Editor Component (only renders in TinaCMS iframe) -->
       <div id="tina-wrapper" style="display: none;">
         <!-- @ts-ignore: client:tina is an Astro directive, not a prop type -->
@@ -165,7 +158,7 @@ const rows = chunkArray(remainingImages, 3);
             {/* Hero Text - Full Width */}
             <section class="mb-2">
               <div class="flex flex-col pb-6">
-                <h1 class="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
+                <h1 class="text-2xl lg:text-3xl font-light text-black mb-2">
                   {project.data.title}
                 </h1>
 
@@ -241,7 +234,7 @@ const rows = chunkArray(remainingImages, 3);
             <div class="md:col-span-1 relative flex flex-col md:min-h-[350px]">
               {/* Main text content */}
               <div class="flex-1 flex flex-col pb-6 md:pr-6">
-                <h1 class="text-2xl md:text-3xl lg:text-4xl font-medium text-black mb-2">
+                <h1 class="text-2xl lg:text-3xl font-light text-black mb-2">
                   {project.data.title}
                 </h1>
 
@@ -436,7 +429,7 @@ const rows = chunkArray(remainingImages, 3);
     })}
 
       </article>
-    </main>
+    </MainContent>
 
 <!-- Lightbox functionality -->
 <script>

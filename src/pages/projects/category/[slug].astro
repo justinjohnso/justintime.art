@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { ViewTransitions } from 'astro:transitions';
 import SidebarNav from '../../../components/SidebarNav.astro';
 import MobileTopNav from '../../../components/MobileTopNav.astro';
+import MainContent from '../../../layouts/MainContent.astro';
 import ProjectGrid from '../../../components/ProjectGrid.astro';
 import Category from '../../../../tina/pages/Category';
 import client from '../../../../tina/__generated__/client';
@@ -106,10 +107,10 @@ const sortedProjects = [...featuredProjects, ...nonFeaturedProjects];
     <SidebarNav />
 
     <!-- Main Content Area -->
-    <main class="ml-0 md:ml-[max(18rem,28%)] lg:ml-[max(18rem,24%)] min-h-screen pt-16 md:pt-0">
+    <MainContent>
       <div class="p-4 md:p-6 lg:p-8">
         <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl font-light mb-3">
+          <h1 class="text-2xl lg:text-3xl font-light mb-3">
             {categoryData.title}
           </h1>
           {categoryData.description && (
@@ -130,7 +131,7 @@ const sortedProjects = [...featuredProjects, ...nonFeaturedProjects];
           <Category {...(tinaProps as any)} client:tina />
         </div>
       </div>
-    </main>
+    </MainContent>
 
     <script>
       function initTinaVisibility() {
