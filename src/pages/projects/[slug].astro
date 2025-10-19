@@ -81,25 +81,36 @@ const getAspectRatioClass = (count: number): string => {
 // Process additional images for layout
 const validImages = project.data.additionalImages || [];
 const n = validImages.length;
+
+// Check if we have a video embed (non-SoundCloud) that affects layout
+const hasVideoEmbed = embedInfo && embedInfo.type !== 'soundcloud';
+
 let row2Images: string[] = [];
 let row3Image: string | null = null;
-let remainingAlt: string[] = [];
+let remainingImages: string[] = [];
 
-if (n === 1) {
-  row3Image = validImages[0] ?? null;
-} else if (n === 2) {
-  row3Image = validImages[0] ?? null;
-  remainingAlt = validImages.slice(1);
-} else if (n === 3) {
-  row2Images = validImages.slice(0, 2);
-  row3Image = validImages[2] ?? null;
-} else if (n >= 4) {
-  row2Images = validImages.slice(0, 3);
-  row3Image = validImages[3] ?? null;
-  remainingAlt = validImages.slice(4);
+if (hasVideoEmbed) {
+  // When video present: row 2 is image+text, video is row 3, then remaining images from row 4+
+  row3Image = validImages[0] ?? null;  // First image goes with body text
+  remainingImages = validImages.slice(1);  // All other images cascade after video
+} else {
+  // No video: standard layout with row 2 images, row 3 image+text, row 4+ remaining
+  if (n === 1) {
+    row3Image = validImages[0] ?? null;
+  } else if (n === 2) {
+    row3Image = validImages[0] ?? null;
+    remainingImages = validImages.slice(1);
+  } else if (n === 3) {
+    row2Images = validImages.slice(0, 2);
+    row3Image = validImages[2] ?? null;
+  } else if (n >= 4) {
+    row2Images = validImages.slice(0, 3);
+    row3Image = validImages[3] ?? null;
+    remainingImages = validImages.slice(4);
+  }
 }
 
-const rows = chunkArray(remainingAlt, 3);
+const rows = chunkArray(remainingImages, 3);
 ---
 
 <!DOCTYPE html>
@@ -258,8 +269,8 @@ const rows = chunkArray(remainingAlt, 3);
       </>
     )}
 
-    <!-- Render Row 2 if defined (first 2-3 additional images) -->
-    {row2Images.length > 0 && (
+    <!-- Render Row 2/3: Additional images (first 2-3) if no video embed -->
+    {!hasVideoEmbed && row2Images.length > 0 && (
       <section class="grid gap-2 mb-2">
         <div class={`grid gap-2 ${
           row2Images.length === 1 ? 'grid-cols-1' :
@@ -284,34 +295,22 @@ const rows = chunkArray(remainingAlt, 3);
       </section>
     )}
 
-    <!-- Render Row 3: Media embed or image with body text -->
-    {(embedInfo || row3Image) && (
+    <!-- Render Row 2/3: SoundCloud embed or image with body text -->
+    {((embedInfo && embedInfo.type === 'soundcloud') || row3Image) && (
       <section class="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch mb-2">
-        {embedInfo ? (
-          <!-- Media Embed -->
+        {(embedInfo && embedInfo.type === 'soundcloud') ? (
+          <!-- SoundCloud Embed -->
           <div class="relative h-full min-h-[350px]">
-            {embedInfo.type === 'soundcloud' ? (
-              <iframe
-                width="100%"
-                height="100%"
-                scrolling="no"
-                frameborder="no"
-                allow="autoplay"
-                src={embedInfo.embedUrl}
-                title={project.data.title}
-                class="absolute inset-0 min-h-[350px]"
-              ></iframe>
-            ) : (
-              <iframe
-                src={embedInfo.embedUrl}
-                style={`aspect-ratio: ${embedInfo.aspectRatio}`}
-                class="w-full h-full min-h-[350px]"
-                frameborder="0"
-                allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-                allowfullscreen
-                title={project.data.title}
-              ></iframe>
-            )}
+            <iframe
+              width="100%"
+              height="100%"
+              scrolling="no"
+              frameborder="no"
+              allow="autoplay"
+              src={embedInfo.embedUrl}
+              title={project.data.title}
+              class="absolute inset-0 min-h-[350px]"
+            ></iframe>
           </div>
         ) : row3Image && (
           <a
@@ -328,6 +327,49 @@ const rows = chunkArray(remainingAlt, 3);
         )}
         <div class="order-2 prose prose-base max-w-none text-gray-700 mt-1 mb-1 ml-2 -mr-4">
           <Content />
+        </div>
+      </section>
+    )}
+
+    <!-- Render Row 3/4: Video embed (full width) if present and not SoundCloud -->
+    {hasVideoEmbed && (
+      <section class="mb-2">
+        <div class="relative w-full min-h-[350px]">
+          <iframe
+            src={embedInfo.embedUrl}
+            style={`aspect-ratio: ${embedInfo.aspectRatio}`}
+            class="w-full h-full min-h-[350px]"
+            frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+            allowfullscreen
+            title={project.data.title}
+          ></iframe>
+        </div>
+      </section>
+    )}
+
+    <!-- Render Row 3/4: Additional images if video embed present -->
+    {hasVideoEmbed && row2Images.length > 0 && (
+      <section class="grid gap-2 mb-2">
+        <div class={`grid gap-2 ${
+          row2Images.length === 1 ? 'grid-cols-1' :
+          row2Images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+        }`}>
+          {row2Images.map((image, index) => (
+            <a
+              href={image}
+              data-lightbox="gallery"
+              class="block group p-0 m-0"
+            >
+              <div class={`relative ${getAspectRatioClass(row2Images.length)}`}>
+                <img
+                  src={image}
+                  alt={`${project.data.title} image ${index + 1}`}
+                  class="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:opacity-90"
+                />
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     )}
