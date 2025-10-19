@@ -136,6 +136,9 @@ export const ProjectsCollection: Collection = {
             label: item?.image ? item.image.split('/').pop() : 'New Image',
           }
         },
+        defaultItem: {
+          image: '',
+        },
       },
       fields: [
         {

@@ -164,7 +164,7 @@ const rows = chunkArray(remainingImages, 3);
 
                 {/* Description */}
                 {project.data.description && (
-                  <p class="text-base text-gray-600 mb-3">{project.data.description}</p>
+                  <p class="text-base text-gray-600 mb-3 whitespace-pre-line">{project.data.description}</p>
                 )}
 
                 {/* Links */}
@@ -228,7 +228,7 @@ const rows = chunkArray(remainingImages, 3);
 
                 {/* Description */}
                 {project.data.description && (
-                  <p class="text-base text-gray-600 mb-3">{project.data.description}</p>
+                  <p class="text-base text-gray-600 mb-3 whitespace-pre-line">{project.data.description}</p>
                 )}
 
                 {/* Links */}
@@ -409,8 +409,13 @@ const rows = chunkArray(remainingImages, 3);
 
 <!-- Lightbox functionality -->
 <script>
-  // Simple lightbox implementation
-  document.addEventListener('DOMContentLoaded', () => {
+  function initLightbox() {
+    // Remove any existing lightbox first
+    const existingLightbox = document.querySelector('.lightbox');
+    if (existingLightbox) {
+      existingLightbox.remove();
+    }
+
     const galleryLinks = document.querySelectorAll('a[data-lightbox="gallery"]');
 
     if (galleryLinks.length === 0) return;
@@ -481,14 +486,22 @@ const rows = chunkArray(remainingImages, 3);
     });
 
     // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
+    const handleKeydown = (e: KeyboardEvent) => {
       if (!lightbox.classList.contains('active')) return;
 
       if (e.key === 'Escape') hideImage();
       if (e.key === 'ArrowRight') showNext();
       if (e.key === 'ArrowLeft') showPrev();
-    });
-  });
+    };
+
+    document.addEventListener('keydown', handleKeydown);
+  }
+
+  // Initialize on first load
+  initLightbox();
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:page-load', initLightbox);
 </script>
 
 <style>
