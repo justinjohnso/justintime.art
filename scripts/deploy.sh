@@ -206,3 +206,5 @@ echo "   View error logs:     sudo tail -f /var/log/nginx/error.log"
 echo "   Restart Nginx:       sudo systemctl restart nginx"
 echo "   Rollback deployment: tar -xzf $BACKUP_DIR/portfolio-backup-$DATE.tar.gz -C $WEB_ROOT"
 echo ""
+
+# comment for testing
