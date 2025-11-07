@@ -110,8 +110,8 @@ echo "✅ Git installed"
 # --------------------------------------------
 echo ""
 echo "📁 Creating application directory..."
-mkdir -p ~/portfolio-v3
-echo "✅ Directory created at ~/portfolio-v3"
+mkdir -p ~/astro-tina-portfolio
+echo "✅ Directory created at ~/astro-tina-portfolio"
 
 # --------------------------------------------
 # 9. Configure Firewall (UFW)
@@ -140,7 +140,7 @@ set -e
 echo "🚀 Deploying Portfolio V3..."
 
 # Navigate to project directory
-cd ~/portfolio-v3
+cd ~/astro-tina-portfolio
 
 # Pull latest changes (if git repo)
 if [ -d .git ]; then
@@ -246,11 +246,11 @@ echo "1. Logout and login again to use Docker without sudo:"
 echo "   logout"
 echo ""
 echo "2. Clone your repository:"
-echo "   cd ~/portfolio-v3"
+echo "   cd ~/astro-tina-portfolio"
 echo "   git clone <your-repo-url> ."
 echo ""
 echo "3. Create .env file with your secrets:"
-echo "   nano ~/portfolio-v3/.env"
+echo "   nano ~/astro-tina-portfolio/.env"
 echo "   (Copy from .env.example and fill in values)"
 echo ""
 echo "4. Start Umami analytics:"
@@ -259,7 +259,7 @@ echo "   # Edit docker-compose.yml to set secure passwords"
 echo "   docker compose up -d"
 echo ""
 echo "5. Deploy your site:"
-echo "   cd ~/portfolio-v3"
+echo "   cd ~/astro-tina-portfolio"
 echo "   pnpm approve-builds puppeteer"
 echo "   ./scripts/deploy.sh"
 echo ""
