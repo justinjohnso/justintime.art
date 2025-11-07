@@ -83,34 +83,7 @@ Required variables:
 - `NOTION_WEBHOOK_SECRET` - Generate with: `openssl rand -hex 32`
 - `PUBLIC_SITE_URL` - Your domain or `http://YOUR_DROPLET_IP`
 
-### 3. Configure Umami Analytics
-
-```bash
-cd ~/umami
-
-# Edit docker-compose.yml
-nano docker-compose.yml
-```
-
-**Change these values**:
-- `APP_SECRET` - Generate with: `openssl rand -hex 32`
-- `POSTGRES_PASSWORD` - Use a strong password
-
-Start Umami:
-
-```bash
-docker compose up -d
-```
-
-Access Umami at `http://YOUR_DROPLET_IP:3000`:
-- Default credentials: `admin` / `umami`
-- **Change immediately after first login**
-
-Add your site in Umami dashboard and copy:
-- Website ID → `PUBLIC_UMAMI_WEBSITE_ID` in `.env`
-- Script URL → `PUBLIC_UMAMI_SRC` in `.env`
-
-### 4. Update Nginx Configuration
+### 3. Update Nginx Configuration
 
 ```bash
 sudo nano /etc/nginx/sites-available/portfolio

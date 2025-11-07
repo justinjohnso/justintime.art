@@ -29,8 +29,8 @@ Add these secrets in GitHub repository settings:
 | `TINA_CLIENT_ID` | TinaCMS client ID | From: https://app.tina.io/ |
 | `TINA_TOKEN` | TinaCMS token | From: https://app.tina.io/ |
 | `PUBLIC_SITE_URL` | Your site URL | `https://yourdomain.com` |
-| `PUBLIC_UMAMI_SRC` | Umami script URL | `https://yourdomain.com/analytics/script.js` |
-| `PUBLIC_UMAMI_WEBSITE_ID` | Umami website ID | From Umami dashboard |
+
+
 | `DROPLET_HOST` | Droplet IP address | Your Digital Ocean droplet IP |
 | `DROPLET_USER` | SSH username | Usually your username (not `root`) |
 | `DROPLET_SSH_KEY` | Private SSH key | Your SSH private key (see below) |

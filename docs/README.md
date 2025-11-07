@@ -16,7 +16,7 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 - **[guides/VISUAL_EDITOR.md](./guides/VISUAL_EDITOR.md)** - TinaCMS visual editor integration and workflow
 - **[guides/ICON_SYSTEM.md](./guides/ICON_SYSTEM.md)** - Lucide React icon system implementation
 - **[guides/VIDEO_EMBEDS.md](./guides/VIDEO_EMBEDS.md)** - Video/audio embed system (YouTube, Vimeo, SoundCloud)
-- **[guides/UMAMI_ANALYTICS.md](./guides/UMAMI_ANALYTICS.md)** - Self-hosted analytics setup with Docker
+
 
 ### Deployment & Infrastructure
 
@@ -76,7 +76,7 @@ Comprehensive documentation for the Astro + TinaCMS portfolio project with Notio
 - Responsive design with mobile-first navigation
 - Custom video embed components (YouTube, Vimeo)
 - Lucide React icon system with tree-shaking
-- Self-hosted analytics ready (Umami Docker setup)
+
 - Automated deployment with GitHub Actions
 
 ## 📋 Project Status

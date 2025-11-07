@@ -121,14 +121,6 @@ export function getNotionConfig() {
 }
 
 /**
- * Get all Umami analytics configuration
- */
-export function getUmamiConfig() {
-  return {
-    src: getEnv('PUBLIC_UMAMI_SRC'),
-    websiteId: getEnv('PUBLIC_UMAMI_WEBSITE_ID'),
-  }
-}
 
 /**
  * Get site configuration

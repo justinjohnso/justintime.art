@@ -18,7 +18,7 @@ echo "=========================================="
 # --------------------------------------------
 # 1. System Updates
 # --------------------------------------------
-echo ""
+
 echo "📦 Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
@@ -232,44 +232,6 @@ sudo systemctl reload nginx
 echo "✅ Nginx configured and reloaded"
 
 # --------------------------------------------
-# 12. Setup Docker for Umami Analytics
-# --------------------------------------------
-echo ""
-echo "📝 Creating Docker Compose configuration for Umami..."
-
-mkdir -p ~/umami
-cat > ~/umami/docker-compose.yml << 'DOCKER_EOF'
-version: '3'
-services:
-  umami:
-    image: ghcr.io/umami-software/umami:postgresql-latest
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://umami:umami@postgres:5432/umami
-      DATABASE_TYPE: postgresql
-      APP_SECRET: ${APP_SECRET:-replace-with-random-string}
-    depends_on:
-      - postgres
-    restart: always
-
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: umami
-      POSTGRES_USER: umami
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-umami}
-    volumes:
-      - umami-db-data:/var/lib/postgresql/data
-    restart: always
-
-volumes:
-  umami-db-data:
-DOCKER_EOF
-
-echo "✅ Docker Compose file created at ~/umami/docker-compose.yml"
-echo "   Edit this file to set secure passwords!"
-
 # --------------------------------------------
 # 13. Final Instructions
 # --------------------------------------------

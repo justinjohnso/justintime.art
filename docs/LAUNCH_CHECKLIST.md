@@ -84,9 +84,7 @@ NOTION_WEBHOOK_SECRET=$(openssl rand -hex 32)
 # Site
 PUBLIC_SITE_URL=https://jjohnson.art
 
-# Analytics (after Umami setup)
-PUBLIC_UMAMI_SRC=https://jjohnson.art/analytics/script.js
-PUBLIC_UMAMI_WEBSITE_ID=your-website-id
+
 ```
 
 ### 4. Local Testing
@@ -116,7 +114,7 @@ pnpm astro check
 - [ ] Images load properly
 - [ ] External links open in new tabs
 - [ ] 404 page works
-- [ ] Umami analytics loads and tracks visits
+
 - [ ] Social media meta tags work
 - [ ] RSS feed validates (if enabled)
 
@@ -165,20 +163,7 @@ nano .env
 # Fill in all production values
 ```
 
-**5. Start Umami Analytics**
-
-```bash
-cd ~/umami
-# Edit docker-compose.yml with secure passwords
-nano docker-compose.yml
-docker compose up -d
-
-# Access at http://YOUR_DROPLET_IP:3000
-# Default login: admin / umami
-# Change password immediately!
-```
-
-**6. First Deployment**
+**5. First Deployment**
 
 ```bash
 cd ~/portfolio-v3
@@ -222,8 +207,8 @@ In GitHub repository settings → Secrets and variables → Actions, add:
 | `TINA_CLIENT_ID` | TinaCMS client ID |
 | `TINA_TOKEN` | TinaCMS token |
 | `PUBLIC_SITE_URL` | https://jjohnson.art |
-| `PUBLIC_UMAMI_SRC` | Your Umami script URL |
-| `PUBLIC_UMAMI_WEBSITE_ID` | Umami website ID |
+
+
 | `DROPLET_HOST` | Your droplet IP |
 | `DROPLET_USER` | Your SSH username |
 | `DROPLET_SSH_KEY` | Your SSH private key |
@@ -286,10 +271,8 @@ For automatic updates when you publish in Notion:
 
 ### 2. Setup Monitoring
 
-**Umami Analytics:**
-- Access at `https://jjohnson.art/analytics`
-- Review visitor stats weekly
-- Track popular projects
+
+
 
 **Uptime Monitoring:**
 - Consider UptimeRobot (free)
