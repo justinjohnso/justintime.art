@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Load NVM and Node.js
+source ~/.nvm/nvm.sh
+nvm use 20
+
 # ============================================
 # Portfolio V3 - Deployment Script
 # ============================================
@@ -105,9 +109,9 @@ echo ""
 # 5. Build the site
 # --------------------------------------------
 if [ "$SKIP_BUILD" = false ]; then
-  echo "🔨 Building site..."
-  pnpm run build
-  echo "✅ Build complete"
+echo "🔨 Building site..."
+NODE_OPTIONS="--max-old-space-size=2048" npx tinacms build --verbose && npx astro build
+echo "✅ Build complete"
 else
   echo "⏭️  Skipping build..."
 
