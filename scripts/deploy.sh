@@ -15,7 +15,7 @@ nvm use 20
 set -e  # Exit on any error
 
 # Configuration
-PROJECT_DIR=~/portfolio-v3
+PROJECT_DIR=~/astro-tina-portfolio
 WEB_ROOT=/var/www/portfolio
 BACKUP_DIR=~/portfolio-backups
 DATE=$(date +%Y%m%d_%H%M%S)
