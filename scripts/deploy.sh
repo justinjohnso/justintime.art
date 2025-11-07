@@ -100,7 +100,6 @@ if ! grep -q "puppeteer" ~/.pnpm-store/.pnpmrc 2>/dev/null; then
   echo "🔧 Approving build scripts..."
   pnpm approve-builds puppeteer || true
 fi
-
 echo "✅ Dependencies installed"
 
 echo ""
@@ -109,9 +108,9 @@ echo ""
 # 5. Build the site
 # --------------------------------------------
 if [ "$SKIP_BUILD" = false ]; then
-echo "🔨 Building site..."
-NODE_OPTIONS="--max-old-space-size=2048" npx tinacms build --verbose && npx astro build
-echo "✅ Build complete"
+  echo "🔨 Building site..."
+  NODE_OPTIONS="--max-old-space-size=2048" npx tinacms build --verbose && npx astro build
+  echo "✅ Build complete"
 else
   echo "⏭️  Skipping build..."
 
