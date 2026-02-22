@@ -16,8 +16,7 @@ const { Content: AboutContent } = aboutPage ? await aboutPage.render() : { Conte
 let tinaProps;
 try {
   tinaProps = await client.queries.pages({ relativePath: 'about.mdx' });
-} catch (error) {
-  console.warn('TinaCMS client query failed during build (this is expected for static builds):', error.message);
+} catch {
   tinaProps = null;
 }
 ---

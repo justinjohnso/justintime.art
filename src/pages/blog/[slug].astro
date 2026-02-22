@@ -11,11 +11,14 @@ params: { slug: post.id.replace(/\.mdx$/, '') },
   props: {
       post,
       getTinaProps: async () => {
-        // Use tinaInfo if available (new loader), otherwise use id (which already includes .mdx)
-      const relativePath = post.data.tinaInfo?.relativePath || post.id;
-        return client.queries.posts({
-          relativePath: relativePath,
-        });
+        try {
+          const relativePath = post.data.tinaInfo?.relativePath || post.id;
+          return await client.queries.posts({
+            relativePath: relativePath,
+          });
+        } catch {
+          return null;
+        }
       },
     },
   }));
@@ -30,13 +33,13 @@ const { post, getTinaProps } = Astro.props;
 const tinaProps = await getTinaProps();
 
 // Use TinaCMS content if available, otherwise fallback to basic rendering
-let Content: any = null;
 let contentText = '';
 
 // Handle content rendering for TinaCMS-managed posts
-// For now, we'll use a simplified approach since posts are TinaCMS-managed
-Content = () => null; // Placeholder - proper TinaCMS component needed
 contentText = tinaProps?.data?.posts?.body || '';
+
+// Render MDX content from filesystem
+const { Content } = await post.render();
 
 // Get category metadata for display names
 const allCategories = await getCollection('categories');

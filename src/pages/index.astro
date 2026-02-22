@@ -16,8 +16,13 @@ const allProjects = await getCollection('projects');
 const homePage = await getEntry('pages', 'home');
 const { Content: HomeContent } = homePage ? await homePage.render() : { Content: null };
 
-// Get TinaCMS data for visual editing
-const tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
+// Get TinaCMS data for visual editing (may fail during static build without Tina Cloud)
+let tinaProps;
+try {
+  tinaProps = await client.queries.pages({ relativePath: 'home.mdx' });
+} catch {
+  tinaProps = null;
+}
 
 /**
  * Featured Projects Sorting System
@@ -104,10 +109,12 @@ const categoryMetadata = allCategories.map(cat => ({
         )}
 
         <!-- TinaCMS visual editor (hidden from display, only for editing) -->
-        <div style="display: none;">
-          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
-          <Page {...(tinaProps as any)} client:tina />
-        </div>
+        {tinaProps && (
+          <div style="display: none;">
+            <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+            <Page {...(tinaProps as any)} client:tina />
+          </div>
+        )}
       </div>
 
       <!-- Category filter header (dynamically shown by client script) -->

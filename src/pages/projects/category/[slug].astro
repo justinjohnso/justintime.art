@@ -25,12 +25,14 @@ export async function getStaticPaths() {
 const { categoryData, categorySlug, categoryId } = Astro.props;
 const { slug } = Astro.params;
 
-// Get TinaCMS data for visual editing
-// categoryId already includes the .mdx extension from getCollection
+// Get TinaCMS data for visual editing (may fail during static build without Tina Cloud)
 const relativePath = categoryId.endsWith('.mdx') ? categoryId : `${categoryId}.mdx`;
-const tinaProps = await client.queries.categories({
-  relativePath
-});
+let tinaProps;
+try {
+  tinaProps = await client.queries.categories({ relativePath });
+} catch {
+  tinaProps = null;
+}
 
 // Get all projects
 const allProjects = await getCollection('projects');
@@ -127,10 +129,12 @@ const sortedProjects = [...featuredProjects, ...nonFeaturedProjects];
         <ProjectGrid projects={sortedProjects} />
 
         {/* TinaCMS visual editor (hidden from display, only for editing) */}
-        <div style="display: none;">
-          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
-          <Category {...(tinaProps as any)} client:tina />
-        </div>
+        {tinaProps && (
+          <div style="display: none;">
+            <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+            <Category {...(tinaProps as any)} client:tina />
+          </div>
+        )}
       </div>
     </MainContent>
 

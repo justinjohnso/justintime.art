@@ -19,11 +19,14 @@ export async function getStaticPaths() {
     props: {
       project,
       getTinaProps: async () => {
-        // Use tinaInfo if available (new loader), otherwise use id (which already includes .mdx)
-        const relativePath = project.data.tinaInfo?.relativePath || project.id;
-        return client.queries.projects({
-          relativePath: relativePath,
-        });
+        try {
+          const relativePath = project.data.tinaInfo?.relativePath || project.id;
+          return await client.queries.projects({
+            relativePath: relativePath,
+          });
+        } catch {
+          return null;
+        }
       },
     },
   }));
@@ -143,10 +146,12 @@ const rows = chunkArray(remainingImages, 3);
     <!-- Main Content Area -->
     <MainContent>
       <!-- TinaCMS Visual Editor Component (only renders in TinaCMS iframe) -->
-      <div id="tina-wrapper" style="display: none;">
-        <!-- @ts-ignore: client:tina is an Astro directive, not a prop type -->
-        <Project {...(tinaProps as any)} client:tina />
-      </div>
+      {tinaProps && (
+        <div id="tina-wrapper" style="display: none;">
+          <!-- @ts-ignore: client:tina is an Astro directive, not a prop type -->
+          <Project {...(tinaProps as any)} client:tina />
+        </div>
+      )}
 
       <!-- Static content (hidden when in TinaCMS iframe) -->
       <article id="static-content" class="p-4 md:p-6 lg:p-8 pb-12">
