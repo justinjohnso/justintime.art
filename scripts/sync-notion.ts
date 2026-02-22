@@ -5,8 +5,9 @@
  * Syncs projects and blog posts from Notion databases to local MDX files.
  * Handles image downloads, content conversion, and incremental updates.
  *
- * By default, only creates NEW files that don't already exist locally.
- * Existing TinaCMS-curated content is preserved unless --force is used.
+ * By default, syncs files that are new or have been updated in Notion
+ * (comparing Notion's last_edited_time against local file mtime).
+ * Use --force to overwrite all files regardless of timestamps.
  *
  * Usage:
  *   pnpm sync:notion [--projects] [--blog] [--force]
@@ -126,6 +127,20 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 /**
+ * Check if a Notion page has been edited more recently than the local file
+ */
+async function isNotionNewer(filePath: string, notionLastEdited: string): Promise<boolean> {
+  try {
+    const stat = await fs.stat(filePath)
+    const fileModified = stat.mtime.getTime()
+    const notionModified = new Date(notionLastEdited).getTime()
+    return notionModified > fileModified
+  } catch {
+    return true // File doesn't exist, treat as newer
+  }
+}
+
+/**
  * Download and process images in MDX content
  */
 async function processImages(
@@ -204,13 +219,15 @@ async function syncProject(notion: Client, page: any, stats: SyncStats): Promise
     const project = transformNotionProject(page as NotionProjectPage)
     const filePath = path.join(PROJECTS_DIR, `${project.slug}.mdx`)
 
-    // Default: skip existing files (TinaCMS is source of truth)
-    // Only overwrite with --force
+    // Skip if local file is up-to-date (compare Notion last_edited_time vs file mtime)
     const exists = await fileExists(filePath)
     if (exists && !forceSync) {
-      console.log(`⏭️  Skipping ${project.slug} (file exists, use --force to overwrite)`)
-      stats.skipped++
-      return
+      const notionLastEdited = page.last_edited_time
+      if (notionLastEdited && !(await isNotionNewer(filePath, notionLastEdited))) {
+        console.log(`⏭️  Skipping ${project.slug} (up to date)`)
+        stats.skipped++
+        return
+      }
     }
 
     console.log(`📝 Syncing project: ${project.title}`)
@@ -266,12 +283,15 @@ async function syncBlogPost(notion: Client, page: any, stats: SyncStats): Promis
 
     const filePath = path.join(BLOG_DIR, `${slug}.mdx`)
 
-    // Default: skip existing files
+    // Skip if local file is up-to-date (compare Notion last_edited_time vs file mtime)
     const exists = await fileExists(filePath)
     if (exists && !forceSync) {
-      console.log(`⏭️  Skipping ${slug} (file exists, use --force to overwrite)`)
-      stats.skipped++
-      return
+      const notionLastEdited = page.last_edited_time
+      if (notionLastEdited && !(await isNotionNewer(filePath, notionLastEdited))) {
+        console.log(`⏭️  Skipping ${slug} (up to date)`)
+        stats.skipped++
+        return
+      }
     }
 
     console.log(`📝 Syncing blog post: ${title}`)
