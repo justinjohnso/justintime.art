@@ -28,6 +28,7 @@ on:
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
+    environment: Prod
 
     steps:
       - name: Checkout code
@@ -43,7 +44,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 10
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -61,9 +62,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Approve build scripts
-        run: pnpm approve-builds puppeteer || true
 
       - name: Sync from Notion
         env:
