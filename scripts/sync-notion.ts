@@ -5,13 +5,16 @@
  * Syncs projects and blog posts from Notion databases to local MDX files.
  * Handles image downloads, content conversion, and incremental updates.
  *
+ * By default, only creates NEW files that don't already exist locally.
+ * Existing TinaCMS-curated content is preserved unless --force is used.
+ *
  * Usage:
  *   pnpm sync:notion [--projects] [--blog] [--force]
  *
  * Options:
  *   --projects  Sync only projects (default: sync both)
  *   --blog      Sync only blog posts (default: sync both)
- *   --force     Force sync all content (ignore last modified checks)
+ *   --force     Force overwrite all content (including existing files)
  */
 
 import { Client } from '@notionhq/client'
@@ -19,9 +22,14 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { blocksToMDX, extractImageUrls, replaceImageUrls } from '../src/lib/notion/blocks-to-mdx'
 import { transformNotionProject, generateFrontmatter } from '../src/lib/notion/transform'
-import { downloadAndSaveImage } from '../src/lib/storage/media'
+import {
+  downloadAndSaveImage,
+  generateImageFilename,
+  saveImage,
+  downloadImage,
+} from '../src/lib/storage/media'
 import { getNotionConfig, validateNotionEnv } from '../src/lib/env'
-import type { NotionProjectPage, NotionBlogPost, NotionBlock } from '../src/types/notion'
+import type { NotionProjectPage, NotionBlock } from '../src/types/notion'
 
 // Parse command line arguments
 const args = process.argv.slice(2)
@@ -106,20 +114,14 @@ async function fetchPageBlocks(notion: Client, pageId: string): Promise<NotionBl
 }
 
 /**
- * Check if file needs updating based on last modified time
+ * Check if a file already exists on disk
  */
-async function needsUpdate(filePath: string, notionLastEdited: string): Promise<boolean> {
-  if (forceSync) return true
-
+async function fileExists(filePath: string): Promise<boolean> {
   try {
-    const stats = await fs.stat(filePath)
-    const fileModified = stats.mtime
-    const notionModified = new Date(notionLastEdited)
-
-    return notionModified > fileModified
-  } catch (error) {
-    // File doesn't exist, needs creation
+    await fs.stat(filePath)
     return true
+  } catch {
+    return false
   }
 }
 
@@ -141,19 +143,16 @@ async function processImages(
 
   for (const url of imageUrls) {
     try {
-      // Skip if already a local path
       if (url.startsWith('/') || url.startsWith('./')) {
         continue
       }
 
-      // Download and save image
       const localPath = await downloadAndSaveImage(url, slug, type)
       replacements.set(url, localPath)
 
       console.log(`  ✓ Downloaded image: ${localPath}`)
     } catch (error) {
       console.error(`  ✗ Failed to download image ${url}:`, error)
-      // Continue with other images
     }
   }
 
@@ -161,45 +160,86 @@ async function processImages(
 }
 
 /**
+ * Download hero and additional images from Notion file fields
+ */
+async function downloadProjectImages(
+  slug: string,
+  heroImageUrl?: string,
+  additionalImageUrls: string[] = [],
+): Promise<{ image?: string; additionalImages: Array<{ image: string }> }> {
+  let image: string | undefined
+  const additionalImages: Array<{ image: string }> = []
+
+  if (heroImageUrl) {
+    try {
+      const buffer = await downloadImage(heroImageUrl)
+      const filename = generateImageFilename(slug, 'hero', undefined, heroImageUrl)
+      image = await saveImage(buffer, `projects/${slug}`, filename)
+      console.log(`  ✓ Downloaded hero image: ${image}`)
+    } catch (error) {
+      console.error(`  ✗ Failed to download hero image:`, error)
+    }
+  }
+
+  for (let i = 0; i < additionalImageUrls.length; i++) {
+    try {
+      const buffer = await downloadImage(additionalImageUrls[i])
+      const filename = generateImageFilename(slug, 'additional', i, additionalImageUrls[i])
+      const localPath = await saveImage(buffer, `projects/${slug}`, filename)
+      additionalImages.push({ image: localPath })
+      console.log(`  ✓ Downloaded additional image: ${localPath}`)
+    } catch (error) {
+      console.error(`  ✗ Failed to download additional image ${i}:`, error)
+    }
+  }
+
+  return { image, additionalImages }
+}
+
+/**
  * Sync a single project from Notion
  */
 async function syncProject(notion: Client, page: any, stats: SyncStats): Promise<void> {
   try {
-    // Transform Notion page to portfolio project
     const project = transformNotionProject(page as NotionProjectPage)
     const filePath = path.join(PROJECTS_DIR, `${project.slug}.mdx`)
 
-    // Check if update needed
-    if (!(await needsUpdate(filePath, page.last_edited_time))) {
-      console.log(`⏭️  Skipping ${project.slug} (no changes)`)
+    // Default: skip existing files (TinaCMS is source of truth)
+    // Only overwrite with --force
+    const exists = await fileExists(filePath)
+    if (exists && !forceSync) {
+      console.log(`⏭️  Skipping ${project.slug} (file exists, use --force to overwrite)`)
       stats.skipped++
       return
     }
 
     console.log(`📝 Syncing project: ${project.title}`)
 
-    // Fetch page content blocks
-    const blocks = await fetchPageBlocks(notion, page.id)
+    // Body text comes from the "Body Text" rich text property
+    const mdxContent = project.bodyText
 
-    // Convert blocks to MDX
-    let mdxContent = await blocksToMDX(blocks)
+    // Download hero and additional images from Notion file fields
+    const images = await downloadProjectImages(
+      project.slug,
+      project.heroImageUrl,
+      project.additionalImageUrls,
+    )
 
-    // Download and process images
-    mdxContent = await processImages(mdxContent, project.slug, 'project')
+    // Add downloaded images to frontmatter
+    if (images.image) {
+      project.frontmatter.image = images.image
+    }
+    if (images.additionalImages.length > 0) {
+      project.frontmatter.additionalImages = images.additionalImages
+    }
 
-    // Generate frontmatter
-    const frontmatter = generateFrontmatter(project)
+    // Generate frontmatter and combine with content
+    const frontmatter = generateFrontmatter(project.frontmatter)
+    const fileContent = `${frontmatter}\n${mdxContent}`
 
-    // Combine frontmatter and content
-    const fileContent = `---\n${frontmatter}\n---\n\n${mdxContent}`
-
-    // Check if file exists before writing
-    const existed = await fs.stat(filePath).catch(() => null)
-
-    // Write file
     await fs.writeFile(filePath, fileContent, 'utf-8')
 
-    if (existed) {
+    if (exists) {
       console.log(`✅ Updated: ${project.slug}`)
       stats.updated++
     } else {
@@ -217,60 +257,46 @@ async function syncProject(notion: Client, page: any, stats: SyncStats): Promise
  */
 async function syncBlogPost(notion: Client, page: any, stats: SyncStats): Promise<void> {
   try {
-    // Extract blog post data (similar to project transform)
     const properties = page.properties
 
     const title = properties.Title?.title?.[0]?.plain_text || 'Untitled'
     const slug =
-      properties.Slug?.rich_text?.[0]?.plain_text || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      properties.Slug?.rich_text?.[0]?.plain_text ||
+      title.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 
     const filePath = path.join(BLOG_DIR, `${slug}.mdx`)
 
-    // Check if update needed
-    if (!(await needsUpdate(filePath, page.last_edited_time))) {
-      console.log(`⏭️  Skipping ${slug} (no changes)`)
+    // Default: skip existing files
+    const exists = await fileExists(filePath)
+    if (exists && !forceSync) {
+      console.log(`⏭️  Skipping ${slug} (file exists, use --force to overwrite)`)
       stats.skipped++
       return
     }
 
     console.log(`📝 Syncing blog post: ${title}`)
 
-    // Fetch page content blocks
     const blocks = await fetchPageBlocks(notion, page.id)
-
-    // Convert blocks to MDX
     let mdxContent = await blocksToMDX(blocks)
-
-    // Download and process images
     mdxContent = await processImages(mdxContent, slug, 'post')
 
     // Build frontmatter
     const date = properties.Date?.date?.start || new Date().toISOString().split('T')[0]
-    const excerpt = properties.Excerpt?.rich_text?.[0]?.plain_text || ''
-    const tags = properties.Tags?.multi_select?.map((t: any) => t.name) || []
+    const description = properties.Description?.rich_text?.[0]?.plain_text || ''
+    const categories = properties.Categories?.multi_select?.map((t: any) => t.name) || []
     const draft = properties.Status?.select?.name !== 'Published'
 
-    const frontmatter = [
-      `title: "${title}"`,
-      `slug: "${slug}"`,
-      `date: ${date}`,
-      excerpt ? `excerpt: "${excerpt}"` : null,
-      tags.length > 0 ? `tags: [${tags.map((t: string) => `"${t}"`).join(', ')}]` : null,
-      `draft: ${draft}`,
-    ]
-      .filter(Boolean)
-      .join('\n')
+    const frontmatterData: Record<string, any> = { title, date }
+    if (description) frontmatterData.description = description
+    if (categories.length > 0) frontmatterData.categories = categories
+    if (draft) frontmatterData.draft = draft
 
-    // Combine frontmatter and content
-    const fileContent = `---\n${frontmatter}\n---\n\n${mdxContent}`
+    const frontmatter = generateFrontmatter(frontmatterData)
+    const fileContent = `${frontmatter}\n${mdxContent}`
 
-    // Check if file exists before writing
-    const existed = await fs.stat(filePath).catch(() => null)
-
-    // Write file
     await fs.writeFile(filePath, fileContent, 'utf-8')
 
-    if (existed) {
+    if (exists) {
       console.log(`✅ Updated: ${slug}`)
       stats.updated++
     } else {
@@ -292,7 +318,6 @@ async function syncProjects(notion: Client): Promise<SyncStats> {
   const { projectsDbId } = getNotionConfig()
   const stats: SyncStats = { created: 0, updated: 0, skipped: 0, errors: 0 }
 
-  // Fetch only published projects
   const filter = {
     property: 'Status',
     select: {
@@ -320,7 +345,6 @@ async function syncBlogPosts(notion: Client): Promise<SyncStats> {
   const { blogDbId } = getNotionConfig()
   const stats: SyncStats = { created: 0, updated: 0, skipped: 0, errors: 0 }
 
-  // Fetch only published posts
   const filter = {
     property: 'Status',
     select: {
@@ -359,20 +383,17 @@ async function main(): Promise<void> {
   console.log('🚀 Starting Notion Sync...')
   console.log(`   Projects: ${shouldSyncProjects ? '✓' : '✗'}`)
   console.log(`   Blog: ${shouldSyncBlog ? '✓' : '✗'}`)
-  console.log(`   Force: ${forceSync ? '✓' : '✗'}`)
+  console.log(`   Force overwrite: ${forceSync ? '✓' : '✗'}`)
 
   try {
-    // Initialize
     const notion = initNotionClient()
     await ensureDirectories()
 
-    // Sync projects
     if (shouldSyncProjects) {
       const projectStats = await syncProjects(notion)
       printSummary('Projects', projectStats)
     }
 
-    // Sync blog posts
     if (shouldSyncBlog) {
       const blogStats = await syncBlogPosts(notion)
       printSummary('Blog', blogStats)

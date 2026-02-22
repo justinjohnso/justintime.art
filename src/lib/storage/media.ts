@@ -12,7 +12,7 @@ import { dirname, join } from 'path'
  * Get media storage path
  */
 export function getMediaPath(): string {
-  return import.meta.env.MEDIA_PATH || 'media'
+  return import.meta.env?.MEDIA_PATH || process.env.MEDIA_PATH || 'media'
 }
 
 /**

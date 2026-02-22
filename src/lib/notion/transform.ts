@@ -1,16 +1,68 @@
 /**
  * Data Transformation Utilities
  *
- * Transform Notion API responses to portfolio data structures
+ * Transform Notion API responses to portfolio data structures.
+ * Output matches TinaCMS frontmatter format exactly.
  */
 
 import type {
   NotionProjectPage,
   NotionBlogPost,
   NotionRichText,
-  PortfolioProject,
   PortfolioBlogPost,
 } from '../types/notion'
+
+/**
+ * Category name mapping from Notion multi_select names to category file slugs.
+ * Keys are lowercased for case-insensitive matching.
+ */
+const CATEGORY_NAME_TO_SLUG: Record<string, string> = {
+  // Slug-format values (current Notion multi-select names)
+  'theatre': 'theatre',
+  'web-development': 'web-development',
+  'audio-installations': 'audio-installations',
+  'intro-to-fabrication': 'intro-to-fabrication',
+  'music': 'music',
+  'physical-computing': 'physical-computing',
+  // Human-readable fallbacks
+  'sound design': 'theatre',
+  'sound design for theatre': 'theatre',
+  'theater': 'theatre',
+  'web development': 'web-development',
+  'web': 'web-development',
+  'audio installations': 'audio-installations',
+  'audio': 'audio-installations',
+  'fabrication': 'intro-to-fabrication',
+  'intro to fabrication': 'intro-to-fabrication',
+  'music & podcasts': 'music',
+}
+
+/**
+ * Map a Notion category name to a TinaCMS category reference path
+ */
+export function mapCategoryToReference(notionCategoryName: string): string | null {
+  const normalized = notionCategoryName.toLowerCase().trim()
+  const slug = CATEGORY_NAME_TO_SLUG[normalized]
+
+  if (!slug) {
+    console.warn(`[Transform] Unknown category: "${notionCategoryName}" — skipping`)
+    return null
+  }
+
+  return `src/content/categories/${slug}.mdx`
+}
+
+/**
+ * Result of transforming a Notion project page
+ */
+export interface TransformedProject {
+  slug: string
+  title: string
+  frontmatter: Record<string, any>
+  bodyText: string
+  heroImageUrl?: string
+  additionalImageUrls: string[]
+}
 
 /**
  * Extract plain text from Notion rich text array
@@ -20,27 +72,82 @@ export function extractPlainText(richText: NotionRichText[]): string {
 }
 
 /**
- * Transform Notion project to portfolio project
+ * Convert Notion rich text array to Markdown with formatting
  */
-export function transformNotionProject(
-  notionPage: NotionProjectPage,
-): Omit<PortfolioProject, 'body'> {
+function richTextToMarkdown(richText: NotionRichText[]): string {
+  return richText
+    .map((rt) => {
+      let text = rt.plain_text
+      if (rt.annotations?.code) text = `\`${text}\``
+      if (rt.annotations?.bold) text = `**${text}**`
+      if (rt.annotations?.italic) text = `*${text}*`
+      if (rt.annotations?.strikethrough) text = `~~${text}~~`
+      if (rt.href) text = `[${text}](${rt.href})`
+      return text
+    })
+    .join('')
+}
+
+/**
+ * Transform Notion project to TinaCMS-compatible frontmatter.
+ * Output format matches what TinaCMS writes to MDX files.
+ */
+export function transformNotionProject(notionPage: NotionProjectPage): TransformedProject {
   const props = notionPage.properties
 
-  return {
-    title: extractPlainText(props.Title.title),
-    description: extractPlainText(props.Description.rich_text),
-    yearCompleted: props.Year.number || undefined,
-    mediaEmbed: extractPlainText(props['Media Embed'].rich_text) || undefined,
-    categories: props.Categories.multi_select.map((cat) => cat.name),
+  const title = extractPlainText(props.Title.title)
+  const slug = props.Slug?.rich_text
+    ? extractPlainText(props.Slug.rich_text)
+    : generateSlug(title)
 
-    // Image will be populated by download process
-    image: undefined,
-    additionalImages: [],
+  // Map categories to TinaCMS reference format: [{ category: 'src/content/categories/<slug>.mdx' }]
+  const categories = (props.Categories?.multi_select || [])
+    .map((cat: any) => {
+      const ref = mapCategoryToReference(cat.name)
+      return ref ? { category: ref } : null
+    })
+    .filter(Boolean)
 
-    // Links need to be parsed from rich text
-    links: parseLinksFromRichText(props['Links (Rich Text)'].rich_text),
-  }
+  // Extract dateCompleted from Date field (user renamed "Year" → "Date Completed", changed to date type)
+  const dateCompleted = props['Date Completed']?.date?.start
+    || (props.Year?.number ? `${props.Year.number}-01-01` : undefined)
+
+  // Extract media embed URL (user changed from rich_text to URL type)
+  const mediaEmbed = props['Media Embed']?.url
+    || props['Media Embed']?.rich_text?.[0]?.plain_text
+    || undefined
+
+  // Parse links from rich text
+  const links = props['Links (Rich Text)']?.rich_text
+    ? parseLinksFromRichText(props['Links (Rich Text)'].rich_text)
+    : []
+
+  // Extract body text from rich text property
+  const bodyText = props['Body Text']?.rich_text
+    ? richTextToMarkdown(props['Body Text'].rich_text)
+    : ''
+
+  // Extract hero image URL for download
+  const heroImageUrl = props['Hero Image File']?.files?.[0]?.file?.url || undefined
+
+  // Extract additional image URLs for download
+  const additionalImageUrls = (props['Additional Image Files']?.files || [])
+    .map((f: any) => f.file?.url)
+    .filter(Boolean) as string[]
+
+  // Build frontmatter matching TinaCMS format (no slug — filename is the slug)
+  const frontmatter: Record<string, any> = { title }
+
+  const description = props.Description?.rich_text
+    ? extractPlainText(props.Description.rich_text)
+    : ''
+  if (description) frontmatter.description = description
+  if (dateCompleted) frontmatter.dateCompleted = dateCompleted
+  if (categories.length > 0) frontmatter.categories = categories
+  if (mediaEmbed) frontmatter.mediaEmbed = mediaEmbed
+  if (links.length > 0) frontmatter.links = links
+
+  return { slug, title, frontmatter, bodyText, heroImageUrl, additionalImageUrls }
 }
 
 /**
@@ -135,9 +242,21 @@ export function generateSlug(title: string): string {
 }
 
 /**
- * Generate frontmatter for MDX file
+ * Format a scalar value for YAML output
  */
-export function generateFrontmatter(data: Partial<PortfolioProject | PortfolioBlogPost>): string {
+function formatYamlValue(value: string | number | boolean): string {
+  if (typeof value === 'string') {
+    const escaped = value.replace(/"/g, '\\"')
+    return `"${escaped}"`
+  }
+  return String(value)
+}
+
+/**
+ * Generate frontmatter for MDX file.
+ * Handles TinaCMS format including nested object arrays (categories, links, additionalImages).
+ */
+export function generateFrontmatter(data: Record<string, any>): string {
   const lines = ['---']
 
   for (const [key, value] of Object.entries(data)) {
@@ -148,15 +267,22 @@ export function generateFrontmatter(data: Partial<PortfolioProject | PortfolioBl
       lines.push(`${key}:`)
       for (const item of value) {
         if (typeof item === 'string') {
-          lines.push(`  - ${item}`)
+          lines.push(`  - ${formatYamlValue(item)}`)
         } else if (typeof item === 'object') {
-          lines.push(`  - title: ${item.title}`)
-          lines.push(`    url: ${item.url}`)
-          if (item.type) lines.push(`    type: ${item.type}`)
+          const entries = Object.entries(item).filter(
+            ([, v]) => v !== undefined && v !== null,
+          )
+          if (entries.length > 0) {
+            const [firstKey, firstVal] = entries[0]
+            lines.push(`  - ${firstKey}: ${formatYamlValue(firstVal as string | number | boolean)}`)
+            for (let i = 1; i < entries.length; i++) {
+              const [k, v] = entries[i]
+              lines.push(`    ${k}: ${formatYamlValue(v as string | number | boolean)}`)
+            }
+          }
         }
       }
     } else if (typeof value === 'string') {
-      // Escape quotes and handle multiline
       if (value.includes('\n')) {
         lines.push(`${key}: >`)
         const indented = value
@@ -165,8 +291,7 @@ export function generateFrontmatter(data: Partial<PortfolioProject | PortfolioBl
           .join('\n')
         lines.push(indented)
       } else {
-        const escaped = value.replace(/"/g, '\\"')
-        lines.push(`${key}: "${escaped}"`)
+        lines.push(`${key}: ${formatYamlValue(value)}`)
       }
     } else {
       lines.push(`${key}: ${value}`)

@@ -9,7 +9,7 @@
  * Throws if not found
  */
 export function getRequiredEnv(key: string): string {
-  const value = import.meta.env[key] || process.env[key]
+  const value = import.meta.env?.[key] || process.env[key]
 
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`)
@@ -22,14 +22,14 @@ export function getRequiredEnv(key: string): string {
  * Get an optional environment variable with default
  */
 export function getEnv(key: string, defaultValue: string = ''): string {
-  return import.meta.env[key] || process.env[key] || defaultValue
+  return import.meta.env?.[key] || process.env[key] || defaultValue
 }
 
 /**
  * Get a numeric environment variable
  */
 export function getEnvNumber(key: string, defaultValue: number): number {
-  const value = import.meta.env[key] || process.env[key]
+  const value = import.meta.env?.[key] || process.env[key]
 
   if (!value) {
     return defaultValue
@@ -49,7 +49,7 @@ export function getEnvNumber(key: string, defaultValue: number): number {
  * Get a boolean environment variable
  */
 export function getEnvBoolean(key: string, defaultValue: boolean = false): boolean {
-  const value = import.meta.env[key] || process.env[key]
+  const value = import.meta.env?.[key] || process.env[key]
 
   if (!value) {
     return defaultValue
@@ -68,7 +68,7 @@ export function validateEnv(): void {
   const missing: string[] = []
 
   for (const key of required) {
-    const value = import.meta.env[key] || process.env[key]
+    const value = import.meta.env?.[key] || process.env[key]
     if (!value) {
       missing.push(key)
     }
@@ -87,12 +87,12 @@ export function validateEnv(): void {
  * Call this before any Notion API operations
  */
 export function validateNotionEnv(): void {
-  const required = ['NOTION_API_KEY', 'NOTION_PROJECTS_DB_ID', 'NOTION_BLOG_DB_ID']
+  const required = ['NOTION_API_KEY', 'NOTION_PROJECTS_DB_ID']
 
   const missing: string[] = []
 
   for (const key of required) {
-    const value = import.meta.env[key] || process.env[key]
+    const value = import.meta.env?.[key] || process.env[key]
     if (!value) {
       missing.push(key)
     }
@@ -115,12 +115,10 @@ export function getNotionConfig() {
   return {
     apiKey: getRequiredEnv('NOTION_API_KEY'),
     projectsDbId: getRequiredEnv('NOTION_PROJECTS_DB_ID'),
-    blogDbId: getRequiredEnv('NOTION_BLOG_DB_ID'),
+    blogDbId: getEnv('NOTION_BLOG_DB_ID'),
     webhookSecret: getEnv('NOTION_WEBHOOK_SECRET'),
   }
 }
-
-/**
 
 /**
  * Get site configuration
