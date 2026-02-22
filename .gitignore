@@ -76,5 +76,6 @@ public/.DS_Store
 # Migration backup
 migration-backup/
 
-# Agents.md
+# Agents
+.agents
 AGENTS.md
