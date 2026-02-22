@@ -71,9 +71,8 @@ cp .env.example .env
 
 ```bash
 # TinaCMS (from https://app.tina.io/)
-NEXT_PUBLIC_TINA_CLIENT_ID=your-client-id
+PUBLIC_TINA_CLIENT_ID=your-client-id
 TINA_TOKEN=your-token
-NEXT_PUBLIC_TINA_BRANCH=main
 
 # Notion (from https://notion.so/my-integrations)
 NOTION_API_KEY=secret_your-integration-token

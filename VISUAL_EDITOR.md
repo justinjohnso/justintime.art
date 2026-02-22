@@ -125,13 +125,7 @@ const tinaProps = await getTinaProps();
 Required environment variables:
 
 ```env
-# Astro-compatible (PUBLIC_ prefix for client-side access)
 PUBLIC_TINA_CLIENT_ID=your_client_id
-
-# Also keep Next.js format for compatibility
-NEXT_PUBLIC_TINA_CLIENT_ID=your_client_id
-
-# Server-side token
 TINA_TOKEN=your_token
 ```
 

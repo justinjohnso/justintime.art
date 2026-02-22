@@ -115,7 +115,7 @@ cp .env.example .env.local
 
 Add your TinaCMS credentials:
 ```
-NEXT_PUBLIC_TINA_CLIENT_ID=your_client_id
+PUBLIC_TINA_CLIENT_ID=your_client_id
 TINA_TOKEN=your_token
 ```
 

@@ -75,7 +75,7 @@ nano .env
 ```
 
 Required variables:
-- `NEXT_PUBLIC_TINA_CLIENT_ID` - From TinaCMS dashboard
+- `PUBLIC_TINA_CLIENT_ID` - From TinaCMS dashboard
 - `TINA_TOKEN` - From TinaCMS dashboard
 - `NOTION_API_KEY` - From Notion integrations
 - `NOTION_PROJECTS_DB_ID` - Your projects database ID
