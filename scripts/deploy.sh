@@ -17,6 +17,7 @@ set -e  # Exit on any error
 # Configuration
 PROJECT_DIR=~/astro-tina-portfolio
 WEB_ROOT=/var/www/portfolio
+MEDIA_DIR=$WEB_ROOT/media
 BACKUP_DIR=~/portfolio-backups
 DATE=$(date +%Y%m%d_%H%M%S)
 
@@ -130,11 +131,23 @@ echo "📋 Deploying to Nginx..."
 # Create web root if it doesn't exist
 sudo mkdir -p $WEB_ROOT
 
+# Preserve media directory
+if [ -d "$MEDIA_DIR" ]; then
+  echo "📸 Preserving media directory..."
+  sudo mv $MEDIA_DIR /tmp/portfolio-media-preserve
+fi
+
 # Remove old files
 sudo rm -rf $WEB_ROOT/*
 
 # Copy new build
 sudo cp -r ./dist/* $WEB_ROOT/
+
+# Restore media directory
+if [ -d "/tmp/portfolio-media-preserve" ]; then
+  sudo mv /tmp/portfolio-media-preserve $MEDIA_DIR
+  echo "✅ Media directory restored"
+fi
 
 # Set correct permissions
 sudo chown -R www-data:www-data $WEB_ROOT
