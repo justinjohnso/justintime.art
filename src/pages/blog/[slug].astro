@@ -32,14 +32,12 @@ type Props = {
 const { post, getTinaProps } = Astro.props;
 const tinaProps = await getTinaProps();
 
-// Use TinaCMS content if available, otherwise fallback to basic rendering
-let contentText = '';
-
-// Handle content rendering for TinaCMS-managed posts
-contentText = tinaProps?.data?.posts?.body || '';
-
 // Render MDX content from filesystem
-const { Content } = await post.render();
+const { Content, remarkPluginFrontmatter } = await post.render();
+
+// Extract body text for reading time calculation
+const bodyRaw = tinaProps?.data?.posts?.body;
+const contentText = typeof bodyRaw === 'string' ? bodyRaw : '';
 
 // Get category metadata for display names
 const allCategories = await getCollection('categories');
