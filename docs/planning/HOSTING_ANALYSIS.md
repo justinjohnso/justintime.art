@@ -293,7 +293,7 @@ services:
 4. Test end-to-end
 
 ### Phase 4: Domain & SSL
-1. Point jjohnson.art to DO
+1. Point justintime.art to DO
 2. Configure SSL (automatic)
 3. Test custom domain
 

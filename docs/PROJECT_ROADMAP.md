@@ -11,7 +11,7 @@
 
 ### Hosting & Infrastructure
 - **Hosting**: Digital Ocean App Platform ($5/month, 40 months free via GitHub Student Pack)
-- **Domain**: jjohnson.art (already owned)
+- **Domain**: justintime.art (already owned)
 - **Analytics**: Self-hosted Umami (Docker on DO)
 - **Media Storage**: Local filesystem (public/media/) on Droplet
 - **Decision Rationale**: See [planning/HOSTING_ANALYSIS.md](./planning/HOSTING_ANALYSIS.md) for full comparison
@@ -33,7 +33,7 @@
 
 ---
 
-This document tracks the remaining work needed to complete the portfolio site and achieve full feature parity with the existing site at https://jjohnson.art/.
+This document tracks the remaining work needed to complete the portfolio site and achieve full feature parity with the existing site at https://justintime.art/.
 
 ## Status: Planning Phase
 
@@ -43,7 +43,7 @@ This document tracks the remaining work needed to complete the portfolio site an
 
 ## Priority 1: Content & Layout Parity
 
-**Goal**: Match or exceed the quality and functionality of the existing jjohnson.art site.
+**Goal**: Match or exceed the quality and functionality of the existing justintime.art site.
 
 ### Tasks
 
@@ -153,7 +153,7 @@ This document tracks the remaining work needed to complete the portfolio site an
   - Apply GitHub Student Pack credit
 
 - [ ] **Domain Configuration**
-  - Point jjohnson.art to Digital Ocean
+  - Point justintime.art to Digital Ocean
   - Configure SSL certificate (automatic with DO)
   - Test domain propagation
 
@@ -176,7 +176,7 @@ This document tracks the remaining work needed to complete the portfolio site an
 - **Webhook Security**: Use secret token to verify Notion requests
 - **SSL**: Automatic with Digital Ocean### Decisions Made
 
-1. **Domain**: Already have jjohnson.art - will deploy there
+1. **Domain**: Already have justintime.art - will deploy there
 2. **Update frequency**:
    - Projects: ~Once per month
    - Blog: ~Once per week (after implementation)
@@ -584,7 +584,7 @@ Use standard [JSON Resume](https://jsonresume.org/) format:
     "image": "...",
     "email": "...",
     "phone": "(917) 332-8125",
-    "url": "https://jjohnson.art",
+    "url": "https://justintime.art",
     "summary": "...",
     "location": {...},
     "profiles": [...]
@@ -762,7 +762,7 @@ Each row has buttons:
 
 2. **Hosting Setup** (Priority 2)
    - Set up Vercel (or chosen alternative)
-   - Configure jjohnson.art domain
+   - Configure justintime.art domain
    - Set up environment variables
    - Initial deployment
 

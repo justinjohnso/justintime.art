@@ -82,7 +82,7 @@ NOTION_BLOG_DB_ID=your-blog-database-id
 NOTION_WEBHOOK_SECRET=$(openssl rand -hex 32)
 
 # Site
-PUBLIC_SITE_URL=https://jjohnson.art
+PUBLIC_SITE_URL=https://justintime.art
 
 
 ```
@@ -181,7 +181,7 @@ In your domain registrar (e.g., Namecheap):
 ```bash
 sudo nano /etc/nginx/sites-available/portfolio
 # Change server_name to your domain
-# server_name jjohnson.art www.jjohnson.art;
+# server_name justintime.art www.justintime.art;
 
 sudo nginx -t
 sudo systemctl reload nginx
@@ -191,7 +191,7 @@ sudo systemctl reload nginx
 
 ```bash
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d jjohnson.art -d www.jjohnson.art
+sudo certbot --nginx -d justintime.art -d www.justintime.art
 # Follow prompts, select redirect option
 ```
 
@@ -206,7 +206,7 @@ In GitHub repository settings → Secrets and variables → Actions, add:
 | `NOTION_BLOG_DB_ID` | Blog database ID |
 | `TINA_CLIENT_ID` | TinaCMS client ID |
 | `TINA_TOKEN` | TinaCMS token |
-| `PUBLIC_SITE_URL` | https://jjohnson.art |
+| `PUBLIC_SITE_URL` | https://justintime.art |
 
 
 | `DROPLET_HOST` | Your droplet IP |
@@ -368,7 +368,7 @@ cat .env | grep NOTION
 
 Your site is ready when:
 
-- ✅ Site loads at your custom domain (https://jjohnson.art)
+- ✅ Site loads at your custom domain (https://justintime.art)
 - ✅ All projects display correctly
 - ✅ Blog posts are accessible
 - ✅ About page is complete

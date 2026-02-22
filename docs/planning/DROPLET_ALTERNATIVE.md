@@ -265,7 +265,7 @@ upstream portfolio_api {
 server {
     listen 80;
     listen [::]:80;
-    server_name jjohnson.art www.jjohnson.art;
+    server_name justintime.art www.justintime.art;
 
     root /var/www/portfolio;
     index index.html;
@@ -348,7 +348,7 @@ sudo systemctl reload nginx
 
 ```bash
 # Obtain SSL certificate
-sudo certbot --nginx -d jjohnson.art -d www.jjohnson.art
+sudo certbot --nginx -d justintime.art -d www.justintime.art
 
 # Certificate will auto-renew
 # Test renewal:
@@ -432,10 +432,10 @@ sudo systemctl reload nginx
 
 ### 3. Configure Umami
 
-1. Access: https://jjohnson.art/umami
+1. Access: https://justintime.art/umami
 2. Login: admin / umami
 3. Change password immediately
-4. Add website: jjohnson.art
+4. Add website: justintime.art
 5. Copy tracking code
 6. Add to Astro layout
 

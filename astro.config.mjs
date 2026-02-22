@@ -17,7 +17,7 @@ export default defineConfig({
     tinaDirective(), // TinaCMS visual editor directive
   ],
   output: 'static',
-  site: 'https://jjohnson.art', // Update with your actual domain
+  site: 'https://justintime.art',
   build: {
     assets: 'assets',
   },

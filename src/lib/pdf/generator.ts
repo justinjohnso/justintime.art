@@ -187,7 +187,7 @@ function generateHTML(data: OneSheetData, template: string, layout: string): str
 
     <!-- Branding -->
     <div class="branding">
-      Justin Johnson • jjohnson.art
+      Justin Johnson • justintime.art
     </div>
   </div>
 </body>

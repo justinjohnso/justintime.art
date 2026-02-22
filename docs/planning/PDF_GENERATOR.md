@@ -24,7 +24,7 @@ Add to `.env`:
 ```env
 # PDF Generation
 PDF_STORAGE_PATH=/path/to/storage  # Local: public/pdfs | Production: DO Spaces
-PDF_BASE_URL=https://jjohnson.art  # Base URL for PDF access
+PDF_BASE_URL=https://justintime.art  # Base URL for PDF access
 ```
 
 ### 3. Storage Options
