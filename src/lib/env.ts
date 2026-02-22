@@ -63,7 +63,7 @@ export function getEnvBoolean(key: string, defaultValue: boolean = false): boole
  * Call this at app startup
  */
 export function validateEnv(): void {
-  const required = ['NEXT_PUBLIC_TINA_CLIENT_ID', 'TINA_TOKEN']
+   const required = ['PUBLIC_TINA_CLIENT_ID', 'TINA_TOKEN']
 
   const missing: string[] = []
 
