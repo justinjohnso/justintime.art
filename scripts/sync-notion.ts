@@ -189,10 +189,12 @@ async function syncProject(notion: Client, page: any, stats: SyncStats): Promise
     // Combine frontmatter and content
     const fileContent = `---\n${frontmatter}\n---\n\n${mdxContent}`
 
+    // Check if file exists before writing
+    const existed = await fs.stat(filePath).catch(() => null)
+
     // Write file
     await fs.writeFile(filePath, fileContent, 'utf-8')
 
-    const existed = await fs.stat(filePath).catch(() => null)
     if (existed) {
       console.log(`✅ Updated: ${project.slug}`)
       stats.updated++
@@ -258,10 +260,12 @@ async function syncBlogPost(notion: Client, page: any, stats: SyncStats): Promis
     // Combine frontmatter and content
     const fileContent = `---\n${frontmatter}\n---\n\n${mdxContent}`
 
+    // Check if file exists before writing
+    const existed = await fs.stat(filePath).catch(() => null)
+
     // Write file
     await fs.writeFile(filePath, fileContent, 'utf-8')
 
-    const existed = await fs.stat(filePath).catch(() => null)
     if (existed) {
       console.log(`✅ Updated: ${slug}`)
       stats.updated++

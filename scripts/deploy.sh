@@ -109,7 +109,7 @@ echo ""
 # --------------------------------------------
 if [ "$SKIP_BUILD" = false ]; then
   echo "🔨 Building site..."
-  NODE_OPTIONS="--max-old-space-size=2048" npx tinacms build --verbose && npx astro build
+  NODE_OPTIONS="--max-old-space-size=2048" pnpm build
   echo "✅ Build complete"
 else
   echo "⏭️  Skipping build..."
