@@ -65,13 +65,16 @@ tina/__generated__/
 *.db
 *.db-*
 
-# Public folder - media and generated files
-# Track static assets (favicons, etc.) but not media library or generated files
-public/media/
+# Public folder - generated files
+# Media is tracked in git (only referenced files, ~63MB)
+# Unreferenced Webflow variants live in media-archive/ (not deployed)
 public/robots.txt
 public/sitemap*.xml
 public/admin/
 public/.DS_Store
+
+# Media archive (unreferenced resolution variants from Webflow export)
+media-archive/
 
 # Migration backup
 migration-backup/

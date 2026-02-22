@@ -104,7 +104,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add src/content/
-          git add public/media/
+          git add public/media/  
           git commit -m "chore: sync content from Notion [skip ci]"
           git push
 
@@ -144,19 +144,9 @@ jobs:
               sudo tar -czf ~/portfolio-backups/portfolio-backup-$(date +%Y%m%d_%H%M%S).tar.gz -C /var/www/portfolio .
             fi
 
-            # Preserve media directory
-            if [ -d /var/www/portfolio/media ]; then
-              sudo mv /var/www/portfolio/media /tmp/portfolio-media-preserve
-            fi
-
-            # Deploy new build
+            # Deploy new build (media is included in dist/ from git-tracked public/media/)
             sudo rm -rf /var/www/portfolio/*
             sudo cp -r ~/portfolio-deploy/* /var/www/portfolio/
-
-            # Restore media directory
-            if [ -d /tmp/portfolio-media-preserve ]; then
-              sudo mv /tmp/portfolio-media-preserve /var/www/portfolio/media
-            fi
 
             sudo chown -R www-data:www-data /var/www/portfolio
             sudo chmod -R 755 /var/www/portfolio

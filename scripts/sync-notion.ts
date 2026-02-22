@@ -126,7 +126,11 @@ async function needsUpdate(filePath: string, notionLastEdited: string): Promise<
 /**
  * Download and process images in MDX content
  */
-async function processImages(mdx: string, slug: string): Promise<string> {
+async function processImages(
+  mdx: string,
+  slug: string,
+  type: 'project' | 'post' = 'project',
+): Promise<string> {
   const imageUrls = extractImageUrls(mdx)
 
   if (imageUrls.length === 0) {
@@ -143,7 +147,7 @@ async function processImages(mdx: string, slug: string): Promise<string> {
       }
 
       // Download and save image
-      const localPath = await downloadAndSaveImage(url, slug)
+      const localPath = await downloadAndSaveImage(url, slug, type)
       replacements.set(url, localPath)
 
       console.log(`  ✓ Downloaded image: ${localPath}`)
@@ -181,7 +185,7 @@ async function syncProject(notion: Client, page: any, stats: SyncStats): Promise
     let mdxContent = await blocksToMDX(blocks)
 
     // Download and process images
-    mdxContent = await processImages(mdxContent, project.slug)
+    mdxContent = await processImages(mdxContent, project.slug, 'project')
 
     // Generate frontmatter
     const frontmatter = generateFrontmatter(project)
@@ -238,7 +242,7 @@ async function syncBlogPost(notion: Client, page: any, stats: SyncStats): Promis
     let mdxContent = await blocksToMDX(blocks)
 
     // Download and process images
-    mdxContent = await processImages(mdxContent, slug)
+    mdxContent = await processImages(mdxContent, slug, 'post')
 
     // Build frontmatter
     const date = properties.Date?.date?.start || new Date().toISOString().split('T')[0]

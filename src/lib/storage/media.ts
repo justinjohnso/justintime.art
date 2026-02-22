@@ -36,12 +36,13 @@ export async function downloadImage(url: string): Promise<Buffer> {
  * Save image to local filesystem
  *
  * @param buffer - Image data
- * @param filename - Filename (e.g., "project-slug-hero.jpg")
+ * @param subdir - Subdirectory within media (e.g., "projects/my-project")
+ * @param filename - Filename (e.g., "hero.jpg")
  * @returns Public URL for the image
  */
-export async function saveImage(buffer: Buffer, filename: string): Promise<string> {
+export async function saveImage(buffer: Buffer, subdir: string, filename: string): Promise<string> {
   const mediaPath = getMediaPath()
-  const publicDir = join(process.cwd(), 'public', mediaPath)
+  const publicDir = join(process.cwd(), 'public', mediaPath, subdir)
   const filePath = join(publicDir, filename)
 
   // Ensure directory exists
@@ -51,19 +52,41 @@ export async function saveImage(buffer: Buffer, filename: string): Promise<strin
   await writeFile(filePath, buffer)
 
   // Return public URL
-  return `/${mediaPath}/${filename}`
+  return `/${mediaPath}/${subdir}/${filename}`
 }
 
 /**
  * Download and save image in one step
  *
  * @param url - Source URL
- * @param filename - Target filename
+ * @param slug - Content slug (used to determine subfolder)
+ * @param type - Content type ('project' | 'post')
  * @returns Public URL for saved image
  */
-export async function downloadAndSaveImage(url: string, filename: string): Promise<string> {
+export async function downloadAndSaveImage(
+  url: string,
+  slug: string,
+  type: 'project' | 'post' = 'project',
+): Promise<string> {
   const buffer = await downloadImage(url)
-  return saveImage(buffer, filename)
+  const subdir = type === 'project' ? `projects/${slug}` : `blog`
+  const filename = generateFilenameFromUrl(url, slug)
+  return saveImage(buffer, subdir, filename)
+}
+
+/**
+ * Generate a clean filename from a URL
+ */
+function generateFilenameFromUrl(url: string, slug: string): string {
+  try {
+    const pathname = new URL(url).pathname
+    const originalName = pathname.split('/').pop()
+    if (originalName) return originalName
+  } catch {
+    // Fall through
+  }
+  const ext = getExtensionFromUrl(url)
+  return `${slug}-${Date.now()}.${ext}`
 }
 
 /**
