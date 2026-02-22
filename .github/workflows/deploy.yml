@@ -42,9 +42,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Approve build scripts
-        run: pnpm approve-builds esbuild sharp || true
-
       - name: Build site
         env:
           PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
