@@ -84,11 +84,23 @@ const categoryMetadata = allCategories.map(cat => ({
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <title>{homePage?.data.title || 'Justin Johnson'}</title>
-  {homePage?.data.description && (
-    <meta name="description" content={homePage.data.description} />
-  )}
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.ico" />
+  <title>{homePage?.data.title || 'Justin Johnson – Creative Technologist'}</title>
+  <meta name="description" content={homePage?.data.description || "Hi! I'm Justin, a multi-disciplinary technologist with a background in theatre and the heart of a tinkerer. When I'm not talking to computers, I spend my time building interactive auditory worlds, both through theatre and technology."} />
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content={homePage?.data.title || 'Justin Johnson – Creative Technologist'} />
+  <meta property="og:description" content={homePage?.data.description || "Hi! I'm Justin, a multi-disciplinary technologist with a background in theatre and the heart of a tinkerer. When I'm not talking to computers, I spend my time building interactive auditory worlds, both through theatre and technology."} />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://justintime.art/og-image.jpg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={homePage?.data.title || 'Justin Johnson – Creative Technologist'} />
+  <meta name="twitter:description" content={homePage?.data.description || "Hi! I'm Justin, a multi-disciplinary technologist with a background in theatre and the heart of a tinkerer. When I'm not talking to computers, I spend my time building interactive auditory worlds, both through theatre and technology."} />
+  <meta name="twitter:image" content="https://justintime.art/og-image.jpg" />
+
     <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
