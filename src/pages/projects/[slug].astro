@@ -75,10 +75,12 @@ const getAspectRatioClass = (count: number): string => {
   return 'aspect-[4/3]';
 };
 
-// Process additional images for layout
-const validImages = (project.data.additionalImages || []).map(item => 
+// Promote first additional image to hero if no hero image exists
+const allAdditionalImages = (project.data.additionalImages || []).map(item => 
   typeof item === 'string' ? item : item.image
 );
+const heroImage = project.data.image || allAdditionalImages[0] || null;
+const validImages = project.data.image ? allAdditionalImages : allAdditionalImages.slice(1);
 const n = validImages.length;
 
 // Check if we have a media embed (video or SoundCloud) that affects layout
@@ -157,7 +159,7 @@ const rows = chunkArray(remainingImages, 3);
       <!-- Static content (hidden when in TinaCMS iframe) -->
       <article id="static-content" class="p-4 md:p-6 lg:p-8 pb-12">
     <!-- HERO SECTION -->
-    {project.data.image && (
+    {heroImage && (
       <>
         {/* If only hero image (no additional images) AND no media embed, stack vertically at full width */}
         {validImages.length === 0 && !hasMediaEmbed ? (
@@ -220,12 +222,12 @@ const rows = chunkArray(remainingImages, 3);
             {/* Hero Image - Full Width */}
             <section class="mb-2">
               <a
-                href={project.data.image}
+                href={heroImage}
                 data-lightbox="gallery"
                 class="block group relative overflow-hidden min-h-[350px]"
               >
                 <img
-                  src={project.data.image}
+                  src={heroImage}
                   alt={project.data.title}
                   class="w-full h-full object-cover transition-all duration-300"
                 />
@@ -295,12 +297,12 @@ const rows = chunkArray(remainingImages, 3);
 
             {/* Hero Image Column */}
             <a
-              href={project.data.image}
+              href={heroImage}
               data-lightbox="gallery"
               class="md:col-span-1 block group relative overflow-hidden h-full min-h-[250px] md:min-h-[350px]"
             >
               <img
-                src={project.data.image}
+                src={heroImage}
                 alt={project.data.title}
                 class="absolute inset-0 w-full h-full object-cover transition-all duration-300"
               />
@@ -393,11 +395,10 @@ const rows = chunkArray(remainingImages, 3);
 
     {embedInfo && embedInfo.type !== 'soundcloud' && embedInfo.type !== 'audio' && (
       <section class="mb-2" id="media-embed">
-        <div class="relative w-full min-h-[350px]">
+        <div class="relative w-full" style={`aspect-ratio: ${embedInfo.aspectRatio}`}>
           <iframe
             src={embedInfo.embedUrl}
-            style={`aspect-ratio: ${embedInfo.aspectRatio}`}
-            class="w-full h-full min-h-[350px]"
+            class="absolute inset-0 w-full h-full"
             frameborder="0"
             allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
             allowfullscreen
