@@ -29,6 +29,8 @@ jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
     environment: Prod
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
