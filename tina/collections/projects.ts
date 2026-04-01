@@ -41,6 +41,12 @@ export const ProjectsCollection: Collection = {
       },
     },
     {
+      type: 'boolean',
+      name: 'featured',
+      label: 'Featured',
+      description: 'Mark this project as featured. Featured projects appear on the homepage.',
+    },
+    {
       type: 'image',
       name: 'image',
       label: 'Featured Image',

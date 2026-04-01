@@ -122,6 +122,9 @@ export function transformNotionProject(notionPage: NotionProjectPage): Transform
     ? parseLinksFromRichText(props['Links (Rich Text)'].rich_text)
     : []
 
+  // Extract featured status (checkbox in Notion)
+  const featured = props.Featured?.checkbox === true
+
   // Extract body text from rich text property
   const bodyText = props['Body Text']?.rich_text
     ? richTextToMarkdown(props['Body Text'].rich_text)
@@ -142,6 +145,7 @@ export function transformNotionProject(notionPage: NotionProjectPage): Transform
     ? extractPlainText(props.Description.rich_text)
     : ''
   if (description) frontmatter.description = description
+  if (featured) frontmatter.featured = true
   if (dateCompleted) frontmatter.dateCompleted = dateCompleted
   if (categories.length > 0) frontmatter.categories = categories
   if (mediaEmbed) frontmatter.mediaEmbed = mediaEmbed

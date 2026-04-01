@@ -51,6 +51,7 @@ Custom content blocks available in `body`:
 | **Title** | Title | → `title` | Primary identifier |
 | **Categories** | Multi-select | → `categories[]` | Project categories/tags |
 | **Description** | Text | → `description` | Brief project summary |
+| **Featured** | Checkbox | → `featured` | Show on homepage |
 | **Hero Image File** | File | → `image` | Main/featured image |
 | **Additional Image Files** | Files | → `additionalImages[]` | Gallery images |
 | **Media Embed** | Text/URL | → `mediaEmbed` | YouTube/Vimeo/SoundCloud URL |
@@ -65,6 +66,7 @@ Custom content blocks available in `body`:
 #### Simple 1:1 Mappings
 - ✅ **Title** → `title` (direct string)
 - ✅ **Description** → `description` (direct string)
+- ✅ **Featured** → `featured` (checkbox → boolean)
 - ✅ **Year** → `yearCompleted` (direct number)
 - ✅ **Media Embed** → `mediaEmbed` (direct string)
 - ✅ **Slug** → Used for filename generation
