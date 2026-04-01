@@ -15,7 +15,7 @@ on:
       sync_blog:
         description: 'Sync blog'
         required: false
-        default: 'true'
+        default: 'false'
       force_sync:
         description: 'Force sync (ignore timestamps)'
         required: false
