@@ -10,12 +10,12 @@
  * Use --force to overwrite all files regardless of timestamps.
  *
  * Usage:
- *   pnpm sync:notion [--projects] [--blog] [--force]
+ *   pnpm sync:notion [--skip-projects] [--skip-blog] [--force]
  *
  * Options:
- *   --projects  Sync only projects (default: sync both)
- *   --blog      Sync only blog posts (default: sync both)
- *   --force     Force overwrite all content (including existing files)
+ *   --skip-projects  Skip syncing projects
+ *   --skip-blog      Skip syncing blog posts
+ *   --force          Force overwrite all content (including existing files)
  */
 
 import { Client } from '@notionhq/client'
@@ -34,8 +34,10 @@ import type { NotionProjectPage, NotionBlock } from '../src/types/notion'
 
 // Parse command line arguments
 const args = process.argv.slice(2)
-const shouldSyncProjects = args.includes('--projects') || !args.includes('--blog')
-const shouldSyncBlog = args.includes('--blog') || !args.includes('--projects')
+const skipProjects = args.includes('--skip-projects')
+const skipBlog = args.includes('--skip-blog')
+const shouldSyncProjects = !skipProjects
+const shouldSyncBlog = !skipBlog
 const forceSync = args.includes('--force')
 
 // Directories

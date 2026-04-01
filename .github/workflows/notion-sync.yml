@@ -73,12 +73,12 @@ jobs:
         run: |
           FLAGS=""
 
-          # Manual workflow inputs
+          # Manual workflow inputs - use skip flags for clarity
           if [ "${{ github.event.inputs.sync_projects }}" = "false" ]; then
-            FLAGS="$FLAGS --blog"
+            FLAGS="$FLAGS --skip-projects"
           fi
           if [ "${{ github.event.inputs.sync_blog }}" = "false" ]; then
-            FLAGS="$FLAGS --projects"
+            FLAGS="$FLAGS --skip-blog"
           fi
           if [ "${{ github.event.inputs.force_sync }}" = "true" ]; then
             FLAGS="$FLAGS --force"
