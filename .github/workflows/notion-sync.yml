@@ -108,6 +108,8 @@ jobs:
           git add src/content/
           git add public/media/  
           git commit -m "chore: sync content from Notion [skip ci]"
+          # Pull any remote changes and rebase our commit on top
+          git pull --rebase origin main
           git push
 
       - name: Build site
