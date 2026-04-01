@@ -3,7 +3,7 @@
  */
 
 export interface EmbedInfo {
-  type: 'vimeo' | 'youtube' | 'soundcloud' | 'audio' | 'unknown'
+  type: 'vimeo' | 'youtube' | 'soundcloud' | 'audio' | 'video' | 'unknown'
   embedUrl: string
   aspectRatio: string
 }
@@ -85,6 +85,19 @@ export function getEmbedInfo(url: string): EmbedInfo | null {
     if (audioExtensions.some(ext => pathname.endsWith(ext))) {
       return {
         type: 'audio',
+        embedUrl: url,
+        aspectRatio: '16/9',
+      }
+    }
+
+    // Video files (MP4, WebM, etc.) - including Dropbox direct links
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.ogg']
+    // Check pathname or if URL has raw=1 (Dropbox direct download)
+    const isVideoFile = videoExtensions.some(ext => pathname.includes(ext)) ||
+      (hostname.includes('dropbox.com') && urlObj.searchParams.get('raw') === '1')
+    if (isVideoFile) {
+      return {
+        type: 'video',
         embedUrl: url,
         aspectRatio: '16/9',
       }

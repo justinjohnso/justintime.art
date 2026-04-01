@@ -393,7 +393,22 @@ const rows = chunkArray(remainingImages, 3);
       </section>
     )}
 
-    {embedInfo && embedInfo.type !== 'soundcloud' && embedInfo.type !== 'audio' && (
+    {embedInfo && embedInfo.type === 'video' && (
+      <section class="mb-2" id="media-embed">
+        <div class="relative w-full" style={`aspect-ratio: ${embedInfo.aspectRatio}`}>
+          <video
+            controls
+            class="absolute inset-0 w-full h-full bg-black"
+            preload="metadata"
+          >
+            <source src={embedInfo.embedUrl} type="video/mp4" />
+            Your browser does not support the video element.
+          </video>
+        </div>
+      </section>
+    )}
+
+    {embedInfo && embedInfo.type !== 'soundcloud' && embedInfo.type !== 'audio' && embedInfo.type !== 'video' && (
       <section class="mb-2" id="media-embed">
         <div class="relative w-full" style={`aspect-ratio: ${embedInfo.aspectRatio}`}>
           <iframe
