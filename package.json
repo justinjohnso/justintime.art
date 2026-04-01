@@ -13,7 +13,9 @@
     "sync:projects": "tsx --env-file=.env scripts/sync-notion.ts --projects",
     "sync:blog": "tsx --env-file=.env scripts/sync-notion.ts --blog",
     "push:notion": "tsx --env-file=.env scripts/push-to-notion.ts",
-    "push:notion:dry": "tsx --env-file=.env scripts/push-to-notion.ts --dry-run"
+    "push:notion:dry": "tsx --env-file=.env scripts/push-to-notion.ts --dry-run",
+    "compress:images": "tsx scripts/compress-images.ts",
+    "compress:images:dry": "tsx scripts/compress-images.ts --dry-run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -25,6 +27,7 @@
     "lucide-react": "^0.545.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17",
     "tinacms": "^2.2.7",
     "typescript": "^5.7.3"

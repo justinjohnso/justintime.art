@@ -7,6 +7,14 @@
 
 import { mkdir, writeFile } from 'fs/promises'
 import { dirname, join } from 'path'
+import sharp from 'sharp'
+
+// Compression settings
+const MAX_WIDTH = 1920
+const MAX_HEIGHT = 1920
+const JPEG_QUALITY = 80
+const PNG_QUALITY = 80
+const MAX_FILE_SIZE_BYTES = 500 * 1024 // 500KB target
 
 /**
  * Get media storage path
@@ -33,26 +41,48 @@ export async function downloadImage(url: string): Promise<Buffer> {
 }
 
 /**
- * Save image to local filesystem
+ * Save image to local filesystem (with optional compression)
  *
  * @param buffer - Image data
  * @param subdir - Subdirectory within media (e.g., "projects/my-project")
  * @param filename - Filename (e.g., "hero.jpg")
+ * @param compress - Whether to compress the image (default: true)
  * @returns Public URL for the image
  */
-export async function saveImage(buffer: Buffer, subdir: string, filename: string): Promise<string> {
+export async function saveImage(
+  buffer: Buffer,
+  subdir: string,
+  filename: string,
+  compress: boolean = true,
+): Promise<string> {
   const mediaPath = getMediaPath()
   const publicDir = join(process.cwd(), 'public', mediaPath, subdir)
-  const filePath = join(publicDir, filename)
+
+  let finalBuffer = buffer
+  let finalFilename = filename
+
+  // Compress image if enabled
+  if (compress) {
+    const ext = filename.split('.').pop() || 'jpg'
+    const { buffer: optimizedBuffer, ext: newExt } = await optimizeImage(buffer, ext)
+    finalBuffer = optimizedBuffer
+
+    // Update filename if extension changed (e.g., PNG → JPG)
+    if (newExt !== ext) {
+      finalFilename = filename.replace(/\.[^.]+$/, `.${newExt}`)
+    }
+  }
+
+  const filePath = join(publicDir, finalFilename)
 
   // Ensure directory exists
   await mkdir(dirname(filePath), { recursive: true })
 
   // Write file
-  await writeFile(filePath, buffer)
+  await writeFile(filePath, finalBuffer)
 
   // Return public URL
-  return `/${mediaPath}/${subdir}/${filename}`
+  return `/${mediaPath}/${subdir}/${finalFilename}`
 }
 
 /**
@@ -130,14 +160,86 @@ function getExtensionFromUrl(url: string): string {
 }
 
 /**
- * Optimize image (optional future enhancement)
- * Could use sharp library for resizing/compression
+ * Optimize image using sharp
+ * - Resize to max dimensions (preserving aspect ratio)
+ * - Compress with appropriate quality
+ * - Convert large PNGs to JPEG if they're photos
  *
  * @param buffer - Original image buffer
- * @returns Optimized image buffer
+ * @param originalExt - Original file extension
+ * @returns Object with optimized buffer and new extension
  */
-export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
-  // TODO: Install 'sharp' when ready to implement
-  // Could resize large images, compress, convert to WebP, etc.
-  return buffer
+export async function optimizeImage(
+  buffer: Buffer,
+  originalExt: string = 'jpg',
+): Promise<{ buffer: Buffer; ext: string }> {
+  const ext = originalExt.toLowerCase()
+
+  try {
+    let image = sharp(buffer)
+    const metadata = await image.metadata()
+
+    // Skip SVGs and GIFs (animated)
+    if (ext === 'svg' || ext === 'gif') {
+      return { buffer, ext }
+    }
+
+    // Resize if larger than max dimensions
+    if (metadata.width && metadata.width > MAX_WIDTH) {
+      image = image.resize(MAX_WIDTH, MAX_HEIGHT, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+    }
+
+    // Determine output format
+    let outputExt = ext
+    let outputBuffer: Buffer
+
+    if (ext === 'png') {
+      // Check if PNG is photo-like (large, no transparency benefit)
+      // Convert to JPEG if it would be significantly smaller
+      const pngBuffer = await image.png({ quality: PNG_QUALITY }).toBuffer()
+
+      if (pngBuffer.length > MAX_FILE_SIZE_BYTES) {
+        // Try JPEG conversion
+        const jpegBuffer = await image.jpeg({ quality: JPEG_QUALITY }).toBuffer()
+        if (jpegBuffer.length < pngBuffer.length * 0.7) {
+          // JPEG is significantly smaller, use it
+          outputBuffer = jpegBuffer
+          outputExt = 'jpg'
+        } else {
+          outputBuffer = pngBuffer
+        }
+      } else {
+        outputBuffer = pngBuffer
+      }
+    } else {
+      // JPEG/WebP - just compress
+      outputBuffer = await image.jpeg({ quality: JPEG_QUALITY }).toBuffer()
+      outputExt = 'jpg'
+    }
+
+    const savings = buffer.length - outputBuffer.length
+    if (savings > 1024) {
+      const pct = Math.round((savings / buffer.length) * 100)
+      console.log(
+        `    📦 Compressed: ${formatBytes(buffer.length)} → ${formatBytes(outputBuffer.length)} (-${pct}%)`,
+      )
+    }
+
+    return { buffer: outputBuffer, ext: outputExt }
+  } catch (error) {
+    console.warn(`    ⚠️  Could not optimize image: ${error}`)
+    return { buffer, ext }
+  }
+}
+
+/**
+ * Format bytes as human readable string
+ */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes}B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
 }
