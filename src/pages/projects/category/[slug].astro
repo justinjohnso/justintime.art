@@ -49,7 +49,7 @@ const categoryProjects = allProjects.filter(project => {
   });
 });
 
-// Get homepage to determine featured projects
+// Get homepage to determine featured project ordering
 const homePage = await getCollection('pages').then(pages => pages.find(p => p.id === 'home.mdx'));
 const featuredProjectOrder = (homePage?.data.featuredProjects || []).map((item: unknown, index: number) => {
   const projectPath = (item as any)?.project as string | undefined;
@@ -57,25 +57,26 @@ const featuredProjectOrder = (homePage?.data.featuredProjects || []).map((item: 
   return { slug: match ? match[1] : null, order: index };
 }).filter(item => item.slug !== null);
 
-const featuredProjectSlugs = new Set(featuredProjectOrder.map(item => item.slug));
-
-// Sort projects: featured first (by homepage order), then non-featured (by date)
+// Featured projects are determined by the `featured` field on the project itself
 const featuredProjects = categoryProjects
-  .filter(p => {
-    const projectSlug = p.id.replace(/\.mdx$/, '');
-    return featuredProjectSlugs.has(projectSlug);
-  })
+  .filter(p => p.data.featured === true)
   .sort((a, b) => {
     const slugA = a.id.replace(/\.mdx$/, '');
     const slugB = b.id.replace(/\.mdx$/, '');
+    // Sort by homepage order if specified, otherwise by date
     const orderA = featuredProjectOrder.find(item => item.slug === slugA)?.order ?? 999;
     const orderB = featuredProjectOrder.find(item => item.slug === slugB)?.order ?? 999;
-    return orderA - orderB;
+    if (orderA !== orderB) return orderA - orderB;
+    // Fallback to date for featured projects not in the homepage list
+    const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
+    const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
+    return yearB - yearA;
   });
 
+const featuredSlugs = new Set(featuredProjects.map(p => p.id.replace(/\.mdx$/, '')));
 const nonFeaturedProjects = categoryProjects.filter(p => {
   const projectSlug = p.id.replace(/\.mdx$/, '');
-  return !featuredProjectSlugs.has(projectSlug);
+  return !featuredSlugs.has(projectSlug);
 });
 
 // Sort non-featured by date (newest first)
