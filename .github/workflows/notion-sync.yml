@@ -111,17 +111,6 @@ jobs:
           git pull --rebase origin main
           git push
 
-      - name: Debug secrets
-        if: steps.check-changes.outputs.changes == 'true'
-        env:
-          PUBLIC_TINA_CLIENT_ID: ${{ secrets.PUBLIC_TINA_CLIENT_ID }}
-        run: |
-          echo "CLIENT_ID length: ${#PUBLIC_TINA_CLIENT_ID}"
-          if [ -z "$PUBLIC_TINA_CLIENT_ID" ]; then
-            echo "ERROR: PUBLIC_TINA_CLIENT_ID is empty!"
-            exit 1
-          fi
-
       - name: Build site
         if: steps.check-changes.outputs.changes == 'true'
         env:
