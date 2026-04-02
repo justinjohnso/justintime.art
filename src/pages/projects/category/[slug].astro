@@ -57,20 +57,26 @@ const featuredProjectOrder = (homePage?.data.featuredProjects || []).map((item: 
   return { slug: match ? match[1] : null, order: index };
 }).filter(item => item.slug !== null);
 
+const getCompletionTimestamp = (project: typeof categoryProjects[0]) => {
+  if (!project.data.dateCompleted) return 0;
+  const parsed = Date.parse(project.data.dateCompleted);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
 // Featured projects are determined by the `featured` field on the project itself
 const featuredProjects = categoryProjects
   .filter(p => p.data.featured === true)
   .sort((a, b) => {
     const slugA = a.id.replace(/\.mdx$/, '');
     const slugB = b.id.replace(/\.mdx$/, '');
-    // Sort by homepage order if specified, otherwise by date
+    // Sort by homepage order if specified, then by completion date
     const orderA = featuredProjectOrder.find(item => item.slug === slugA)?.order ?? 999;
     const orderB = featuredProjectOrder.find(item => item.slug === slugB)?.order ?? 999;
     if (orderA !== orderB) return orderA - orderB;
-    // Fallback to date for featured projects not in the homepage list
-    const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
-    const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
-    return yearB - yearA;
+    const completedA = getCompletionTimestamp(a);
+    const completedB = getCompletionTimestamp(b);
+    if (completedA !== completedB) return completedB - completedA;
+    return slugA.localeCompare(slugB);
   });
 
 const featuredSlugs = new Set(featuredProjects.map(p => p.id.replace(/\.mdx$/, '')));
@@ -81,9 +87,10 @@ const nonFeaturedProjects = categoryProjects.filter(p => {
 
 // Sort non-featured by date (newest first)
 nonFeaturedProjects.sort((a, b) => {
-  const yearA = a.data.dateCompleted ? new Date(a.data.dateCompleted).getFullYear() : 0;
-  const yearB = b.data.dateCompleted ? new Date(b.data.dateCompleted).getFullYear() : 0;
-  return yearB - yearA;
+  const completedA = getCompletionTimestamp(a);
+  const completedB = getCompletionTimestamp(b);
+  if (completedA !== completedB) return completedB - completedA;
+  return a.id.localeCompare(b.id);
 });
 
 // Combine: featured first, then non-featured
