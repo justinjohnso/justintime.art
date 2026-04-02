@@ -115,7 +115,7 @@ jobs:
       - name: Build site
         if: steps.check-changes.outputs.changes == 'true'
         env:
-          PUBLIC_TINA_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          PUBLIC_TINA_CLIENT_ID: ${{ secrets.PUBLIC_TINA_CLIENT_ID }}
           TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
           GITHUB_BRANCH: ${{ github.ref_name }}
           PUBLIC_SITE_URL: ${{ secrets.PUBLIC_SITE_URL }}
