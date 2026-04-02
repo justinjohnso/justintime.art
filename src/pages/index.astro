@@ -153,7 +153,7 @@ const categoryMetadata = allCategories.map(cat => ({
         const catPath = cat.category || cat;
         return catPath.split('/').pop()?.replace('.mdx', '');
       }) || [],
-      featured: featuredProjectSlugs.has(p.slug)
+      featured: featuredSlugs.has(p.slug)
     })) }}>
       function applyFilter() {
         const categorySlug = new URLSearchParams(window.location.search).get('category');
