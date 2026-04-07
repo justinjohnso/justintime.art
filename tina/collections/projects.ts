@@ -60,6 +60,47 @@ export const ProjectsCollection: Collection = {
         'Full embed URL for Vimeo, YouTube, or SoundCloud (e.g., https://w.soundcloud.com/player/?url=...)',
     },
     {
+      type: 'string',
+      name: 'mediaEmbedLabel',
+      label: 'Media Link Label',
+      description:
+        'Optional label for the media anchor button (e.g., Watch trailer, View performance, Listen). Defaults to Watch/Listen.',
+    },
+    {
+      type: 'object',
+      name: 'mediaEmbeds',
+      label: 'Additional Media Embeds',
+      description: 'Add multiple video/audio embeds. These render below the first media embed.',
+      list: true,
+      ui: {
+        itemProps: (item) => {
+          return {
+            label: item?.label || item?.url || 'New Media Embed',
+          }
+        },
+        defaultItem: {
+          url: '',
+          label: '',
+        },
+      },
+      fields: [
+        {
+          type: 'string',
+          name: 'url',
+          label: 'Media URL',
+          description: 'YouTube, Vimeo, SoundCloud, MP3, MP4, or Dropbox raw media link',
+          required: false,
+        },
+        {
+          type: 'string',
+          name: 'label',
+          label: 'Link Label',
+          description: 'Optional label shown in the project links area (e.g., Watch trailer)',
+          required: false,
+        },
+      ],
+    },
+    {
       type: 'object',
       name: 'categories',
       label: 'Categories',

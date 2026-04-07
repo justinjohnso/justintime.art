@@ -68,11 +68,35 @@ export interface NotionProjectPage {
       }>
     }
 
-    // Media Embed (URL/Text)
-    'Media Embed': {
+    // Media Embed (URL or Rich Text)
+    'Media Embed':
+      | {
+          type: 'url'
+          url: string | null
+        }
+      | {
+          type: 'rich_text'
+          rich_text: Array<{
+            plain_text: string
+            href?: string | null
+          }>
+        }
+
+    // Optional label for primary media embed
+    'Media Embed Label'?: {
       type: 'rich_text'
       rich_text: Array<{
         plain_text: string
+        href?: string | null
+      }>
+    }
+
+    // Additional embeds (same pattern as Links (Rich Text))
+    'Media Embeds (Rich Text)'?: {
+      type: 'rich_text'
+      rich_text: Array<{
+        plain_text: string
+        href?: string | null
       }>
     }
 
@@ -269,6 +293,11 @@ export interface PortfolioProject {
   description?: string
   image?: string
   mediaEmbed?: string
+  mediaEmbedLabel?: string
+  mediaEmbeds?: Array<{
+    url?: string
+    label?: string
+  }>
   categories?: string[]
   yearCompleted?: number
   dateCompleted?: string

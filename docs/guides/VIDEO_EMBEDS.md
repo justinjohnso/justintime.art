@@ -1,6 +1,6 @@
 # Video & Media Embed System
 
-This project has a built-in system for embedding videos and audio from YouTube, Vimeo, and SoundCloud.
+This project has a built-in system for embedding videos and audio from YouTube, Vimeo, SoundCloud, direct audio files, and direct video files.
 
 ## How It Works
 
@@ -34,32 +34,51 @@ const embedInfo = getEmbedInfo('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
 
 ## Usage in Projects
 
-### Adding a Video/Audio Embed
+### Adding Video/Audio Embeds
 
-In your project frontmatter (MDX file), add the `mediaEmbed` field:
+In your project frontmatter (MDX file), add the `mediaEmbed` field for the first media item:
 
 ```yaml
 ---
 title: My Project
 mediaEmbed: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+mediaEmbedLabel: Watch trailer
 # ... other fields
 ---
 ```
 
-The embed will automatically be rendered in the project page layout.
+To add multiple media items, use `mediaEmbeds`:
+
+```yaml
+---
+title: My Project
+mediaEmbed: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+mediaEmbedLabel: Watch trailer
+mediaEmbeds:
+  - url: https://vimeo.com/123456789
+    label: Watch full performance
+  - url: https://www.dropbox.com/scl/fi/abcd/demo.mp4?raw=1
+    label: Watch demo clip
+---
+```
+
+All valid media URLs are rendered as separate embeds on the project page.
 
 ### Current Implementation
 
-Embeds are currently rendered in **Row 3** of the project layout, in a 2-column grid alongside images or body text.
+Embeds are rendered in the dedicated media section of the project layout.
 
 ```astro
 <!-- In src/pages/projects/[slug].astro -->
-const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed) : null;
+const mediaEmbeds = [
+  project.data.mediaEmbed,
+  ...(project.data.mediaEmbeds || []).map((item) => item?.url),
+]
 
 <!-- Later in template -->
-{embedInfo && (
-  <iframe src={embedInfo.embedUrl} ... />
-)}
+{mediaEmbeds.map((media) => (
+  <iframe src={media.embedUrl} ... />
+))}
 ```
 
 ## Technical Details
@@ -105,7 +124,16 @@ All iframes include:
   type: 'string',
   name: 'mediaEmbed',
   label: 'Media Embed URL',
-  description: 'YouTube, Vimeo, or SoundCloud URL',
+}
+{
+  type: 'string',
+  name: 'mediaEmbedLabel',
+  label: 'Media Link Label',
+}
+{
+  type: 'object',
+  name: 'mediaEmbeds',
+  list: true,
 }
 ```
 
@@ -115,6 +143,8 @@ All iframes include:
 
 ```typescript
 mediaEmbed: z.string().optional(),
+mediaEmbedLabel: z.string().optional(),
+mediaEmbeds: z.array(z.object({ url: z.string().optional(), label: z.string().optional() })).optional(),
 ```
 
 ## Examples
@@ -148,12 +178,13 @@ mediaEmbed: https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tr
 
 ## Layout Behavior
 
-### With Embed
+### With Embed(s)
 
-When `mediaEmbed` is provided:
-1. Embed renders in Row 3 (left column)
-2. Body text renders in Row 3 (right column)
-3. Minimum height: 350px
+When `mediaEmbed` and/or `mediaEmbeds` are provided:
+1. Media links appear in the project links area
+2. Link labels use custom labels when set
+3. Each media item renders in sequence in the media section
+4. Minimum height is maintained for embedded players
 
 ### Without Embed
 
@@ -164,16 +195,13 @@ When no `mediaEmbed` is provided:
 ## Known Limitations
 
 ### Current Layout
-- Embeds are mixed with images/text in grid layout
-- Not in a dedicated section under hero
-- Limited control over placement
+- Multiple media embeds are supported
+- First media can use `mediaEmbed`, additional media can use `mediaEmbeds`
+- Link labels are configurable with `mediaEmbedLabel` and per-item `label`
 
 ### Future Enhancements (from roadmap)
-- [ ] Move videos to dedicated section under hero
-- [ ] Separate video content from other media
 - [ ] More granular aspect ratio control
-- [ ] Multiple videos per project
-- [ ] Video captions/descriptions
+- [ ] Optional media captions/descriptions in layout
 
 ## Troubleshooting
 
@@ -181,7 +209,7 @@ When no `mediaEmbed` is provided:
 
 1. **Check URL format**: Must be a valid YouTube, Vimeo, or SoundCloud URL
 2. **Check console**: `embedUtils.ts` logs parsing errors
-3. **Verify field**: Ensure `mediaEmbed` is set in frontmatter
+3. **Verify fields**: Ensure `mediaEmbed` or `mediaEmbeds` are set in frontmatter
 
 ### Wrong aspect ratio
 

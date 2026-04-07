@@ -55,8 +55,53 @@ const categoryDisplayNames = project.data.categories?.map((cat: any) => {
   return catData?.title || catSlug;
 }).filter(Boolean) || [];
 
-// Check for media embed - trim whitespace/newlines that might come from YAML formatting
-const embedInfo = project.data.mediaEmbed ? getEmbedInfo(project.data.mediaEmbed.trim()) : null;
+type ProjectMedia = {
+  id: string;
+  label: string;
+  info: NonNullable<ReturnType<typeof getEmbedInfo>>;
+};
+
+const defaultMediaLabel = (type: string) =>
+  type === 'soundcloud' || type === 'audio' ? 'Listen' : 'Watch';
+
+const rawMediaEntries: Array<{ url: string; label?: string }> = [];
+
+if (project.data.mediaEmbed?.trim()) {
+  rawMediaEntries.push({
+    url: project.data.mediaEmbed.trim(),
+    label: project.data.mediaEmbedLabel?.trim() || undefined,
+  });
+}
+
+for (const mediaItem of project.data.mediaEmbeds || []) {
+  const url = mediaItem?.url?.trim();
+  if (!url) continue;
+  rawMediaEntries.push({
+    url,
+    label: mediaItem.label?.trim() || undefined,
+  });
+}
+
+const seenMediaUrls = new Set<string>();
+const uniqueMediaEntries = rawMediaEntries.filter((entry) => {
+  const key = entry.url.toLowerCase();
+  if (seenMediaUrls.has(key)) return false;
+  seenMediaUrls.add(key);
+  return true;
+});
+
+const mediaEmbeds: ProjectMedia[] = uniqueMediaEntries
+  .map((entry, index, allEntries) => {
+    const info = getEmbedInfo(entry.url);
+    if (!info) return null;
+    const fallbackLabel = defaultMediaLabel(info.type);
+    return {
+      id: `media-embed-${index + 1}`,
+      label: entry.label || (allEntries.length > 1 ? `${fallbackLabel} ${index + 1}` : fallbackLabel),
+      info,
+    };
+  })
+  .filter((entry): entry is ProjectMedia => entry !== null);
 
 // Helper: split an array into chunks of the given size
 const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
@@ -83,8 +128,8 @@ const heroImage = project.data.image || allAdditionalImages[0] || null;
 const validImages = project.data.image ? allAdditionalImages : allAdditionalImages.slice(1);
 const n = validImages.length;
 
-// Check if we have a media embed (video or SoundCloud) that affects layout
-const hasMediaEmbed = embedInfo !== null;
+// Check if we have media embeds (video, SoundCloud, or audio) that affect layout
+const hasMediaEmbed = mediaEmbeds.length > 0;
 
 let row2Images: string[] = [];
 let row3Image: string | null = null;
@@ -188,18 +233,18 @@ const rows = chunkArray(remainingImages, 3);
 
                 {/* Links */}
                 <div class="flex flex-wrap gap-3">
-                  {/* Media embed link */}
-                  {embedInfo && (
+                  {/* Media embed links */}
+                  {mediaEmbeds.map((media) => (
                     <a
-                      href="#media-embed"
+                      href={`#${media.id}`}
                       class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
                     >
-                      {embedInfo.type === 'soundcloud' || embedInfo.type === 'audio' ? 'Listen' : 'Watch'}
+                      {media.label}
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                       </svg>
                     </a>
-                  )}
+                  ))}
                   
                   {/* External links */}
                   {project.data.links && project.data.links.map((link) => (
@@ -264,18 +309,18 @@ const rows = chunkArray(remainingImages, 3);
 
                 {/* Links */}
                 <div class="flex flex-wrap gap-3">
-                  {/* Media embed link */}
-                  {embedInfo && (
+                  {/* Media embed links */}
+                  {mediaEmbeds.map((media) => (
                     <a
-                      href="#media-embed"
+                      href={`#${media.id}`}
                       class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-black transition-colors text-sm"
                     >
-                      {embedInfo.type === 'soundcloud' || embedInfo.type === 'audio' ? 'Listen' : 'Watch'}
+                      {media.label}
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                       </svg>
                     </a>
-                  )}
+                  ))}
                   
                   {/* External links */}
                   {project.data.links && project.data.links.map((link) => (
@@ -360,68 +405,64 @@ const rows = chunkArray(remainingImages, 3);
       </section>
     )}
 
-    <!-- Render Row 3: Media embed (video, SoundCloud, or audio) full width -->
-    {embedInfo && embedInfo.type === 'soundcloud' && (
-      <section class="mb-2" id="media-embed">
-        <div class="relative w-full min-h-[350px]">
-          <iframe
-            width="100%"
-            height="100%"
-            scrolling="no"
-            frameborder="no"
-            allow="autoplay"
-            src={embedInfo.embedUrl}
-            title={project.data.title}
-            class="min-h-[350px]"
-          ></iframe>
-        </div>
-      </section>
-    )}
+    <!-- Render media embeds (video, SoundCloud, audio) -->
+    {mediaEmbeds.map((media) => (
+      <section class="mb-2" id={media.id}>
+        {media.info.type === 'soundcloud' && (
+          <div class="relative w-full min-h-[350px]">
+            <iframe
+              width="100%"
+              height="100%"
+              scrolling="no"
+              frameborder="no"
+              allow="autoplay"
+              src={media.info.embedUrl}
+              title={`${project.data.title} - ${media.label}`}
+              class="min-h-[350px]"
+            ></iframe>
+          </div>
+        )}
 
-    {embedInfo && embedInfo.type === 'audio' && (
-      <section class="mb-2" id="media-embed">
-        <div class="relative w-full flex items-center justify-center py-8">
-          <audio
-            controls
-            class="w-full"
-            preload="metadata"
-          >
-            <source src={embedInfo.embedUrl} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        </div>
-      </section>
-    )}
+        {media.info.type === 'audio' && (
+          <div class="relative w-full flex items-center justify-center py-8">
+            <audio
+              controls
+              class="w-full"
+              preload="metadata"
+            >
+              <source src={media.info.embedUrl} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        )}
 
-    {embedInfo && embedInfo.type === 'video' && (
-      <section class="mb-2" id="media-embed">
-        <div class="relative w-full" style={`aspect-ratio: ${embedInfo.aspectRatio}`}>
-          <video
-            controls
-            class="absolute inset-0 w-full h-full bg-black"
-            preload="metadata"
-          >
-            <source src={embedInfo.embedUrl} type="video/mp4" />
-            Your browser does not support the video element.
-          </video>
-        </div>
-      </section>
-    )}
+        {media.info.type === 'video' && (
+          <div class="relative w-full" style={`aspect-ratio: ${media.info.aspectRatio}`}>
+            <video
+              controls
+              class="absolute inset-0 w-full h-full bg-black"
+              preload="metadata"
+            >
+              <source src={media.info.embedUrl} type="video/mp4" />
+              Your browser does not support the video element.
+            </video>
+          </div>
+        )}
 
-    {embedInfo && embedInfo.type !== 'soundcloud' && embedInfo.type !== 'audio' && embedInfo.type !== 'video' && (
-      <section class="mb-2" id="media-embed">
-        <div class="relative w-full" style={`aspect-ratio: ${embedInfo.aspectRatio}`}>
-          <iframe
-            src={embedInfo.embedUrl}
-            class="absolute inset-0 w-full h-full"
-            frameborder="0"
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
-            allowfullscreen
-            title={project.data.title}
-          ></iframe>
-        </div>
+        {media.info.type !== 'soundcloud' && media.info.type !== 'audio' && media.info.type !== 'video' && (
+          <div class="relative w-full" style={`aspect-ratio: ${media.info.aspectRatio}`}>
+            <iframe
+              src={media.info.embedUrl}
+              class="absolute inset-0 w-full h-full"
+              frameborder="0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+              allowfullscreen
+              title={`${project.data.title} - ${media.label}`}
+            ></iframe>
+          </div>
+        )}
       </section>
-    )}
+    ))}
 
     <!-- Render Remaining Rows (3 per row) -->
     {rows.map((row) => {

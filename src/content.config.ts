@@ -7,6 +7,15 @@ export const projects = defineCollection({
     description: z.string().optional(),
     image: z.string().optional(),
     mediaEmbed: z.string().optional(),
+    mediaEmbedLabel: z.string().optional(),
+    mediaEmbeds: z
+      .array(
+        z.object({
+          url: z.string().optional(),
+          label: z.string().optional(),
+        }),
+      )
+      .optional(),
     category: z.array(z.string()).optional(),
     featured: z.boolean().optional(),
     dateCompleted: z.string().optional(),
