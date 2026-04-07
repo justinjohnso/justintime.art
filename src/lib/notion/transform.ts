@@ -112,10 +112,23 @@ export function transformNotionProject(notionPage: NotionProjectPage): Transform
   const dateCompleted = props['Date Completed']?.date?.start
     || (props.Year?.number ? `${props.Year.number}-01-01` : undefined)
 
-  // Extract media embed URL (user changed from rich_text to URL type)
-  const mediaEmbed = props['Media Embed']?.url
-    || props['Media Embed']?.rich_text?.[0]?.plain_text
-    || undefined
+  // Extract primary media embed URL (supports URL and rich_text field types)
+  const mediaEmbedProperty = props['Media Embed']
+  const mediaEmbed = mediaEmbedProperty?.type === 'url'
+    ? mediaEmbedProperty.url || undefined
+    : mediaEmbedProperty?.rich_text?.[0]?.href
+      || mediaEmbedProperty?.rich_text?.[0]?.plain_text
+      || undefined
+
+  // Optional custom label for primary media link
+  const mediaEmbedLabel = props['Media Embed Label']?.rich_text
+    ? extractPlainText(props['Media Embed Label'].rich_text).trim() || undefined
+    : undefined
+
+  // Parse additional media embeds from rich text (same pattern as links parsing)
+  const additionalMediaEmbeds = props['Media Embeds (Rich Text)']?.rich_text
+    ? parseMediaEmbedsFromRichText(props['Media Embeds (Rich Text)'].rich_text)
+    : []
 
   // Parse links from rich text
   const links = props['Links (Rich Text)']?.rich_text
@@ -149,9 +162,82 @@ export function transformNotionProject(notionPage: NotionProjectPage): Transform
   if (dateCompleted) frontmatter.dateCompleted = dateCompleted
   if (categories.length > 0) frontmatter.categories = categories
   if (mediaEmbed) frontmatter.mediaEmbed = mediaEmbed
+  if (mediaEmbedLabel) frontmatter.mediaEmbedLabel = mediaEmbedLabel
+  if (additionalMediaEmbeds.length > 0) frontmatter.mediaEmbeds = additionalMediaEmbeds
   if (links.length > 0) frontmatter.links = links
 
   return { slug, title, frontmatter, bodyText, heroImageUrl, additionalImageUrls }
+}
+
+/**
+ * Parse media embeds from Notion rich text.
+ * Supports native Notion links, markdown links, or plain URLs.
+ * Optionally supports "Label | URL" formatting in plain text.
+ */
+export function parseMediaEmbedsFromRichText(
+  richText: NotionRichText[],
+): Array<{ url: string; label?: string }> {
+  const items: Array<{ url: string; label?: string }> = []
+
+  // 1) Native Notion links
+  for (const rt of richText) {
+    if (rt.href) {
+      const label = rt.plain_text?.trim()
+      items.push({
+        url: rt.href,
+        label: label && label !== rt.href ? label : undefined,
+      })
+    }
+  }
+
+  // 2) Fallback text parsing if no native links found
+  if (items.length === 0) {
+    const text = extractPlainText(richText)
+
+    // Markdown links: [Label](URL)
+    const markdownLinks = text.matchAll(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g)
+    for (const match of markdownLinks) {
+      const label = match[1].trim()
+      const url = match[2].trim()
+      if (url) {
+        items.push({ url, label: label || undefined })
+      }
+    }
+
+    // Label | URL (one per line)
+    if (items.length === 0) {
+      for (const rawLine of text.split('\n')) {
+        const line = rawLine.trim()
+        if (!line) continue
+
+        const pipeMatch = line.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/)
+        if (pipeMatch) {
+          items.push({
+            label: pipeMatch[1].trim() || undefined,
+            url: pipeMatch[2].trim(),
+          })
+        }
+      }
+    }
+
+    // Plain URLs
+    if (items.length === 0) {
+      const urls = text.match(/https?:\/\/[^\s)]+/g) || []
+      for (const url of urls) {
+        items.push({ url: url.trim() })
+      }
+    }
+  }
+
+  // Remove invalid/duplicate URLs while preserving order
+  const seen = new Set<string>()
+  return items.filter((item) => {
+    if (!item.url) return false
+    const key = item.url.toLowerCase()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 /**

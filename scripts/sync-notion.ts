@@ -97,6 +97,43 @@ async function fetchDatabasePages(
 }
 
 /**
+ * Build a published-status filter that matches the actual Notion property type.
+ * Supports both legacy select fields and newer status fields.
+ */
+async function buildPublishedFilter(notion: Client, databaseId: string): Promise<any> {
+  const database: any = await notion.databases.retrieve({ database_id: databaseId })
+  const statusProperty = database?.properties?.Status
+
+  if (!statusProperty?.type) {
+    console.warn('⚠️  No "Status" property found on database. Syncing all rows without status filter.')
+    return undefined
+  }
+
+  if (statusProperty.type === 'status') {
+    return {
+      property: 'Status',
+      status: {
+        equals: 'Published',
+      },
+    }
+  }
+
+  if (statusProperty.type === 'select') {
+    return {
+      property: 'Status',
+      select: {
+        equals: 'Published',
+      },
+    }
+  }
+
+  console.warn(
+    `⚠️  "Status" property exists but is type "${statusProperty.type}" (expected status/select). Syncing all rows without status filter.`,
+  )
+  return undefined
+}
+
+/**
  * Fetch all blocks for a page
  */
 async function fetchPageBlocks(notion: Client, pageId: string): Promise<NotionBlock[]> {
@@ -340,12 +377,7 @@ async function syncProjects(notion: Client): Promise<SyncStats> {
   const { projectsDbId } = getNotionConfig()
   const stats: SyncStats = { created: 0, updated: 0, skipped: 0, errors: 0 }
 
-  const filter = {
-    property: 'Status',
-    select: {
-      equals: 'Published',
-    },
-  }
+  const filter = await buildPublishedFilter(notion, projectsDbId)
 
   const pages = await fetchDatabasePages(notion, projectsDbId, filter)
 
@@ -367,12 +399,7 @@ async function syncBlogPosts(notion: Client): Promise<SyncStats> {
   const { blogDbId } = getNotionConfig()
   const stats: SyncStats = { created: 0, updated: 0, skipped: 0, errors: 0 }
 
-  const filter = {
-    property: 'Status',
-    select: {
-      equals: 'Published',
-    },
-  }
+  const filter = await buildPublishedFilter(notion, blogDbId)
 
   const pages = await fetchDatabasePages(notion, blogDbId, filter)
 

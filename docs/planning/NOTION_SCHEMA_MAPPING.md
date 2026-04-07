@@ -18,7 +18,11 @@ Located in `tina/collections/projects.ts`:
 | `title` | string | ✅ | Project title |
 | `description` | string (textarea) | ❌ | Brief description |
 | `image` | image | ❌ | Featured/hero image |
-| `mediaEmbed` | string (textarea) | ❌ | YouTube/Vimeo/SoundCloud URL |
+| `mediaEmbed` | string (textarea) | ❌ | Primary YouTube/Vimeo/SoundCloud/MP4/audio URL |
+| `mediaEmbedLabel` | string | ❌ | Optional label for primary media link button |
+| `mediaEmbeds` | object[] | ❌ | Additional media embeds |
+| `mediaEmbeds[].url` | string | ❌ | Additional media URL |
+| `mediaEmbeds[].label` | string | ❌ | Optional button label for that media item |
 | `categories` | string[] | ❌ | Array of category tags |
 | `dateCompleted` | datetime | ❌ | Full completion date (YYYY-MM-DD) |
 | `yearCompleted` | number | ❌ | Year only (for display) |
@@ -54,7 +58,9 @@ Custom content blocks available in `body`:
 | **Featured** | Checkbox | → `featured` | Show on homepage |
 | **Hero Image File** | File | → `image` | Main/featured image |
 | **Additional Image Files** | Files | → `additionalImages[]` | Gallery images |
-| **Media Embed** | Text/URL | → `mediaEmbed` | YouTube/Vimeo/SoundCloud URL |
+| **Media Embed** | URL/Text | → `mediaEmbed` | Primary media URL |
+| **Media Embed Label** | Rich Text | → `mediaEmbedLabel` | Optional label (e.g., "Watch trailer") |
+| **Media Embeds (Rich Text)** | Rich Text | → `mediaEmbeds[]` | Additional media links, parsed like multi-links |
 | **Slug** | Text | → filename | Used for URL/filename |
 | **Status** | Select | Filter `published` | Draft vs Published |
 | **Year** | Number | → `yearCompleted` | Completion year |
@@ -68,7 +74,9 @@ Custom content blocks available in `body`:
 - ✅ **Description** → `description` (direct string)
 - ✅ **Featured** → `featured` (checkbox → boolean)
 - ✅ **Year** → `yearCompleted` (direct number)
-- ✅ **Media Embed** → `mediaEmbed` (direct string)
+- ✅ **Media Embed** → `mediaEmbed` (direct URL/string)
+- ✅ **Media Embed Label** → `mediaEmbedLabel` (direct string)
+- ✅ **Media Embeds (Rich Text)** → `mediaEmbeds[]` (parsed link objects)
 - ✅ **Slug** → Used for filename generation
 
 #### Complex Mappings Needed
