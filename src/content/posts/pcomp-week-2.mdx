@@ -1,0 +1,39 @@
+---
+title: "Untitled"
+date: "2026-04-07"
+draft: true
+---
+
+This week’s labs were focused around building an understanding of the *analog* and *digital *I/O of the Arduino.
+
+I already have some experience working with Arduinos, so this was all mostly review for me - but I still ran into a couple of surprises, and had some trial/error puzzling to work out.
+
+# Lab 1: Digital Input & Output
+
+The first breadboard setup was a single pushbutton where an interaction would switch on one LED and switch off the other:
+
+![Successful code compilation and upload](/media/blog/Screenshot_2024-09-13_at_17.47.17.png)
+
+I got this working on the second try - I had the polarity swapped on my LEDs when I first wired it together, but managed to fix that pretty quickly.
+
+# Lab 2: Analog Input
+
+## Potentiometer
+
+This one stumped me for a little bit.
+
+TL;DR - I initially wired up a *rotary encoder* instead of a *potentiometer* which caused a bug where the Arduino would intermittently disconnect as I turned the knob. 
+
+After googling a bit, I found some forum posts ([1](https://forum.arduino.cc/t/potentiometer-turning-off-arduino/550263/9)) ([2](https://forum.arduino.cc/t/problem-with-potentiometer/539326)) of people with the same issue, and swapped out the rotary encoder for a potentiometer.
+
+## Photoresistor
+
+## Force-sensitive resistor
+
+![The last bit of this exercise was setting a sensor threshold, and detecting when interaction with the physical sensor passed the threshold value.](/media/blog/Screenshot_2024-09-13_at_19.30.28.png)
+
+# Lab 3: Button presses
+
+The next exercise was to detect individual button presses through the Arduino. Here’s the breadboard setup with three different detection variants:
+
+![Button wired to a digital input pin](/media/blog/PXL_20240914_010244927.jpg)
