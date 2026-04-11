@@ -111,7 +111,13 @@ function generateFilenameFromUrl(url: string, slug: string): string {
   try {
     const pathname = new URL(url).pathname
     const originalName = pathname.split('/').pop()
-    if (originalName) return originalName
+    if (originalName) {
+      try {
+        return decodeURIComponent(originalName)
+      } catch {
+        return originalName
+      }
+    }
   } catch {
     // Fall through
   }

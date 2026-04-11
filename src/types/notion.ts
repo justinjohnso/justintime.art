@@ -1,8 +1,5 @@
 /**
  * TypeScript Types for Notion Database Responses
- *
- * Based on actual Notion database structure documented in:
- * docs/planning/NOTION_SCHEMA_MAPPING.md
  */
 
 /**
