@@ -5,6 +5,7 @@ node_modules/
 build/
 dist/
 .astro/
+output/one-sheets/*.pdf
 
 # Environment files
 .env

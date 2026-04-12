@@ -142,6 +142,47 @@ export const ProjectsCollection: Collection = {
       },
     },
     {
+      type: 'string',
+      name: 'location',
+      label: 'Location',
+      description: 'Optional location label for one-sheet output.',
+      required: false,
+    },
+    {
+      type: 'string',
+      name: 'mediumTypeLabel',
+      label: 'Medium / Type Label',
+      description: 'Optional work type or medium label for one-sheet output.',
+      required: false,
+    },
+    {
+      type: 'string',
+      name: 'duration',
+      label: 'Duration',
+      description: 'Optional duration label for one-sheet output (e.g., 14:37).',
+      required: false,
+    },
+    {
+      type: 'string',
+      name: 'oneSheetNarrativeOverride',
+      label: 'One-Sheet Narrative Override',
+      description: 'Optional narrative override used only in generated one-sheet PDFs.',
+      required: false,
+      ui: {
+        component: 'textarea',
+      },
+    },
+    {
+      type: 'string',
+      name: 'oneSheetReflectionOverride',
+      label: 'One-Sheet Reflection / Process Override',
+      description: 'Optional reflection/process override used only in generated one-sheet PDFs.',
+      required: false,
+      ui: {
+        component: 'textarea',
+      },
+    },
+    {
       type: 'object',
       name: 'links',
       label: 'Project Links',
