@@ -10,11 +10,12 @@
  * Use --force to overwrite all files regardless of timestamps.
  *
  * Usage:
- *   pnpm sync:notion [--skip-projects] [--skip-blog] [--force]
+ *   pnpm sync:notion [--skip-projects] [--skip-blog] [--resume] [--force]
  *
  * Options:
  *   --skip-projects  Skip syncing projects
  *   --skip-blog      Skip syncing blog posts
+ *   --resume         Also run resume sync (optional)
  *   --force          Force overwrite all content (including existing files)
  */
 
@@ -30,6 +31,7 @@ import {
   downloadImage,
 } from '../src/lib/storage/media'
 import { getNotionConfig, validateNotionEnv } from '../src/lib/env'
+import { syncResume } from './sync-resume'
 import type { NotionProjectPage, NotionBlock } from '../src/types/notion'
 
 // Parse command line arguments
@@ -38,6 +40,8 @@ const skipProjects = args.includes('--skip-projects')
 const skipBlog = args.includes('--skip-blog')
 const shouldSyncProjects = !skipProjects
 const shouldSyncBlog = !skipBlog
+const shouldSyncResume = args.includes('--resume')
+const shouldSyncContent = shouldSyncProjects || shouldSyncBlog
 const forceSync = args.includes('--force')
 
 // Directories
@@ -57,9 +61,35 @@ interface SyncStats {
  * Initialize Notion client
  */
 function initNotionClient(): Client {
-  validateNotionEnv()
   const { apiKey } = getNotionConfig()
   return new Client({ auth: apiKey })
+}
+
+/**
+ * Validate env vars based on sync mode
+ */
+function validateSyncEnvironment(): void {
+  if (!shouldSyncContent) {
+    return
+  }
+
+  try {
+    validateNotionEnv({ requireBlogDbId: shouldSyncBlog })
+  } catch (error) {
+    if (
+      shouldSyncBlog &&
+      error instanceof Error &&
+      error.message.includes('NOTION_BLOG_DB_ID')
+    ) {
+      throw new Error(
+        'Blog sync is enabled, but NOTION_BLOG_DB_ID is missing.\n' +
+          'Set NOTION_BLOG_DB_ID in your environment, or run with --skip-blog to skip blog sync.\n\n' +
+          error.message,
+      )
+    }
+
+    throw error
+  }
 }
 
 /**
@@ -432,25 +462,42 @@ async function main(): Promise<void> {
   console.log('🚀 Starting Notion Sync...')
   console.log(`   Projects: ${shouldSyncProjects ? '✓' : '✗'}`)
   console.log(`   Blog: ${shouldSyncBlog ? '✓' : '✗'}`)
+  console.log(`   Resume: ${shouldSyncResume ? '✓' : '✗'}`)
   console.log(`   Force overwrite: ${forceSync ? '✓' : '✗'}`)
 
   try {
-    const notion = initNotionClient()
-    await ensureDirectories()
+    validateSyncEnvironment()
 
-    if (shouldSyncProjects) {
-      const projectStats = await syncProjects(notion)
-      printSummary('Projects', projectStats)
+    if (shouldSyncContent) {
+      const notion = initNotionClient()
+      await ensureDirectories()
+
+      if (shouldSyncProjects) {
+        const projectStats = await syncProjects(notion)
+        printSummary('Projects', projectStats)
+      }
+
+      if (shouldSyncBlog) {
+        const blogStats = await syncBlogPosts(notion)
+        printSummary('Blog', blogStats)
+      }
     }
 
-    if (shouldSyncBlog) {
-      const blogStats = await syncBlogPosts(notion)
-      printSummary('Blog', blogStats)
+    if (shouldSyncResume) {
+      await syncResume()
+    }
+
+    if (!shouldSyncContent && !shouldSyncResume) {
+      console.log('ℹ️  No sync targets selected. Use --resume and/or omit skip flags.')
     }
 
     console.log('\n✨ Sync complete!\n')
   } catch (error) {
-    console.error('\n💥 Sync failed:', error)
+    if (error instanceof Error) {
+      console.error(`\n💥 Sync failed: ${error.message}`)
+    } else {
+      console.error('\n💥 Sync failed:', error)
+    }
     process.exit(1)
   }
 }

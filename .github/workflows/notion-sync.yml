@@ -15,7 +15,7 @@ on:
       sync_blog:
         description: 'Sync blog'
         required: false
-        default: 'false'
+        default: 'true'
       force_sync:
         description: 'Force sync (ignore timestamps)'
         required: false
@@ -73,15 +73,18 @@ jobs:
           NOTION_BLOG_DB_ID: ${{ secrets.NOTION_BLOG_DB_ID }}
         run: |
           FLAGS=""
+          SYNC_PROJECTS="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sync_projects || 'true' }}"
+          SYNC_BLOG="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sync_blog || 'true' }}"
+          FORCE_SYNC="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_sync || 'false' }}"
 
           # Manual workflow inputs - use skip flags for clarity
-          if [ "${{ github.event.inputs.sync_projects }}" = "false" ]; then
+          if [ "$SYNC_PROJECTS" = "false" ]; then
             FLAGS="$FLAGS --skip-projects"
           fi
-          if [ "${{ github.event.inputs.sync_blog }}" = "false" ]; then
+          if [ "$SYNC_BLOG" = "false" ]; then
             FLAGS="$FLAGS --skip-blog"
           fi
-          if [ "${{ github.event.inputs.force_sync }}" = "true" ]; then
+          if [ "$FORCE_SYNC" = "true" ]; then
             FLAGS="$FLAGS --force"
           fi
 
