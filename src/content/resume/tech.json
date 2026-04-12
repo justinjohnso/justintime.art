@@ -1,0 +1,89 @@
+{
+  "variant": "tech",
+  "label": "Web Developer / Software Engineer",
+  "summary": "Creative technologist focused on building performant, content-driven web experiences and maintainable tooling workflows.",
+  "basics": {
+    "name": "Justin Johnson",
+    "label": "Web Developer / Software Engineer",
+    "email": "hello@justintime.art",
+    "url": "https://justintime.art",
+    "summary": "I design and build resilient web systems that connect storytelling, design, and engineering.",
+    "location": {
+      "city": "Chicago",
+      "region": "IL",
+      "countryCode": "US"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "justin",
+        "url": "https://github.com/justin"
+      },
+      {
+        "network": "LinkedIn",
+        "url": "https://www.linkedin.com/in/justin-johnson/"
+      }
+    ]
+  },
+  "roles": [
+    {
+      "position": "Senior Frontend Engineer",
+      "company": "Independent / Contract",
+      "location": "Remote",
+      "startDate": "2022-01",
+      "description": "Led architecture and implementation of portfolio and marketing platforms using Astro, TypeScript, and content pipelines.",
+      "highlights": [
+        "Shipped static-first websites with fast Core Web Vitals and accessible component systems.",
+        "Implemented Notion-to-content sync automation to support editorial workflows.",
+        "Built reusable utility layers for embeds, taxonomy, and build-time data shaping."
+      ]
+    },
+    {
+      "position": "Software Engineer",
+      "company": "Agency & Product Teams",
+      "location": "Chicago, IL",
+      "startDate": "2018-01",
+      "endDate": "2021-12",
+      "description": "Delivered web applications and design systems across client and internal products.",
+      "highlights": [
+        "Developed modern frontend features in React and TypeScript.",
+        "Partnered with designers and stakeholders to define implementation strategy.",
+        "Maintained CI/CD pipelines and release processes for production deployments."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University Program",
+      "degree": "B.A.",
+      "field": "Digital Media",
+      "startDate": "2010-08",
+      "endDate": "2014-05",
+      "notes": "Coursework in interactive media, programming, and production."
+    }
+  ],
+  "skills": [
+    {
+      "name": "Frontend Development",
+      "level": "Advanced",
+      "keywords": [
+        "TypeScript",
+        "React",
+        "Astro",
+        "Tailwind CSS",
+        "Accessibility"
+      ]
+    },
+    {
+      "name": "Platform & Tooling",
+      "level": "Advanced",
+      "keywords": [
+        "Node.js",
+        "CI/CD",
+        "Content Modeling",
+        "GitHub Actions",
+        "Static Site Architecture"
+      ]
+    }
+  ]
+}

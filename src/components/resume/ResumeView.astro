@@ -1,0 +1,132 @@
+---
+import type { ResumeConfiguration } from '../../types/resume';
+
+export interface Props {
+  resume: ResumeConfiguration;
+}
+
+const { resume } = Astro.props;
+
+function formatDate(value?: string): string | null {
+  if (!value) return null;
+
+  const normalized = value.length === 7 ? `${value}-01` : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric'
+  }).format(date);
+}
+---
+
+<article class="p-4 md:p-6 lg:p-8 max-w-4xl">
+  <header class="border-b border-black/10 pb-6">
+    <p class="text-xs uppercase tracking-[0.2em] text-black/60">{resume.variant}</p>
+    <h1 class="mt-2 text-3xl md:text-4xl font-light">{resume.basics?.name ?? 'Resume'}</h1>
+    <p class="mt-1 text-base md:text-lg text-black/80">{resume.label}</p>
+
+    {resume.summary && <p class="mt-4 text-sm md:text-base text-black/80 leading-relaxed">{resume.summary}</p>}
+
+    <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-black/70">
+      {resume.basics?.email && <a href={`mailto:${resume.basics.email}`} class="hover:text-black">{resume.basics.email}</a>}
+      {resume.basics?.phone && <span>{resume.basics.phone}</span>}
+      {resume.basics?.url && <a href={resume.basics.url} class="hover:text-black">{resume.basics.url}</a>}
+      {(resume.basics?.location?.city || resume.basics?.location?.region) && (
+        <span>{[resume.basics?.location?.city, resume.basics?.location?.region].filter(Boolean).join(', ')}</span>
+      )}
+    </div>
+
+    {resume.basics?.profiles && resume.basics.profiles.length > 0 && (
+      <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-black/70">
+        {resume.basics.profiles.map((profile) => (
+          <li>
+            {profile.url ? (
+              <a href={profile.url} class="hover:text-black">
+                {profile.network}
+              </a>
+            ) : (
+              <span>{profile.network}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </header>
+
+  <section class="mt-8">
+    <h2 class="text-sm uppercase tracking-[0.2em] text-black/60">Experience</h2>
+    <div class="mt-4 space-y-6">
+      {resume.roles.map((role) => (
+        <article>
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h3 class="text-lg font-normal">{role.position}</h3>
+            {(role.startDate || role.endDate) && (
+              <p class="text-sm text-black/60">
+                {formatDate(role.startDate)}
+                {' - '}
+                {role.endDate ? formatDate(role.endDate) : 'Present'}
+              </p>
+            )}
+          </div>
+          <p class="text-sm text-black/70">
+            {role.company}
+            {role.location && ` · ${role.location}`}
+          </p>
+          {role.description && <p class="mt-2 text-sm md:text-base text-black/80">{role.description}</p>}
+          {role.highlights.length > 0 && (
+            <ul class="mt-2 list-disc pl-5 space-y-1 text-sm md:text-base text-black/80">
+              {role.highlights.map((highlight) => (
+                <li>{highlight}</li>
+              ))}
+            </ul>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {resume.education.length > 0 && (
+    <section class="mt-8">
+      <h2 class="text-sm uppercase tracking-[0.2em] text-black/60">Education</h2>
+      <div class="mt-4 space-y-4">
+        {resume.education.map((item) => (
+          <article>
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 class="text-lg font-normal">{item.institution}</h3>
+              {(item.startDate || item.endDate) && (
+                <p class="text-sm text-black/60">
+                  {formatDate(item.startDate)}
+                  {' - '}
+                  {item.endDate ? formatDate(item.endDate) : 'Present'}
+                </p>
+              )}
+            </div>
+            <p class="text-sm text-black/70">
+              {[item.degree, item.field].filter(Boolean).join(', ')}
+            </p>
+            {item.notes && <p class="mt-1 text-sm md:text-base text-black/80">{item.notes}</p>}
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {resume.skills.length > 0 && (
+    <section class="mt-8">
+      <h2 class="text-sm uppercase tracking-[0.2em] text-black/60">Skills</h2>
+      <div class="mt-4 space-y-3">
+        {resume.skills.map((skill) => (
+          <article>
+            <h3 class="text-base font-normal">
+              {skill.name}
+              {skill.level && <span class="text-black/60"> · {skill.level}</span>}
+            </h3>
+            {skill.keywords.length > 0 && <p class="mt-1 text-sm text-black/80">{skill.keywords.join(' · ')}</p>}
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+</article>

@@ -86,8 +86,11 @@ export function validateEnv(): void {
  * Validate Notion-specific environment variables
  * Call this before any Notion API operations
  */
-export function validateNotionEnv(): void {
+export function validateNotionEnv(options: { requireBlogDbId?: boolean } = {}): void {
   const required = ['NOTION_API_KEY', 'NOTION_PROJECTS_DB_ID']
+  if (options.requireBlogDbId) {
+    required.push('NOTION_BLOG_DB_ID')
+  }
 
   const missing: string[] = []
 
@@ -103,6 +106,58 @@ export function validateNotionEnv(): void {
       `Missing required Notion environment variables:\n  - ${missing.join('\n  - ')}\n\n` +
         `Please check your .env file against .env.example`,
     )
+  }
+}
+
+const RESUME_NOTION_ENV_KEYS = [
+  'NOTION_RESUME_ROLES_DB_ID',
+  'NOTION_RESUME_EDUCATION_DB_ID',
+  'NOTION_RESUME_SKILLS_DB_ID',
+] as const
+
+export interface ResumeNotionConfig {
+  rolesDbId: string
+  educationDbId: string
+  skillsDbId: string
+}
+
+/**
+ * Validate optional resume-specific Notion environment variables.
+ * Returns false (with warning) when resume sync config is incomplete.
+ */
+export function validateResumeNotionEnv(): boolean {
+  const missing: string[] = []
+
+  for (const key of RESUME_NOTION_ENV_KEYS) {
+    const value = import.meta.env?.[key] || process.env[key]
+    if (!value) {
+      missing.push(key)
+    }
+  }
+
+  if (missing.length > 0) {
+    console.warn(
+      `⚠️  Resume sync skipped: missing optional resume environment variables:\n  - ${missing.join('\n  - ')}`,
+    )
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Get resume-specific Notion configuration.
+ * Returns null when optional resume sync config is not fully set.
+ */
+export function getResumeNotionConfig(): ResumeNotionConfig | null {
+  if (!validateResumeNotionEnv()) {
+    return null
+  }
+
+  return {
+    rolesDbId: getRequiredEnv('NOTION_RESUME_ROLES_DB_ID'),
+    educationDbId: getRequiredEnv('NOTION_RESUME_EDUCATION_DB_ID'),
+    skillsDbId: getRequiredEnv('NOTION_RESUME_SKILLS_DB_ID'),
   }
 }
 

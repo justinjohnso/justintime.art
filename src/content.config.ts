@@ -20,6 +20,11 @@ export const projects = defineCollection({
     featured: z.boolean().optional(),
     dateCompleted: z.string().optional(),
     yearCompleted: z.number().optional(),
+    location: z.string().optional(),
+    mediumTypeLabel: z.string().optional(),
+    duration: z.string().optional(),
+    oneSheetNarrativeOverride: z.string().optional(),
+    oneSheetReflectionOverride: z.string().optional(),
     links: z
       .array(
         z.object({

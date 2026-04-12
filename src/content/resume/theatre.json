@@ -1,0 +1,87 @@
+{
+  "variant": "theatre",
+  "label": "Sound Designer / Audio Engineer",
+  "summary": "Sound designer and audio engineer crafting immersive experiences for theatre, performance, and installation work.",
+  "basics": {
+    "name": "Justin Johnson",
+    "label": "Sound Designer / Audio Engineer",
+    "email": "hello@justintime.art",
+    "url": "https://justintime.art",
+    "summary": "I build expressive sonic environments that support story, movement, and emotional pacing.",
+    "location": {
+      "city": "Chicago",
+      "region": "IL",
+      "countryCode": "US"
+    },
+    "profiles": [
+      {
+        "network": "Portfolio",
+        "url": "https://justintime.art"
+      },
+      {
+        "network": "Instagram",
+        "url": "https://instagram.com/justintime"
+      }
+    ]
+  },
+  "roles": [
+    {
+      "position": "Sound Designer",
+      "company": "Regional Theatre Collaborations",
+      "location": "Chicago, IL",
+      "startDate": "2019-01",
+      "description": "Designed and mixed original sound for staged productions spanning drama, devised work, and musicals.",
+      "highlights": [
+        "Created full cue stacks and playback systems in QLab for live performance.",
+        "Coordinated with directors, stage management, and lighting teams across rehearsal and tech.",
+        "Composed and edited bespoke material to reinforce pacing and thematic motifs."
+      ]
+    },
+    {
+      "position": "Audio Engineer",
+      "company": "Live Events & Installations",
+      "location": "Chicago, IL",
+      "startDate": "2016-01",
+      "endDate": "2018-12",
+      "description": "Provided system setup, show operation, and post-production support for performance events.",
+      "highlights": [
+        "Engineered multi-speaker reinforcement and routing for nontraditional venues.",
+        "Managed wireless mics, playback redundancy, and session documentation.",
+        "Handled recording, cleanup, and mix prep for archival and promotional use."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University Program",
+      "degree": "B.F.A.",
+      "field": "Theatre Sound Design",
+      "startDate": "2010-08",
+      "endDate": "2014-05",
+      "notes": "Focused on composition, audio engineering, and production collaboration."
+    }
+  ],
+  "skills": [
+    {
+      "name": "Sound Design",
+      "level": "Advanced",
+      "keywords": [
+        "QLab",
+        "Cue Programming",
+        "Field Recording",
+        "Editing",
+        "Live Mixing"
+      ]
+    },
+    {
+      "name": "Production Collaboration",
+      "level": "Advanced",
+      "keywords": [
+        "Tech Rehearsal",
+        "Documentation",
+        "Interdepartmental Communication",
+        "System Troubleshooting"
+      ]
+    }
+  ]
+}
