@@ -2,140 +2,60 @@
 import SidebarNav from '../components/SidebarNav.astro';
 import MobileTopNav from '../components/MobileTopNav.astro';
 import MainContent from '../layouts/MainContent.astro';
-import ResumeView from '../components/resume/ResumeView.astro';
 import { ViewTransitions } from 'astro:transitions';
-import { loadResumeContent } from '../lib/resume/content';
-import type { ResumeVariant } from '../types/resume';
+import { getEntry } from 'astro:content';
+import Page from '../../tina/pages/Page';
+import client from '../../tina/__generated__/client';
 import '../styles/global.css';
 
-const defaultVariant: ResumeVariant = 'tech';
-const techResume = await loadResumeContent('tech');
-const theatreResume = await loadResumeContent('theatre');
+// Get the resume page content from Astro content collections
+const resumePage = await getEntry('pages', 'resume');
+const { Content: ResumeContent } = resumePage ? await resumePage.render() : { Content: null };
+
+// Get TinaCMS data for visual editing (this may fail during static build, which is OK)
+let tinaProps;
+try {
+  tinaProps = await client.queries.pages({ relativePath: 'resume.mdx' });
+} catch {
+  tinaProps = null;
+}
 ---
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="description"
-      content="Resume for Justin Johnson with web development and theatre sound design variants"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
-    <title>Resume - Justin Johnson</title>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Resume for Justin Johnson, creative technologist and sound designer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Permissions-Policy" content="encrypted-media=(*)" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.ico" />
+  <title>Resume - Justin Johnson</title>
     <ViewTransitions />
   </head>
   <body class="text-black overflow-x-hidden bg-white">
+    <!-- Mobile Top Navigation -->
     <MobileTopNav />
+
+    <!-- Sidebar Navigation -->
     <SidebarNav />
 
+    <!-- Main Content Area -->
     <MainContent>
-      <div class="p-4 md:p-6 lg:p-8 pb-0">
-        <h1 class="text-3xl md:text-4xl font-light">Resume</h1>
-        <p class="mt-2 text-sm md:text-base text-black/70">
-          Default view: <span class="font-medium text-black">Tech</span>
-        </p>
-        <div id="resume-variant-switch" class="mt-4 flex flex-wrap gap-2 text-sm">
-          <button
-            type="button"
-            class="resume-variant-button rounded-full border border-black bg-black text-white px-4 py-1.5 transition-colors"
-            aria-pressed="true"
-            data-variant="tech"
-          >
-            Tech
-          </button>
-          <button
-            type="button"
-            class="resume-variant-button rounded-full border border-black/20 bg-transparent text-black/60 px-4 py-1.5 transition-colors"
-            aria-pressed="false"
-            data-variant="theatre"
-          >
-            Theatre
-          </button>
+      <!-- Resume page content -->
+      {ResumeContent && (
+        <div class="p-4 md:p-6 lg:p-8 prose prose-lg max-w-none">
+          <ResumeContent />
         </div>
-      </div>
+      )}
 
-      <div data-resume-panel="tech">
-        <ResumeView resume={techResume} />
-      </div>
-      <div data-resume-panel="theatre" style="display: none;">
-        <ResumeView resume={theatreResume} />
-      </div>
+      <!-- TinaCMS visual editor (hidden from display, only for editing) -->
+      {tinaProps && (
+        <div style="display: none;">
+          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
+          <Page {...(tinaProps as any)} client:tina />
+        </div>
+      )}
     </MainContent>
-
-    <script define:vars={{ defaultVariant }}>
-      const validVariants = ['tech', 'theatre'];
-      const switchContainer = document.getElementById('resume-variant-switch');
-
-      function getVariantFromUrl() {
-        const urlVariant = new URLSearchParams(window.location.search).get('variant');
-        return validVariants.includes(urlVariant) ? urlVariant : defaultVariant;
-      }
-
-      function updateVariantUI(variant) {
-        document.querySelectorAll('[data-resume-panel]').forEach((panel) => {
-          panel.style.display = panel.dataset.resumePanel === variant ? '' : 'none';
-        });
-
-        document.querySelectorAll('.resume-variant-button').forEach((button) => {
-          const isActive = button.dataset.variant === variant;
-          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-          button.classList.toggle('border-black', isActive);
-          button.classList.toggle('bg-black', isActive);
-          button.classList.toggle('text-white', isActive);
-          button.classList.toggle('border-black/20', !isActive);
-          button.classList.toggle('bg-transparent', !isActive);
-          button.classList.toggle('text-black/60', !isActive);
-        });
-      }
-
-      function setVariant(variant, options = { pushHistory: true }) {
-        updateVariantUI(variant);
-
-        if (!options.pushHistory) {
-          return;
-        }
-
-        const nextUrl = new URL(window.location.href);
-        if (variant === defaultVariant) {
-          nextUrl.searchParams.delete('variant');
-        } else {
-          nextUrl.searchParams.set('variant', variant);
-        }
-
-        window.history.pushState({}, '', nextUrl);
-      }
-
-      function applyVariantFromUrl() {
-        setVariant(getVariantFromUrl(), { pushHistory: false });
-      }
-
-      function bindVariantButtons() {
-        if (!switchContainer || switchContainer.dataset.bound === 'true') {
-          return;
-        }
-
-        switchContainer.dataset.bound = 'true';
-        switchContainer.querySelectorAll('.resume-variant-button').forEach((button) => {
-          button.addEventListener('click', () => {
-            const variant = button.dataset.variant;
-            if (validVariants.includes(variant)) {
-              setVariant(variant);
-            }
-          });
-        });
-      }
-
-      bindVariantButtons();
-      applyVariantFromUrl();
-      document.addEventListener('astro:after-swap', () => {
-        bindVariantButtons();
-        applyVariantFromUrl();
-      });
-      window.addEventListener('popstate', applyVariantFromUrl);
-    </script>
   </body>
 </html>
