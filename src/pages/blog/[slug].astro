@@ -1,43 +1,29 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { ViewTransitions } from 'astro:transitions';
-import client from '../../../tina/__generated__/client';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
 
-return posts.map((post) => ({
-params: { slug: post.id.replace(/\.mdx$/, '') },
-  props: {
+  return posts.map((post) => ({
+    params: { slug: post.id.replace(/\.mdx$/, '') },
+    props: {
       post,
-      getTinaProps: async () => {
-        try {
-          const relativePath = post.data.tinaInfo?.relativePath || post.id;
-          return await client.queries.posts({
-            relativePath: relativePath,
-          });
-        } catch {
-          return null;
-        }
-      },
     },
   }));
 }
 
 type Props = {
   post: CollectionEntry<'posts'>;
-  getTinaProps: () => Promise<any>;
 };
 
-const { post, getTinaProps } = Astro.props;
-const tinaProps = await getTinaProps();
+const { post } = Astro.props;
 
 // Render MDX content from filesystem
 const { Content, remarkPluginFrontmatter } = await post.render();
 
 // Extract body text for reading time calculation
-const bodyRaw = tinaProps?.data?.posts?.body;
-const contentText = typeof bodyRaw === 'string' ? bodyRaw : '';
+const contentText = post.body || '';
 
 // Get category metadata for display names
 const allCategories = await getCollection('categories');

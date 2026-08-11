@@ -6,8 +6,6 @@ import MainContent from '../../layouts/MainContent.astro';
 import { getEmbedInfo } from '../../utils/embedUtils';
 import { extractCategorySlug } from '../../utils/categoryUtils';
 import '../../styles/global.css';
-import client from '../../../tina/__generated__/client';
-import Project from '../../../tina/pages/Project';
 import { ViewTransitions } from 'astro:transitions';
 
 export async function getStaticPaths() {
@@ -18,27 +16,14 @@ export async function getStaticPaths() {
     params: { slug: project.id.replace(/\.mdx$/, '') },
     props: {
       project,
-      getTinaProps: async () => {
-        try {
-          const relativePath = project.data.tinaInfo?.relativePath || project.id;
-          return await client.queries.projects({
-            relativePath: relativePath,
-          });
-        } catch {
-          return null;
-        }
-      },
     },
   }));
 }
 
-type Props = {
-  project: CollectionEntry<'projects'>;
-  getTinaProps: () => Promise<any>;
-};
+// Ensure type for project prop
+type Props = { project: CollectionEntry<'projects'> };
 
-const { project, getTinaProps } = Astro.props;
-const tinaProps = await getTinaProps();
+const { project } = Astro.props;
 const { Content } = await project.render();
 
 // Get category metadata for display names
@@ -193,14 +178,6 @@ const rows = chunkArray(remainingImages, 3);
 
     <!-- Main Content Area -->
     <MainContent>
-      <!-- TinaCMS Visual Editor Component (only renders in TinaCMS iframe) -->
-      {tinaProps && (
-        <div id="tina-wrapper" style="display: none;">
-          <!-- @ts-ignore: client:tina is an Astro directive, not a prop type -->
-          <Project {...(tinaProps as any)} client:tina />
-        </div>
-      )}
-
       <!-- Static content (hidden when in TinaCMS iframe) -->
       <article id="static-content" class="p-4 md:p-6 lg:p-8 pb-12">
     <!-- HERO SECTION -->
@@ -790,36 +767,5 @@ const rows = chunkArray(remainingImages, 3);
     font-weight: 500;
   }
 </style>
-
-<script>
-  function initTinaVisibility() {
-    // Detect if we're in TinaCMS iframe and show appropriate content
-    // TinaCMS handles routing automatically via ui.router configuration
-    const isInIframe = window.self !== window.top;
-    const tinaWrapper = document.getElementById('tina-wrapper');
-    const staticContent = document.getElementById('static-content');
-
-    if (isInIframe) {
-      // In TinaCMS: show visual editor component, hide static content
-      if (tinaWrapper) tinaWrapper.style.display = 'block';
-      if (staticContent) staticContent.style.display = 'none';
-
-      // Notify parent window (TinaCMS) that we've loaded a new page
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'tina:pageLoaded', url: window.location.href }, '*');
-      }
-    } else {
-      // Production: hide visual editor, show static content
-      if (tinaWrapper) tinaWrapper.style.display = 'none';
-      if (staticContent) staticContent.style.display = 'block';
-    }
-  }
-
-  // Run on initial load
-  initTinaVisibility();
-
-  // Re-run after Astro view transitions
-  document.addEventListener('astro:page-load', initTinaVisibility);
-</script>
   </body>
 </html>
