@@ -5,8 +5,6 @@ import SidebarNav from '../../../components/SidebarNav.astro';
 import MobileTopNav from '../../../components/MobileTopNav.astro';
 import MainContent from '../../../layouts/MainContent.astro';
 import ProjectGrid from '../../../components/ProjectGrid.astro';
-import Category from '../../../../tina/pages/Category';
-import client from '../../../../tina/__generated__/client';
 import '../../../styles/global.css';
 
 export async function getStaticPaths() {
@@ -24,15 +22,6 @@ export async function getStaticPaths() {
 
 const { categoryData, categorySlug, categoryId } = Astro.props;
 const { slug } = Astro.params;
-
-// Get TinaCMS data for visual editing (may fail during static build without Tina Cloud)
-const relativePath = categoryId.endsWith('.mdx') ? categoryId : `${categoryId}.mdx`;
-let tinaProps;
-try {
-  tinaProps = await client.queries.categories({ relativePath });
-} catch {
-  tinaProps = null;
-}
 
 // Get all projects
 const allProjects = await getCollection('projects');
@@ -136,32 +125,7 @@ const sortedProjects = [...featuredProjects, ...nonFeaturedProjects];
         </div>
 
         <ProjectGrid projects={sortedProjects} />
-
-        {/* TinaCMS visual editor (hidden from display, only for editing) */}
-        {tinaProps && (
-          <div style="display: none;">
-            <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
-            <Category {...(tinaProps as any)} client:tina />
-          </div>
-        )}
       </div>
     </MainContent>
-
-    <script>
-      function initTinaVisibility() {
-        // Notify parent window (TinaCMS) when page loads in iframe
-        const isInIframe = window.self !== window.top;
-
-        if (isInIframe && window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: 'tina:pageLoaded', url: window.location.href }, '*');
-        }
-      }
-
-      // Run on initial load
-      initTinaVisibility();
-
-      // Re-run after Astro view transitions
-      document.addEventListener('astro:page-load', initTinaVisibility);
-    </script>
   </body>
 </html>

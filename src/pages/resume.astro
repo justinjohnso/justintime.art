@@ -4,21 +4,11 @@ import MobileTopNav from '../components/MobileTopNav.astro';
 import MainContent from '../layouts/MainContent.astro';
 import { ViewTransitions } from 'astro:transitions';
 import { getEntry } from 'astro:content';
-import Page from '../../tina/pages/Page';
-import client from '../../tina/__generated__/client';
 import '../styles/global.css';
 
 // Get the resume page content from Astro content collections
 const resumePage = await getEntry('pages', 'resume');
 const { Content: ResumeContent } = resumePage ? await resumePage.render() : { Content: null };
-
-// Get TinaCMS data for visual editing (this may fail during static build, which is OK)
-let tinaProps;
-try {
-  tinaProps = await client.queries.pages({ relativePath: 'resume.mdx' });
-} catch {
-  tinaProps = null;
-}
 ---
 
 <!DOCTYPE html>
@@ -46,14 +36,6 @@ try {
       {ResumeContent && (
         <div class="p-4 md:p-6 lg:p-8 prose prose-lg max-w-none">
           <ResumeContent />
-        </div>
-      )}
-
-      <!-- TinaCMS visual editor (hidden from display, only for editing) -->
-      {tinaProps && (
-        <div style="display: none;">
-          <!-- @ts-ignore: client:tina is an Astro client directive, not a standard prop -->
-          <Page {...(tinaProps as any)} client:tina />
         </div>
       )}
     </MainContent>
